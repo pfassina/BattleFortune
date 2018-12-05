@@ -23,7 +23,4 @@ def main(turns):
     logs = run(turns)
     results = calculate(logs['winlog'], logs['battlelog'])
 
-    win_table = results['wincount']
-    battle_table = results['battlecount']
-
-    return {'win_table': win_table, 'battle_table': battle_table}
+    return {'win_table': results['wincount'], 'battle_table': results['battlecount']}
