@@ -2,25 +2,20 @@ from batchrunner import main
 from calc import battlecalc, wincalc
 
 
-def run(turns):
+def BattleFortune(turns):
+    '''
+    Runs BattleFortune program.
+    Takes as input the number of turns to be simulated.
+    Outputs simulation results.
+    '''
 
-    results = main(turns)
-    winlog = results['winners']
-    battlelog = results['battles']
+    logs = main(turns)
+    winners = wincalc(logs['winners'])
+    battles = battlecalc(logs['battles'])
 
-    return {'winlog': winlog, 'battlelog': battlelog}
+    output = {
+        'win_table': winners,
+        'battle_table': battles
+    }
 
-
-def calculate(winlog, battlelog):
-    wincount = wincalc(winlog)
-    battlecount = battlecalc(battlelog)
-
-    return {'wincount': wincount, 'battlecount': battlecount}
-
-
-def main(turns):
-
-    logs = run(turns)
-    results = calculate(logs['winlog'], logs['battlelog'])
-
-    return {'win_table': results['wincount'], 'battle_table': results['battlecount']}
+    return output
