@@ -1,7 +1,12 @@
 import os
 from pathlib import Path
 
+
 def parsewinner(turn):
+    '''
+    Parses Post-Battle Log containing Winners.
+    Returns a Dictionary with the Winner for the simulation round.
+    '''
 
     home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\turns\\'
     log = open(home + str(turn) + '_log.txt', mode='r').read()
@@ -13,10 +18,19 @@ def parsewinner(turn):
     for item in files:
         os.remove(os.path.join(home, item))
 
-    return {'Turn': turn, 'Winner': winner}
+    output = {
+        'Turn': turn,
+        'Winner': winner
+    }
+
+    return output
 
 
 def parsebattle(turn):
+    '''
+    Parses Post Message View Log containing Unit Casualities.
+    Returns a Dictionary with the Unit counts for each phase of the combat.
+    '''
 
     # get battle log
     home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\turns\\'
@@ -29,7 +43,6 @@ def parsebattle(turn):
     defender = int(armies[1].strip().split(' ')[1])
 
     # parse battle log
-
     home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\turns\\'
     log = open(home + str(turn) + '_log.txt', mode='r').read()
 
@@ -59,7 +72,7 @@ def parsebattle(turn):
 
         battlelog.append({'Turn': turn, 'Phase': phase, 'Army': army, 'Count': count, 'Unit': unit})
 
-    # remove files
+    # remove backedup turn files
     files = [f for f in os.listdir(home) if os.path.isfile(os.path.join(home, f)) and f.startswith(str(turn) + '_')]
     for item in files:
         os.remove(os.path.join(home, item))

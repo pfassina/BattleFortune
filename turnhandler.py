@@ -4,6 +4,10 @@ from pathlib import Path
 
 
 def backupturn(turn):
+    '''
+    Backups turn and log files.
+    Takes as input the simulation turn number.
+    '''
 
     home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\'
     files = [f for f in os.listdir(home) if os.path.isfile(os.path.join(home, f)) and f.endswith('.trn') or f.endswith('.2h') or f == 'ftherlnd']
@@ -17,7 +21,6 @@ def backupturn(turn):
         shutil.copy(src, dst)
 
     try:
-
         log = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dominions5\\log.txt'
         shutil.copy(log, home + '\\turns\\' + str(turn) + '_log.txt')
 
@@ -26,6 +29,9 @@ def backupturn(turn):
 
 
 def restoreturn():
+    '''
+    Restores Pre-Battle turn 0.
+    '''
 
     home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\'
     files = [f for f in os.listdir(home + 'turns\\') if os.path.isfile(os.path.join(home + 'turns\\', f)) and f.startswith('0_')]
