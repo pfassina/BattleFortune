@@ -20,7 +20,7 @@ def parsewinner(turn):
 
     output = {
         'Turn': turn,
-        'Winner': winner
+        'Nation': winner
     }
 
     return output
@@ -66,8 +66,15 @@ def parsebattle(turn):
         count = int(battleblurb[i][1].split(' ',2)[0]) + int(battleblurb[i][1].split(' ',2)[1])
         unit = battleblurb[i][1].split(' ',2)[2]
 
+        result = {
+            'Turn': turn,
+            'Phase': phase,
+            'Army': army,
+            'Unit': unit,
+            'Count': count
+        }
 
-        battlelog.append({'Turn': turn, 'Phase': phase, 'Army': army, 'Count': count, 'Unit': unit})
+        battlelog.append(result)
 
     # remove backup turn files
     files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]

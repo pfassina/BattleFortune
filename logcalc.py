@@ -1,6 +1,5 @@
 import pandas as pd
-import dict
-
+from decode import nation
 
 def wincalc(winlog):
     '''
@@ -11,8 +10,7 @@ def wincalc(winlog):
 
     # Decode Nation IDs
     df = pd.DataFrame(winlog)
-    df.columns = ['Turn', 'Winner']
-    df['Nation'] = df['Winner'].replace(dict.nations())
+    df['Nation'] = df['Nation'].apply(lambda x: nation(x))
 
     # Prepare Data for Display
     df = df['Nation'].value_counts().to_frame('Wins')
@@ -30,7 +28,6 @@ def battlecalc(battlelog):
     '''
 
     df = pd.DataFrame(battlelog)
-    df.columns = ['Turn', 'Phase', 'Army', 'Count', 'Unit']
-    df['Army'] = df['Army'].replace(dict.nations())
+    df['Army'] = df['Army'].apply(lambda x: nation(x))
 
     return df
