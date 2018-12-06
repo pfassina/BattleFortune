@@ -84,10 +84,3 @@ def main(rounds):
             battles.append(results[1][i])
 
     return {'winners': winners, 'battles': battles}
-
-# results = main(2)
-# winners = results['winners']
-# battles = results['battles']
-#
-# print(wincalc(winners))
-# print(battlecalc(battles))
