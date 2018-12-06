@@ -5,6 +5,7 @@ from time import sleep
 from turnhandler import backupturn, restoreturn
 from logparser import parsewinner, parsebattle
 import psutil
+import yaml
 
 
 def rundom(game='', switch='', nation=''):
@@ -13,8 +14,10 @@ def rundom(game='', switch='', nation=''):
     Takes as input game name, switches, and nation being played.
     '''
 
+    dom = yaml.load(open('config.yaml'))['dompath']
+
     # Run Dominions on minimal settings
-    program = '/k cd C:/Program Files (x86)/Steam/steamapps/common/Dominions5 & Dominions5.exe --simpgui --nosteam -waxscod' # noqa
+    program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod' # noqa
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
     sleep(1)

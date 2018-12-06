@@ -1,6 +1,6 @@
 import os
 import shutil
-from pathlib import Path
+import yaml
 
 
 def backupturn(turn):
@@ -9,20 +9,21 @@ def backupturn(turn):
     Takes as input the simulation turn number.
     '''
 
-    home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\'
-    files = [f for f in os.listdir(home) if os.path.isfile(os.path.join(home, f)) and f.endswith('.trn') or f.endswith('.2h') or f == 'ftherlnd']
+    gamepath = yaml.load(open('config.yaml'))['gamepath']
+    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.endswith('.trn') or f.endswith('.2h') or f == 'ftherlnd']
 
-    if not os.path.exists(home + 'turns\\'):
-        os.makedirs(home + 'turns\\')
+    if not os.path.exists(gamepath + 'turns\\'):
+        os.makedirs(gamepath + 'turns\\')
 
     for file in files:
-        src = home + file
-        dst = home + '\\turns\\' + str(turn) + '_' + file
+        src = gamepath + file
+        dst = gamepath + 'turns\\' + str(turn) + '_' + file
         shutil.copy(src, dst)
 
     try:
-        log = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Dominions5\\log.txt'
-        shutil.copy(log, home + '\\turns\\' + str(turn) + '_log.txt')
+        dompath = yaml.load(open('config.yaml'))['dompath']
+        log = dompath + 'log.txt'
+        shutil.copy(log, gamepath + 'turns\\' + str(turn) + '_log.txt')
 
     except:
         pass
@@ -33,10 +34,10 @@ def restoreturn():
     Restores Pre-Battle turn 0.
     '''
 
-    home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\'
-    files = [f for f in os.listdir(home + 'turns\\') if os.path.isfile(os.path.join(home + 'turns\\', f)) and f.startswith('0_')]
+    gamepath = yaml.load(open('config.yaml'))['gamepath']
+    files = [f for f in os.listdir(gamepath + 'turns\\') if os.path.isfile(os.path.join(gamepath + 'turns\\', f)) and f.startswith('0_')]
 
     for file in files:
-        src = home + '\\turns\\' + file
-        dst = home + file[2:len(file)]
+        src = gamepath + 'turns\\' + file
+        dst = gamepath + file[2:len(file)]
         shutil.copy(src, dst)

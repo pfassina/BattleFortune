@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+import yaml
 
 
 def parsewinner(turn):
@@ -8,15 +8,15 @@ def parsewinner(turn):
     Returns a Dictionary with the Winner for the simulation round.
     '''
 
-    home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\turns\\'
-    log = open(home + str(turn) + '_log.txt', mode='r').read()
+    gamepath = yaml.load(open('config.yaml'))['gamepath'] + 'turns\\'
+    log = open(gamepath + str(turn) + '_log.txt', mode='r').read()
     loc = log.find('the winner is ') + 14
     winner = int(log[loc:loc+10].split(' ')[0])
 
     # remove files
-    files = [f for f in os.listdir(home) if os.path.isfile(os.path.join(home, f)) and f.startswith(str(turn) + '_')]
+    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
     for item in files:
-        os.remove(os.path.join(home, item))
+        os.remove(os.path.join(gamepath, item))
 
     output = {
         'Turn': turn,
@@ -33,8 +33,8 @@ def parsebattle(turn):
     '''
 
     # get battle log
-    home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\turns\\'
-    log = open(home + str(turn) + '_log.txt', mode='r').read()
+    gamepath = yaml.load(open('config.yaml'))['gamepath'] + 'turns\\'
+    log = open(gamepath + str(turn) + '_log.txt', mode='r').read()
 
     # identify armies
     loc = log.find('getbattlecount:') + 15
@@ -43,9 +43,6 @@ def parsebattle(turn):
     defender = int(armies[1].strip().split(' ')[1])
 
     # parse battle log
-    home = str(Path.home()) + '\\AppData\\Roaming\\Dominions5\\savedgames\\test\\turns\\'
-    log = open(home + str(turn) + '_log.txt', mode='r').read()
-
     loc = log.find('getbattlecountfromvcr') + 21
     battle = log[loc:len(log)-1]
     battleblurb = battle.split('\n')[1:]
@@ -72,9 +69,9 @@ def parsebattle(turn):
 
         battlelog.append({'Turn': turn, 'Phase': phase, 'Army': army, 'Count': count, 'Unit': unit})
 
-    # remove backedup turn files
-    files = [f for f in os.listdir(home) if os.path.isfile(os.path.join(home, f)) and f.startswith(str(turn) + '_')]
+    # remove backup turn files
+    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
     for item in files:
-        os.remove(os.path.join(home, item))
+        os.remove(os.path.join(gamepath, item))
 
     return battlelog
