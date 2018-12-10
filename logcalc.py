@@ -31,3 +31,47 @@ def battlecalc(battlelog):
     df['Army'] = df['Army'].apply(lambda x: nation(x))
 
     return df
+
+
+def pivot_battlelog(battlelog):
+    '''
+    Prepares battlelog for manipulation.
+    Takes as input a disctionary-like battlelog.
+    Outputs a pandas DataFrame.
+    '''
+
+    df = pd.DataFrame(battlelog)
+    df = df.pivot_table(values='Count', index='Turn', columns=['Army', 'Unit', 'Phase'], aggfunc='sum')
+
+    return df
+
+
+
+def calculate_losses(df, army):
+    '''
+    Calculates Unit losses by army.
+    Takes as input a prepared battlelog DataFrame.
+    Returns an army DataFrame with losses per unit
+    '''
+
+    # filter by army
+    army_df = df[army].copy()
+    army_units = army_df.columns.get_level_values('Unit').unique()
+
+    # calculate final unit loss
+    army_results = []
+    for item in army_units:
+        temp = army_df[item].copy()
+        temp[item] = temp['after'] - temp['before']
+        # temp.columns.rename(item)
+        army_results.append(temp[item])
+
+    # create final army dataframe
+    army_losses = pd.DataFrame({'Turn': range(1, 101)})
+    for item in army_results:
+        army_losses = army_losses.join(item, on='Turn')
+
+    army_losses.set_index('Turn', inplace=True)
+    army_losses = army_losses.fillna(0)
+
+    return army_losses
