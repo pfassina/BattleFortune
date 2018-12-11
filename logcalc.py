@@ -60,7 +60,7 @@ def calculate_unit_losses(df, army):
     army_df = df[army].copy()
     army_units = army_df.columns.get_level_values('Unit').unique()
 
-    # calculate final unit loss
+    # calculate unit loss per round
     army_results = []
     for item in army_units:
         temp = army_df[item].copy()
@@ -68,11 +68,12 @@ def calculate_unit_losses(df, army):
         # temp.columns.rename(item)
         army_results.append(temp[item])
 
-    # create final army dataframe
+    # assemple army dataframe
     army_losses = pd.DataFrame({'Turn': range(1, 101)})
     for item in army_results:
         army_losses = army_losses.join(item, on='Turn')
 
+    # reset index and fill na with zero
     army_losses.set_index('Turn', inplace=True)
     army_losses = army_losses.fillna(0)
 
@@ -80,20 +81,38 @@ def calculate_unit_losses(df, army):
 
 
 def get_unit_cost(name, attribute):
+    '''
+    Searches Unit by Name and Returns Attribute Cost.
+    Attribute can either be 'gold' or 'resources'.
+    '''
+
+    # load data from unit database
     units = yaml.load(open('./data/units.yaml', 'r'))
+
+    # search unit by name return attribute cost
     for key in units:
         if units[key]['name'] == name:
             cost = units[key][attribute]
+
     return cost
 
 
 def calculate_army_cost(df, attribute):
+    '''
+    Takes Army Losses DataFrame.
+    Returns total resource cost per round of simulation.
+    Accepets 'gold' or 'resources' as attribute cost.
+    '''
 
+    # get units from army DataFrame
     units = df.columns.get_level_values(0).unique()
+
+    # apply attribute cost to each unit
     ac = df.copy()
     for item in units:
         ac[item] = ac[item].apply(lambda x: x * get_unit_cost(item, attribute))
 
+    # calculate each round cost by adding up unit costs
     ac[attribute] = ac.sum(axis=1)
     ac = ac[attribute]
 
