@@ -10,7 +10,8 @@ def backupturn(turn):
     '''
 
     gamepath = yaml.load(open('config.yaml'))['gamepath']
-    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.endswith('.trn') or f.endswith('.2h') or f == 'ftherlnd']
+    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(
+        gamepath, f)) and f.endswith('.trn') or f.endswith('.2h') or f == 'ftherlnd']
 
     if not os.path.exists(gamepath + 'turns\\'):
         os.makedirs(gamepath + 'turns\\')
@@ -35,7 +36,8 @@ def restoreturn():
     '''
 
     gamepath = yaml.load(open('config.yaml'))['gamepath']
-    files = [f for f in os.listdir(gamepath + 'turns\\') if os.path.isfile(os.path.join(gamepath + 'turns\\', f)) and f.startswith('0_')]
+    files = [f for f in os.listdir(
+        gamepath + 'turns\\') if os.path.isfile(os.path.join(gamepath + 'turns\\', f)) and f.startswith('0_')]
 
     for file in files:
         src = gamepath + 'turns\\' + file

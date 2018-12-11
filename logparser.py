@@ -14,7 +14,8 @@ def parsewinner(turn):
     winner = int(log[loc:loc+10].split(' ')[0])
 
     # remove files
-    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
+    files = [f for f in os.listdir(gamepath) if os.path.isfile(
+        os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
     for item in files:
         os.remove(os.path.join(gamepath, item))
 
@@ -63,8 +64,8 @@ def parsebattle(turn):
         else:
             army = defender
 
-        count = int(battleblurb[i][1].split(' ',2)[0]) + int(battleblurb[i][1].split(' ',2)[1])
-        unit = battleblurb[i][1].split(' ',2)[2]
+        count = int(battleblurb[i][1].split(' ', 2)[0]) + int(battleblurb[i][1].split(' ', 2)[1])
+        unit = battleblurb[i][1].split(' ', 2)[2]
 
         result = {
             'Turn': turn,
@@ -77,7 +78,8 @@ def parsebattle(turn):
         battlelog.append(result)
 
     # remove backup turn files
-    files = [f for f in os.listdir(gamepath) if os.path.isfile(os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
+    files = [f for f in os.listdir(gamepath) if os.path.isfile(
+        os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
     for item in files:
         os.remove(os.path.join(gamepath, item))
 

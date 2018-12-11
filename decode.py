@@ -1,5 +1,6 @@
 import yaml
 
+
 def nation(id, attribute='name'):
     '''
     Decodes Nation Id.
