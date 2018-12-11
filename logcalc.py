@@ -1,5 +1,7 @@
 import pandas as pd
 from decode import nation
+import yaml
+
 
 def wincalc(winlog):
     '''
@@ -40,14 +42,14 @@ def pivot_battlelog(battlelog):
     Outputs a pandas DataFrame.
     '''
 
+    c = ['Army', 'Unit', 'Phase']
     df = pd.DataFrame(battlelog)
-    df = df.pivot_table(values='Count', index='Turn', columns=['Army', 'Unit', 'Phase'], aggfunc='sum')
+    df = df.pivot_table(values='Count', index='Turn', columns=c, aggfunc='sum')
 
     return df
 
 
-
-def calculate_losses(df, army):
+def calculate_unit_losses(df, army):
     '''
     Calculates Unit losses by army.
     Takes as input a prepared battlelog DataFrame.
@@ -75,3 +77,24 @@ def calculate_losses(df, army):
     army_losses = army_losses.fillna(0)
 
     return army_losses
+
+
+def get_unit_cost(name, attribute):
+    units = yaml.load(open('./data/units.yaml', 'r'))
+    for key in units:
+        if units[key]['name'] == name:
+            cost = units[key][attribute]
+    return cost
+
+
+def calculate_army_cost(df, attribute):
+
+    units = df.columns.get_level_values(0).unique()
+    ac = df.copy()
+    for item in units:
+        ac[item] = ac[item].apply(lambda x: x * get_unit_cost(item, attribute))
+
+    ac[attribute] = ac.sum(axis=1)
+    ac = ac[attribute]
+
+    return ac
