@@ -7,3 +7,11 @@ Allow the user to simulate hundreds of Dominions battles. BattleFortune aims to 
 # Current Sate
 In the current state, BattleFortune will run the same battle as many times as the user wants, and ouput a raw table with the results of each battle. BattleFortune only works if Atlantis is in the game, and on windows computers running Dominions 5 on Steam.
 
+# Sample Outputs
+Here are a few examples of the current output capabilities of BattleFortune.
+
+#### Expected Gold Loss for each army
+![Expected Gold Loss](https://media.discordapp.net/attachments/480242947015573504/521898564771643392/unknown.png)
+
+#### Expected Gold Loss for each army
+![Army Return on Investment](https://media.discordapp.net/attachments/480242947015573504/521900656861380608/unknown.png)
