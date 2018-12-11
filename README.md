@@ -13,5 +13,5 @@ Here are a few examples of the current output capabilities of BattleFortune.
 #### Expected Gold Loss for each army
 ![Expected Gold Loss](https://media.discordapp.net/attachments/480242947015573504/521898564771643392/unknown.png)
 
-#### Expected Gold Loss for each army
+#### Expected Return on Investment
 ![Army Return on Investment](https://media.discordapp.net/attachments/480242947015573504/521900656861380608/unknown.png)
