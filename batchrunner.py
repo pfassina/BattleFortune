@@ -4,7 +4,7 @@ import subprocess
 from time import sleep
 from turnhandler import backupturn, restoreturn
 from logparser import parsewinner, parsebattle
-import psutil
+from psutil import process_iter
 import yaml
 
 
@@ -17,7 +17,7 @@ def rundom(game='', switch='', nation=''):
     dom = yaml.load(open('config.yaml'))['dompath']
 
     # Run Dominions on minimal settings
-    program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod' # noqa
+    program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod'  # noqa
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
     sleep(1)
@@ -29,7 +29,7 @@ def rundom(game='', switch='', nation=''):
         # Wait until turn is over
         done = None
         while done is None:
-            if "Dominions5.exe" not in (p.name() for p in psutil.process_iter()):
+            if "Dominions5.exe" not in (p.name() for p in process_iter()):
                 done = 'done'
                 process.terminate()
             else:

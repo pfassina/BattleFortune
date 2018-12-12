@@ -46,26 +46,27 @@ def parsebattle(turn):
     # parse battle log
     loc = log.find('getbattlecountfromvcr') + 21
     battle = log[loc:len(log)-1]
-    battleblurb = battle.split('\n')[1:]
+    blurb = battle.split('\n')[1:]
 
     # parse battle log
     battlelog = []
-    for i in range(len(battleblurb)):
-        battleblurb[i] = battleblurb[i].split('(')[0].strip()
-        battleblurb[i] = [battleblurb[i].split(':')[0], battleblurb[i].split(':')[1].strip()]
+    for i in range(len(blurb)):
+        blurb[i] = blurb[i].split('(')[0].strip()
+        blurb[i] = [blurb[i].split(':')[0], blurb[i].split(':')[1].strip()]
 
-        if battleblurb[i][0] == '0' or battleblurb[i][0] == '2':
+        if blurb[i][0] == '0' or blurb[i][0] == '2':
             phase = 'before'
         else:
             phase = 'after'
 
-        if battleblurb[i][0] == '0' or battleblurb[i][0] == '1':
+        if blurb[i][0] == '0' or blurb[i][0] == '1':
             army = attacker
         else:
             army = defender
 
-        count = int(battleblurb[i][1].split(' ', 2)[0]) + int(battleblurb[i][1].split(' ', 2)[1])
-        unit = battleblurb[i][1].split(' ', 2)[2]
+        count = int(blurb[i][1].split(' ', 2)[0])
+        count += int(blurb[i][1].split(' ', 2)[1])
+        unit = blurb[i][1].split(' ', 2)[2]
 
         result = {
             'Turn': turn,
