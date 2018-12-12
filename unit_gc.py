@@ -1,17 +1,23 @@
-# import pandas as pd
+import pandas as pd
 
-# df = read_csv('./data/units.csv', sep='\t')
-# u = ['basecost', 'rt', 'holy']
-# c = ['leader', 'inspirational', 'sailingshipsize']
-# r = ['rand1', 'rand2', 'rand3', 'rand4', 'rand5', 'rand6']
-# m = ['F', 'A', 'W', 'E', 'S', 'D', 'N', 'B']
-# p = ['researchbonus', 'fixforgebonus']
-# h = ['H']
-# s = ['spy', 'assassin', 'seduce', 'succubus']
-# x = ['stealthy', 'autohealer', 'autodishealer', 'mounted']
 
-# col = u + c + r + m + p + h + s + x
-# print(df[col])
+def trim_unit_table(path='./data/units.csv'):
+
+    df = pd.read_csv(path, sep='\t')
+    u = ['basecost', 'rt', 'holy']
+    c = ['leader', 'inspirational', 'sailingshipsize']
+    r = ['rand1', 'rand2', 'rand3', 'rand4', 'rand5', 'rand6']
+    m = ['F', 'A', 'W', 'E', 'S', 'D', 'N', 'B']
+    p = ['researchbonus', 'fixforgebonus']
+    h = ['H']
+    s = ['spy', 'assassin', 'seduce', 'succubus']
+    x = ['stealthy', 'autohealer', 'autodishealer', 'mounted']
+
+    col = u + c + r + m + p + h + s + x
+
+    df = df[col]
+
+    return df
 
 
 def leader_cost(leader, inspirational, sailingshipsize):
