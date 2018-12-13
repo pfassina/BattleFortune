@@ -212,7 +212,7 @@ def paths_cost(mpaths, rpaths, researchbonus, fixforgebonus):
 
     else:
         mp = mpaths
-        ml = list(mp.values())
+        ml = sorted(list(mp.values()))
         first =  ml[-1]
         second = ml[-2]
         mc += largest + smallest
