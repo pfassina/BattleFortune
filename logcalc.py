@@ -1,6 +1,5 @@
 import pandas as pd
-from decode import nation
-import yaml
+from decode import nation, unit
 
 
 def wincalc(winlog):
@@ -18,19 +17,6 @@ def wincalc(winlog):
     df = df['Nation'].value_counts().to_frame('Wins')
     df = df.reset_index().rename(columns={'index': 'Nation'})
     df = pd.pivot_table(df, values='Wins', columns='Nation')
-
-    return df
-
-
-def battlecalc(battlelog):
-    '''
-    Parses a list of BattleLogs and calculates the results.
-    Takes as input a list of  BattleLogs.
-    Returns a DataFrame with the Battle Results per Nation.
-    '''
-
-    df = pd.DataFrame(battlelog)
-    df['Army'] = df['Army'].apply(lambda x: nation(x))
 
     return df
 
@@ -80,23 +66,6 @@ def calculate_unit_losses(df, army):
     return army_losses
 
 
-def get_unit_cost(name, attribute):
-    '''
-    Searches Unit by Name and Returns Attribute Cost.
-    Attribute can either be 'gold' or 'resources'.
-    '''
-
-    # load data from unit database
-    units = yaml.load(open('./data/units.yaml', 'r'))
-
-    # search unit by name return attribute cost
-    for key in units:
-        if units[key]['name'] == name:
-            cost = units[key][attribute]
-
-    return cost
-
-
 def calculate_army_cost(df, attribute):
     '''
     Takes Army Losses DataFrame.
@@ -110,7 +79,7 @@ def calculate_army_cost(df, attribute):
     # apply attribute cost to each unit
     ac = df.copy()
     for item in units:
-        ac[item] = ac[item].apply(lambda x: x * get_unit_cost(item, attribute))
+        ac[item] = ac[item].apply(lambda x: x * unit(item, attribute))
 
     # calculate each round cost by adding up unit costs
     ac[attribute] = ac.sum(axis=1)

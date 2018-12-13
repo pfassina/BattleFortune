@@ -1,5 +1,5 @@
 from batchrunner import batchrun
-from logcalc import battlecalc, wincalc
+from logcalc import wincalc
 import yaml
 
 
@@ -14,7 +14,7 @@ def setup(dompath, gamepath):
         'gamepath': gamepath
     }
 
-    stream = open('config.yaml', 'w')
+    stream = open('./data/config.yaml', 'w')
     yaml.dump(data=config, stream=stream)
 
     return print('config.yaml updated')
@@ -29,11 +29,9 @@ def BattleFortune(turns, game, nation):
 
     logs = batchrun(turns, game, nation)
     wins = wincalc(logs['winners'])
-    battles = battlecalc(logs['battles'])
 
     output = {
         'wins': wins,
-        'battles': battles
     }
 
     return output

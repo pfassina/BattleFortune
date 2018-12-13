@@ -14,7 +14,7 @@ def rundom(game='', switch='', nation=''):
     Takes as input game name, switches, and nation being played.
     '''
 
-    dom = yaml.load(open('config.yaml'))['dompath']
+    dom = yaml.load(open('./data/config.yaml'))['dompath']
 
     # Run Dominions on minimal settings
     program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod'  # noqa
