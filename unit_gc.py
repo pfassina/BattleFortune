@@ -6,7 +6,12 @@ def trim_unit_table(path='./data/units.csv'):
     df = pd.read_csv(path, sep='\t')
     u = ['basecost', 'rt', 'holy']
     c = ['leader', 'inspirational', 'sailingshipsize']
-    r = ['rand1', 'rand2', 'rand3', 'rand4', 'rand5', 'rand6']
+    r = [
+        'rand1', 'rand2', 'rand3', 'rand4',
+        'nbr1', 'nbr2', 'nbr3', 'nbr4',
+        'link1', 'link2', 'link3', 'link4',
+        'mask1', 'mask2', 'mask3', 'mask4'
+    ]
     m = ['F', 'A', 'W', 'E', 'S', 'D', 'N', 'B']
     p = ['researchbonus', 'fixforgebonus']
     h = ['H']
@@ -145,12 +150,74 @@ def gold_cost(basecost, costs, rt=None, holy=None):
     return gc
 
 
+def randompaths(rpaths):
+
+    masks = {
+        128: 'F', 256: 'A', 512: 'W',
+        1024: 'E', 2048: 'S', 4096: 'D',
+        8192: 'N', 16384: 'B', 32768: 'H'
+    }
+
+    randompaths = []
+    for i in range(4):
+        if rpaths[i]['mask' + str(i + 1)] is not None:
+            paths = rpaths[i]['mask' + str(i + 1)]
+            levels = rpaths[i]['link' + str(i + 1)]
+            chance = rpaths[i]['rand' + str(i + 1)]
+            repeat = rpaths[i]['nbr' + str(i + 1)]
+
+            rp = {
+                'paths': masks.get(paths),
+                'levels': levels,
+                'chance': chance
+            }
+
+            if rp['paths'] is not None:
+                for i in range(repeat):
+                    randompaths.append(rp)
+            else:
+                pass
+        else:
+            pass
+
+    return randompaths
+
+
+def add_rpaths(rpaths, mpaths):
+
+    r = rpaths.copy()
+    m = mpaths.copy()
+
+    for i in r:
+        if i['chance'] != 100:
+            pass
+        elif i['chance'] == 100:
+            m[i['paths']] += i['levels']
+        else:
+            pass
+
+    return m
+
+
 def paths_cost(mpaths, rpaths, researchbonus, fixforgebonus):
 
     mc = 0
 
-    mc += mpaths
-    mc += rpaths
+    if len(rpaths) > 0:
+        mp = add_rpaths(rpaths, mpaths)
+        ml = list(mp.values())
+        largest =  max(ml)
+        smallest = min(ml)
+        mc += (largest * 0.75) + (smallest * 0.25)
+
+    else:
+        mp = mpaths
+        ml = list(mp.values())
+        first =  ml
+        second = min(ml)
+        mc += largest + smallest
+
+
 
     if researchbonus > 0:
         mc += researchbonus * 5
@@ -162,41 +229,30 @@ def paths_cost(mpaths, rpaths, researchbonus, fixforgebonus):
 
     return mc
 
-
-def randompaths(rpaths):
-
-    masks = {
-        128: 'F',
-        256: 'A',
-        512: 'W',
-        1024: 'E',
-        2048: 'S',
-        4096: 'D',
-        8192: 'N',
-        16384: 'B',
-        32768: 'H'
-    }
-
-    randompaths = []
-    for i in range(4):
-        paths = rpaths[i]['mask' + str(i + 1)]
-        levels = rpaths[i]['link' + str(i + 1)]
-        chance = rpaths[i]['rand' + str(i + 1)]
-        repeat = rpaths[i]['nbr' + str(i + 1)]
-        rp = {
-            'paths': masks[paths],
-            'levels': levels,
-            'chance': chance
-        }
-        for i in range(repeat):
-            randompaths.append(rp)
-
-    return randompaths
-
-
 rpaths = [
-    {'rand1': None, 'nbr1': 1, 'link1': None, 'mask1': 128},
-    {'rand2': None, 'nbr2': 1, 'link2': None, 'mask2': 256},
-    {'rand3': None, 'nbr3': 1, 'link3': None, 'mask3': 512},
-    {'rand4': None, 'nbr4': 1, 'link4': None, 'mask4': 1024}
+    {'rand1': 100, 'nbr1': 2, 'link1': 1, 'mask1': 128},
+    {'rand2': 50, 'nbr2': 1, 'link2': 2, 'mask2': 256},
+    {'rand3': None, 'nbr3': None, 'link3': None, 'mask3': None},
+    {'rand4': None, 'nbr4': None, 'link4': None, 'mask4': None}
 ]
+
+mpaths = {
+    'F': 1, 'A': 0, 'W': 0, 'E': 0,
+    'S': 0, 'D': 0, 'N': 0, 'B': 0
+}
+
+
+r = randompaths(rpaths)
+print(r)
+
+m = mpaths
+print(m)
+
+a = add_rpaths(r, m)
+print(a)
+
+
+
+
+# nm = add_rpaths(r, m)
+# print(nm)
