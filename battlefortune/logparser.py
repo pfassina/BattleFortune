@@ -8,7 +8,7 @@ def parsewinner(turn):
     Returns a Dictionary with the Winner for the simulation round.
     '''
 
-    gamepath = yaml.load(open('config.yaml'))['gamepath'] + 'turns\\'
+    gamepath = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath'] + 'turns\\'
     log = open(gamepath + str(turn) + '_log.txt', mode='r').read()
     loc = log.find('the winner is ') + 14
     winner = int(log[loc:loc+10].split(' ')[0])
@@ -34,7 +34,7 @@ def parsebattle(turn):
     '''
 
     # get battle log
-    gamepath = yaml.load(open('config.yaml'))['gamepath'] + 'turns\\'
+    gamepath = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath'] + 'turns\\'
     log = open(gamepath + str(turn) + '_log.txt', mode='r').read()
 
     # identify armies

@@ -20,14 +20,14 @@ def setup(dompath, gamepath):
     return print('config.yaml updated')
 
 
-def BattleFortune(turns, game, nation):
+def BattleFortune(turns, game):
     '''
     Runs BattleFortune program.
     Takes as input the number of turns to be simulated.
     Outputs simulation results.
     '''
 
-    logs = batchrun(turns, game, nation)
+    logs = batchrun(turns, game)
     wins = wincalc(logs['winners'])
 
     output = {

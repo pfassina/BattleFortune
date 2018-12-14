@@ -8,10 +8,10 @@ from psutil import process_iter
 import yaml
 
 
-def rundom(game='', switch='', nation=''):
+def rundom(game='', switch=''):
     '''
     Runs a Dominions with game and switch settings.
-    Takes as input game name, switches, and nation being played.
+    Takes as input game name, switches.
     '''
 
     dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
@@ -36,7 +36,7 @@ def rundom(game='', switch='', nation=''):
                 pass
 
     else:
-        clicker(nation)
+        clicker()
 
     try:
         os.system("TASKKILL /F /IM Dominions5.exe")
@@ -44,39 +44,38 @@ def rundom(game='', switch='', nation=''):
         pass
 
 
-def clicker(nation):
+def clicker():
     '''
     Automates Clicking within Dominions.
-    Takes as input a Nation.
+    Takes no input.
     '''
 
-    # Select Nation by clicking on Nation Flag.
-    nationflag = None
-    while nationflag is None:
+    # Select a Nation by clicking on the first flag.
+    s = None
+    while s is None:
         try:
-            nationflag = pyautogui.locateOnScreen(
-                '.\\imgs\\' + nation + '.png')
-            pyautogui.click((nationflag[0], nationflag[1]))
+            s = pyautogui.locateOnScreen('./battlefortune/imgs/select.png')
+            pyautogui.click((s[0] + 15, s[1] + 40))
             sleep(1)
         except:
             pass
     sleep(1)
 
     # Clicks on the first "Battle" word in the message list screen.
-    msg = None
-    while msg is None:
+    m = None
+    while m is None:
         try:
-            msg = pyautogui.locateOnScreen('./battlefortune/imgs/battlemsg.png')
-            pyautogui.click((msg[0], msg[1]))
+            m = pyautogui.locateOnScreen('./battlefortune/imgs/battlemsg.png')
+            pyautogui.click((m[0], m[1]))
             sleep(1)
         except:
             pass
 
 
-def round(game, nation, turn=1):
+def round(game, turn=1):
     '''
     Run a full round of the simulation.
-    Takes as input the game name, the nation, and the current simulation turn
+    Takes as input the game name, and the current simulation turn
     Returns parsed logs after a full round of simulation.
 
     Round sequence of events:
@@ -94,25 +93,25 @@ def round(game, nation, turn=1):
     backupturn(turn)
     winner = parsewinner(turn)
 
-    rundom(game=game, nation=nation)
+    rundom(game=game)
     backupturn(turn)
     battle = parsebattle(turn)
 
     return winner, battle
 
 
-def batchrun(rounds, game, nation):
+def batchrun(rounds, game):
     '''
     Runs X numbers of Simulation Rounds.
-    Takes as input number of simultated rounds, game name, and nation.
-    Outputs a disctionary with lists of parsed game logs.
+    Takes as input number of simultated rounds, game name.
+    Outputs a dictionary with lists of parsed game logs.
     '''
 
     winners = []
     battles = []
 
     for i in range(1, rounds + 1):
-        results = round(game, nation, i)
+        results = round(game, i)
         winners.append(results[0])
         for i in range(len(results[1])):
             battles.append(results[1][i])
