@@ -20,7 +20,6 @@ def rundom(game='', switch=''):
     program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod'  # noqa
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
-    # sleep(1)
 
     # check for autohost switch
     if switch == 'g':
@@ -54,21 +53,20 @@ def clicker():
     while s is None:
         try:
             s = pyautogui.locateOnScreen('./battlefortune/imgs/select.png')
-            pyautogui.click((s[0] + 15, s[1] + 40))
-            # sleep(1)
-        except:
-            pass
-    # sleep(1)
+        except RuntimeError:
+            print('Unable to select Nation.')
+
+    pyautogui.click((s[0] + 15, s[1] + 40))
 
     # Clicks on the first "Battle" word in the message list screen.
     m = None
     while m is None:
         try:
             m = pyautogui.locateOnScreen('./battlefortune/imgs/battlemsg.png')
-            pyautogui.click((m[0], m[1]))
-            # sleep(1)
-        except:
-            pass
+        except RuntimeError:
+            print('Battle Message not found.')
+
+    pyautogui.click((m[0], m[1]))
 
 
 def round(game, turn=1):

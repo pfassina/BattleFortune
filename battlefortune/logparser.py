@@ -8,16 +8,17 @@ def parsewinner(turn):
     Returns a Dictionary with the Winner for the simulation round.
     '''
 
-    gamepath = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath'] + 'turns\\'
-    log = open(gamepath + str(turn) + '_log.txt', mode='r').read()
+    stream = open('./battlefortune/data/config.yaml')
+    path = yaml.load(stream)['gamepath'] + 'turns\\'
+    log = open(path + str(turn) + '_log.txt', mode='r').read()
     loc = log.find('the winner is ') + 14
     winner = int(log[loc:loc+10].split(' ')[0])
 
     # remove files
-    files = [f for f in os.listdir(gamepath) if os.path.isfile(
-        os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
+    files = [f for f in os.listdir(path) if os.path.isfile(
+        os.path.join(path, f)) and f.startswith(str(turn) + '_')]
     for item in files:
-        os.remove(os.path.join(gamepath, item))
+        os.remove(os.path.join(path, item))
 
     output = {
         'Turn': turn,
@@ -34,8 +35,9 @@ def parsebattle(turn):
     '''
 
     # get battle log
-    gamepath = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath'] + 'turns\\'
-    log = open(gamepath + str(turn) + '_log.txt', mode='r').read()
+    stream = open('./battlefortune/data/config.yaml')
+    path = yaml.load(stream)['gamepath'] + 'turns\\'
+    log = open(path + str(turn) + '_log.txt', mode='r').read()
 
     # identify armies
     loc = log.find('getbattlecount:') + 15
@@ -79,9 +81,9 @@ def parsebattle(turn):
         battlelog.append(result)
 
     # remove backup turn files
-    files = [f for f in os.listdir(gamepath) if os.path.isfile(
-        os.path.join(gamepath, f)) and f.startswith(str(turn) + '_')]
+    files = [f for f in os.listdir(path) if os.path.isfile(
+        os.path.join(path, f)) and f.startswith(str(turn) + '_')]
     for item in files:
-        os.remove(os.path.join(gamepath, item))
+        os.remove(os.path.join(path, item))
 
     return battlelog
