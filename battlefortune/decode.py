@@ -8,7 +8,7 @@ def nation(id, attribute='name'):
     Nation attributes:  name (default), abbreviation, epithet, file_name, era
     '''
 
-    output = pickle.load(open('./data/nations', 'rb'))[id][attribute]
+    output = pickle.load(open('./battlefortune/data/nations', 'rb'))[id][attribute]
     return output
 
 
@@ -19,5 +19,5 @@ def unit(name, attribute='gcost'):
     Nation attributes:  name (default), abbreviation, epithet, file_name, era
     '''
 
-    output = pickle.load(open('./data/units', 'rb'))[name][attribute]
+    output = pickle.load(open('./battlefortune/data/units', 'rb'))[name][attribute]
     return output

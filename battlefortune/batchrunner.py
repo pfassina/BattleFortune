@@ -14,7 +14,7 @@ def rundom(game='', switch='', nation=''):
     Takes as input game name, switches, and nation being played.
     '''
 
-    dom = yaml.load(open('./data/config.yaml'))['dompath']
+    dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
 
     # Run Dominions on minimal settings
     program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod'  # noqa
@@ -66,7 +66,7 @@ def clicker(nation):
     msg = None
     while msg is None:
         try:
-            msg = pyautogui.locateOnScreen('.\\imgs\\battlemsg.png')
+            msg = pyautogui.locateOnScreen('./battlefortune/imgs/battlemsg.png')
             pyautogui.click((msg[0], msg[1]))
             sleep(1)
         except:

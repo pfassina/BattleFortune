@@ -14,7 +14,7 @@ def setup(dompath, gamepath):
         'gamepath': gamepath
     }
 
-    stream = open('./data/config.yaml', 'w')
+    stream = open('./battlefortune/data/config.yaml', 'w')
     yaml.dump(data=config, stream=stream)
 
     return print('config.yaml updated')
