@@ -20,7 +20,7 @@ def rundom(game='', switch=''):
     program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod'  # noqa
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
-    sleep(1)
+    # sleep(1)
 
     # check for autohost switch
     if switch == 'g':
@@ -38,10 +38,9 @@ def rundom(game='', switch=''):
     else:
         clicker()
 
-    try:
+    process.terminate()
+    if "Dominions5.exe" in (p.name() for p in process_iter()):
         os.system("TASKKILL /F /IM Dominions5.exe")
-    except:
-        pass
 
 
 def clicker():
@@ -56,10 +55,10 @@ def clicker():
         try:
             s = pyautogui.locateOnScreen('./battlefortune/imgs/select.png')
             pyautogui.click((s[0] + 15, s[1] + 40))
-            sleep(1)
+            # sleep(1)
         except:
             pass
-    sleep(1)
+    # sleep(1)
 
     # Clicks on the first "Battle" word in the message list screen.
     m = None
@@ -67,7 +66,7 @@ def clicker():
         try:
             m = pyautogui.locateOnScreen('./battlefortune/imgs/battlemsg.png')
             pyautogui.click((m[0], m[1]))
-            sleep(1)
+            # sleep(1)
         except:
             pass
 
