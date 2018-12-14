@@ -1,7 +1,6 @@
 import os
-import pyautogui
+from pyautogui import locateOnScreen, click
 import subprocess
-from time import sleep
 from turnhandler import backupturn, restoreturn
 from logparser import parsewinner, parsebattle
 from psutil import process_iter
@@ -53,22 +52,26 @@ def clicker():
     while s is None:
         try:
             select = './battlefortune/imgs/select.png'
-            s = pyautogui.locateOnScreen(select, grayscale=True)
+            s_region = (800, 400, 100, 100)
+            s = locateOnScreen(select, region=s_region, grayscale=True)
+
         except RuntimeError:
             print('Unable to select Nation.')
 
-    pyautogui.click((s[0] + 15, s[1] + 40))
+    click((s[0] + 15, s[1] + 40))
 
     # Clicks on the first "Battle" word in the message list screen.
     m = None
     while m is None:
         try:
             battle = './battlefortune/imgs/battlemsg.png'
-            m = pyautogui.locateOnScreen(battle, grayscale=True)
+            m_region = (600, 500, 100, 100)
+            m = locateOnScreen(battle, region=m_region, grayscale=True)
+
         except RuntimeError:
             print('Battle Message not found.')
 
-    pyautogui.click((m[0], m[1]))
+    click((m[0], m[1]))
 
 
 def round(game, turn=1):
