@@ -52,7 +52,8 @@ def clicker():
     s = None
     while s is None:
         try:
-            s = pyautogui.locateOnScreen('./battlefortune/imgs/select.png')
+            select = './battlefortune/imgs/select.png'
+            s = pyautogui.locateOnScreen(select, grayscale=True)
         except RuntimeError:
             print('Unable to select Nation.')
 
@@ -62,7 +63,8 @@ def clicker():
     m = None
     while m is None:
         try:
-            m = pyautogui.locateOnScreen('./battlefortune/imgs/battlemsg.png')
+            battle = './battlefortune/imgs/battlemsg.png'
+            m = pyautogui.locateOnScreen(battle, grayscale=True)
         except RuntimeError:
             print('Battle Message not found.')
 
