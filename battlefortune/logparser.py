@@ -2,36 +2,10 @@ import os
 import yaml
 
 
-def parsewinner(turn):
+def parselog(turn):
     '''
-    Parses Post-Battle Log containing Winners.
-    Returns a Dictionary with the Winner for the simulation round.
-    '''
-
-    stream = open('./battlefortune/data/config.yaml')
-    path = yaml.load(stream)['gamepath'] + 'turns\\'
-    log = open(path + str(turn) + '_log.txt', mode='r').read()
-    loc = log.find('the winner is ') + 14
-    winner = int(log[loc:loc+10].split(' ')[0])
-
-    # remove files
-    files = [f for f in os.listdir(path) if os.path.isfile(
-        os.path.join(path, f)) and f.startswith(str(turn) + '_')]
-    for item in files:
-        os.remove(os.path.join(path, item))
-
-    output = {
-        'Turn': turn,
-        'Nation': winner
-    }
-
-    return output
-
-
-def parsebattle(turn):
-    '''
-    Parses Post Message View Log containing Unit Casualities.
-    Returns a Dictionary with the Unit counts for each phase of the combat.
+    Parses Turn Log and returns two dictionary.
+    First contains the winner nation, and the second the battle casualities.
     '''
 
     # get battle log
@@ -42,12 +16,17 @@ def parsebattle(turn):
     # identify armies
     loc = log.find('getbattlecount:') + 15
     armies = log[loc:].split(',', 3)[1:3]
-    attacker = int(armies[0].strip().split(' ')[1])
-    defender = int(armies[1].strip().split(' ')[1])
+    if armies[0].find('def') == -1:
+        attacker = int(armies[0].strip().split(' ')[1])
+        defender = int(armies[1].strip().split(' ')[1])
+    else:
+        defender = int(armies[0].strip().split(' ')[1])
+        attacker = int(armies[1].strip().split(' ')[1])
 
     # parse battle log
-    loc = log.find('getbattlecountfromvcr') + 21
-    battle = log[loc:len(log)-1]
+    start = log.find('getbattlecountfromvcr') + 21
+    end = log.find('SetMainEventMode')
+    battle = log[start:end-1]
     blurb = battle.split('\n')[1:]
 
     # parse battle log
@@ -80,10 +59,29 @@ def parsebattle(turn):
 
         battlelog.append(result)
 
+    # get winner
+    p_loc = log.find('got turn info for player') + 25
+    player = int(log[p_loc:].split('\n')[0])
+    pwin = log.find('whatPD')
+
+    if pwin > 0 and player == attacker:
+        winner = attacker
+    elif pwin > 0 and player == defender:
+        winner = defender
+    elif pwin == -1 and player == attacker:
+        winner = defender
+    elif pwin == -1 and player == defender:
+        winner = attacker
+
+    turnwinner = {
+        'Turn': turn,
+        'Nation': winner
+    }
+
     # remove backup turn files
     files = [f for f in os.listdir(path) if os.path.isfile(
         os.path.join(path, f)) and f.startswith(str(turn) + '_')]
     for item in files:
         os.remove(os.path.join(path, item))
 
-    return battlelog
+    return turnwinner, battlelog

@@ -11,12 +11,14 @@ def backupturn(turn):
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
 
+    # Create Turn Folder
     if not os.path.exists(path + 'turns/'):
         os.makedirs(path + 'turns/')
 
     dir = os.listdir(path)
     files = [f for f in dir if f.endswith(('.trn', '.2h')) or f == 'ftherlnd']
 
+    # Backlog Turn Files
     if len(files) > 0:
 
         for file in files:
@@ -24,6 +26,7 @@ def backupturn(turn):
             dst = path + 'turns/' + str(turn) + '_' + file
             shutil.copy(src, dst)
 
+    # Backlog Log file
     dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
     log = dom + 'log.txt'
     shutil.copy(log, path + 'turns/' + str(turn) + '_log.txt')

@@ -1,10 +1,11 @@
 import os
-from pyautogui import locateOnScreen, click
+from pyautogui import locateOnScreen, click, locateCenterOnScreen
 import subprocess
 from turnhandler import backupturn, restoreturn
-from logparser import parsewinner, parsebattle
+from logparser import parselog
 from psutil import process_iter
 import yaml
+import keyboard
 
 
 def rundom(game='', switch=''):
@@ -16,12 +17,12 @@ def rundom(game='', switch=''):
     dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
 
     # Run Dominions on minimal settings
-    program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxscod'  # noqa
+    program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxsco'  # noqa
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
 
     # check for autohost switch
-    if switch == 'g':
+    if switch == 'g -T':
         pass
 
         # Wait until turn is over
@@ -30,9 +31,6 @@ def rundom(game='', switch=''):
             if "Dominions5.exe" not in (p.name() for p in process_iter()):
                 done = 'done'
                 process.terminate()
-            else:
-                pass
-
     else:
         clicker()
 
@@ -66,12 +64,19 @@ def clicker():
         try:
             battle = './battlefortune/imgs/battlemsg.png'
             m_region = (600, 500, 100, 100)
-            m = locateOnScreen(battle, region=m_region, grayscale=True)
-
+            m = locateCenterOnScreen(battle, region=m_region, grayscale=True)
         except RuntimeError:
             print('Battle Message not found.')
 
     click((m[0], m[1]))
+
+    # go to province and try to add PD
+    keyboard.press_and_release('esc')
+    keyboard.press_and_release('esc')
+    keyboard.press_and_release('g')
+    keyboard.write('11')
+    keyboard.press_and_release('enter')
+    keyboard.press_and_release('d')
 
 
 def round(game, turn=1):
@@ -83,21 +88,18 @@ def round(game, turn=1):
     Round sequence of events:
         1.  Restore turn backups if needed
         2.  Run Dominions on Host Mode
-        3.  Backup Turn Files
-        4.  Parse Win Log
         5.  Run Turn after Battle
-        6.  Backup turn
+        6.  Backup turn tiles
         7.  Parse Battle Log
     '''
 
     restoreturn()
-    rundom(game=game, switch='g')
+    rundom(game=game, switch='g -T')
+    rundom(game=game, switch='d')
     backupturn(turn)
-    winner = parsewinner(turn)
-
-    rundom(game=game)
-    backupturn(turn)
-    battle = parsebattle(turn)
+    logs = parselog(turn)
+    winner = logs[0]
+    battle = logs[1]
 
     return winner, battle
 
