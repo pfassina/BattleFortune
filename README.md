@@ -27,5 +27,5 @@ Here are a few examples of the current output capabilities of BattleFortune.
 ![Army Return on Investment](https://media.discordapp.net/attachments/480242947015573504/521900656861380608/unknown.png)
 
 
-# credits
+##### credits
 This project would not be possible without Illwinter, the Dominions Discord community, and the help of yet to be named awesome developers.
