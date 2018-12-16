@@ -1,10 +1,10 @@
 # BattleFortune
 Dominons 5 Montecarlo Simulation: You can't cheat fate, but you can predict the future.
 
-# Vision
+## Vision
 Allow the user to simulate hundreds of Dominions battles. BattleFortune aims to help players to both predict battle results, and improve their scripting by providing useful statistical information about battles outcomes.
 
-# Current Sate
+## Current Sate
 In the current state, BattleFortune will run the same battle as many times as the user wants, and ouput a distribution chart with the expected gold loss for each nation. Mods are not supported. Only tested on Windows. 
 
 To run BattleFortuner you will need to follow these steps:
@@ -17,7 +17,7 @@ To run BattleFortuner you will need to follow these steps:
     4. Dominions 5 executable path.
     5. Dominions 5 game folder path.
 
-# Sample Outputs
+## Sample Outputs
 Here are a few examples of the current output capabilities of BattleFortune.
 
 #### Expected Gold Loss for each army
