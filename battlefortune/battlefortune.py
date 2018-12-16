@@ -1,6 +1,6 @@
 from batchrunner import batchrun
-import logcalc
 import yaml
+from visualization import load_battlelog, distribution_charts
 
 
 def setup(dompath, gamepath):
@@ -20,21 +20,22 @@ def setup(dompath, gamepath):
     return
 
 
-def BattleFortune(turns, game, dompath, gamepath, dumplog=False):
+def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
     '''
     Runs BattleFortune.
-    Takes as input:
+    Takes as required inputs:
         1. Number of turns to be simulated.
-        2. Game to be simulated.
-        3. Dominions 5 executable path.
-        4. Dominions 5 game path.
-        5. Option to save logs to file.
-    Outputs parsed simulation results.
+        2. Name of the Game to be simulated.
+        3. Number of the province where the battle is happening.
+        4. Dominions 5 executable path.
+        5. Dominions 5 game folder path.
+    Outputs distribution charts.
     '''
 
     setup(dompath, gamepath)
 
-    logs = batchrun(turns, game)
+    logs = batchrun(turns, game, province)
+    n = logs['nations']
     w = logs['winners']
     b = logs['battles']
 
@@ -43,12 +44,7 @@ def BattleFortune(turns, game, dompath, gamepath, dumplog=False):
         yaml.dump(data=w, stream=open(logpath + 'winlog.yaml', 'w'))
         yaml.dump(data=b, stream=open(logpath + 'battlelog.yaml', 'w'))
 
-    wl = logcalc.wincalc(w)
-    bl = logcalc.pivot_battlelog(b)
+    # wl = logcalc.wincalc(w)
 
-    output = {
-        'wins': wl,
-        'battles': bl,
-    }
-
-    return output
+    d = load_battlelog(b, n)
+    distribution_charts(d, n)

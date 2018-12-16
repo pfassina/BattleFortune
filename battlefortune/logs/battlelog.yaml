@@ -1,0 +1,45 @@
+- {Army: 83, Count: 1, Phase: before, Turn: 1, Unit: Castellan}
+- {Army: 83, Count: 10, Phase: before, Turn: 1, Unit: Warden}
+- {Army: 83, Count: 20, Phase: before, Turn: 1, Unit: Crossbowman}
+- {Army: 83, Count: 1, Phase: after, Turn: 1, Unit: Castellan}
+- {Army: 83, Count: 7, Phase: after, Turn: 1, Unit: Warden}
+- {Army: 83, Count: 17, Phase: after, Turn: 1, Unit: Crossbowman}
+- {Army: 84, Count: 1, Phase: before, Turn: 1, Unit: Commander of Ulm}
+- {Army: 84, Count: 20, Phase: before, Turn: 1, Unit: Ranger of Ulm}
+- {Army: 84, Count: 10, Phase: before, Turn: 1, Unit: Zweihander}
+- {Army: 84, Count: 12, Phase: after, Turn: 1, Unit: Ranger of Ulm}
+- {Army: 83, Count: 1, Phase: before, Turn: 2, Unit: Castellan}
+- {Army: 83, Count: 10, Phase: before, Turn: 2, Unit: Warden}
+- {Army: 83, Count: 20, Phase: before, Turn: 2, Unit: Crossbowman}
+- {Army: 83, Count: 1, Phase: after, Turn: 2, Unit: Castellan}
+- {Army: 83, Count: 10, Phase: after, Turn: 2, Unit: Warden}
+- {Army: 83, Count: 19, Phase: after, Turn: 2, Unit: Crossbowman}
+- {Army: 84, Count: 1, Phase: before, Turn: 2, Unit: Commander of Ulm}
+- {Army: 84, Count: 20, Phase: before, Turn: 2, Unit: Ranger of Ulm}
+- {Army: 84, Count: 10, Phase: before, Turn: 2, Unit: Zweihander}
+- {Army: 84, Count: 14, Phase: after, Turn: 2, Unit: Ranger of Ulm}
+- {Army: 84, Count: 10, Phase: after, Turn: 2, Unit: Zweihander}
+- {Army: 83, Count: 1, Phase: before, Turn: 3, Unit: Castellan}
+- {Army: 83, Count: 10, Phase: before, Turn: 3, Unit: Warden}
+- {Army: 83, Count: 20, Phase: before, Turn: 3, Unit: Crossbowman}
+- {Army: 83, Count: 1, Phase: after, Turn: 3, Unit: Castellan}
+- {Army: 83, Count: 0, Phase: after, Turn: 3, Unit: Warden}
+- {Army: 83, Count: 20, Phase: after, Turn: 3, Unit: Crossbowman}
+- {Army: 84, Count: 1, Phase: before, Turn: 3, Unit: Commander of Ulm}
+- {Army: 84, Count: 20, Phase: before, Turn: 3, Unit: Ranger of Ulm}
+- {Army: 84, Count: 10, Phase: before, Turn: 3, Unit: Zweihander}
+- {Army: 84, Count: 1, Phase: after, Turn: 3, Unit: Commander of Ulm}
+- {Army: 84, Count: 15, Phase: after, Turn: 3, Unit: Ranger of Ulm}
+- {Army: 84, Count: 1, Phase: after, Turn: 3, Unit: Zweihander}
+- {Army: 83, Count: 1, Phase: before, Turn: 4, Unit: Castellan}
+- {Army: 83, Count: 10, Phase: before, Turn: 4, Unit: Warden}
+- {Army: 83, Count: 20, Phase: before, Turn: 4, Unit: Crossbowman}
+- {Army: 83, Count: 1, Phase: after, Turn: 4, Unit: Castellan}
+- {Army: 83, Count: 6, Phase: after, Turn: 4, Unit: Warden}
+- {Army: 83, Count: 17, Phase: after, Turn: 4, Unit: Crossbowman}
+- {Army: 84, Count: 1, Phase: before, Turn: 4, Unit: Commander of Ulm}
+- {Army: 84, Count: 20, Phase: before, Turn: 4, Unit: Ranger of Ulm}
+- {Army: 84, Count: 10, Phase: before, Turn: 4, Unit: Zweihander}
+- {Army: 84, Count: 1, Phase: after, Turn: 4, Unit: Commander of Ulm}
+- {Army: 84, Count: 10, Phase: after, Turn: 4, Unit: Ranger of Ulm}
+- {Army: 84, Count: 2, Phase: after, Turn: 4, Unit: Zweihander}

@@ -8,7 +8,7 @@ import yaml
 import keyboard
 
 
-def rundom(game='', switch=''):
+def rundom(province, game='', switch=''):
     '''
     Runs a Dominions with game and switch settings.
     Takes as input game name, switches.
@@ -32,14 +32,14 @@ def rundom(game='', switch=''):
                 done = 'done'
                 process.terminate()
     else:
-        clicker()
+        clicker(province)
 
     process.terminate()
     if "Dominions5.exe" in (p.name() for p in process_iter()):
         os.system("TASKKILL /F /IM Dominions5.exe")
 
 
-def clicker():
+def clicker(province):
     '''
     Automates Clicking within Dominions.
     Takes no input.
@@ -74,12 +74,12 @@ def clicker():
     keyboard.press_and_release('esc')
     keyboard.press_and_release('esc')
     keyboard.press_and_release('g')
-    keyboard.write('11')
+    keyboard.write(str(province))
     keyboard.press_and_release('enter')
     keyboard.press_and_release('d')
 
 
-def round(game, turn=1):
+def round(game, province, turn=1):
     '''
     Run a full round of the simulation.
     Takes as input the game name, and the current simulation turn
@@ -94,17 +94,15 @@ def round(game, turn=1):
     '''
 
     restoreturn()
-    rundom(game=game, switch='g -T')
-    rundom(game=game, switch='d')
+    rundom(province=province, game=game, switch='g -T')
+    rundom(province=province, game=game, switch='d')
     backupturn(turn)
-    logs = parselog(turn)
-    winner = logs[0]
-    battle = logs[1]
+    turn_log = parselog(turn)
 
-    return winner, battle
+    return turn_log
 
 
-def batchrun(rounds, game):
+def batchrun(rounds, game, province):
     '''
     Runs X numbers of Simulation Rounds.
     Takes as input number of simultated rounds, game name.
@@ -115,12 +113,15 @@ def batchrun(rounds, game):
     battles = []
 
     for i in range(1, rounds + 1):
-        results = round(game, i)
-        winners.append(results[0])
-        for i in range(len(results[1])):
-            battles.append(results[1][i])
+        log = round(game, province, i)
+        if i == 1:
+            nations = log['nations']
+        winners.append(log['turn_score'])
+        for j in range(len(log['battlelog'])):
+            battles.append(log['battlelog'][j])
 
     output = {
+        'nations': nations,
         'winners': winners,
         'battles': battles
     }
