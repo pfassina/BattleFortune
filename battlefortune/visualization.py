@@ -1,8 +1,9 @@
 import pandas as pd
-import seaborn as sb
+import seaborn as sns
 import matplotlib.pyplot as plt
 import logcalc
 from decode import nation
+
 
 def load_battlelog(battlelog, nations):
 
@@ -40,13 +41,14 @@ def distribution_charts(dataframes, nations):
     df[def_name + " ROI"] = df[atk_name] - df[def_name]
 
     try:
-        sb.distplot(df[atk_name + " ROI"])
-        sb.distplot(df[def_name + " ROI"])
-    except ArithmeticError:
-        pass
+        plt.subplot(211)
+        sns.distplot(df[atk_name + " ROI"])
 
-    try:
-        sb.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
+        plt.subplot(212)
+        sns.distplot(df[def_name + " ROI"])
+
+        # plt.subplot(223)
+        sns.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
     except ArithmeticError:
         pass
 

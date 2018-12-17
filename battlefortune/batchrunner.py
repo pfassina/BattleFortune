@@ -119,6 +119,7 @@ def batchrun(rounds, game, province):
         winners.append(log['turn_score'])
         for j in range(len(log['battlelog'])):
             battles.append(log['battlelog'][j])
+        print('Round: ' + str(i))
 
     output = {
         'nations': nations,

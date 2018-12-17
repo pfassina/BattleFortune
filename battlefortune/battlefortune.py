@@ -1,6 +1,7 @@
 from batchrunner import batchrun
-import yaml
+import os
 from visualization import load_battlelog, distribution_charts
+import yaml
 
 
 def setup(dompath, gamepath):
@@ -40,7 +41,11 @@ def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
     b = logs['battles']
 
     if dumplog:
-        logpath = './battlefortune/logs/'
+
+        logpath = './battlefortune/logs/' + game + '/'
+        if not os.path.exists(logpath):
+            os.makedirs(logpath)
+
         yaml.dump(data=w, stream=open(logpath + 'winlog.yaml', 'w'))
         yaml.dump(data=b, stream=open(logpath + 'battlelog.yaml', 'w'))
 
