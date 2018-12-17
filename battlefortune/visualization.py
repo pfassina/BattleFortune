@@ -1,15 +1,18 @@
+import calc
+from decode import nation
+import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-import matplotlib.pyplot as plt
-import logcalc
-from decode import nation
+
+
+sns.set(palette="Set3", style="white")
 
 
 def load_battlelog(battlelog, nations):
 
-    df = logcalc.pivot_battlelog(battlelog)
-    attacker = logcalc.calculate_unit_losses(df, nations['attacker'])
-    defender = logcalc.calculate_unit_losses(df, nations['defender'])
+    df = calc.pivot_battlelog(battlelog)
+    attacker = calc.unit_losses(df, nations['attacker'])
+    defender = calc.unit_losses(df, nations['defender'])
 
     dataframes = {
         'attacker': attacker,
@@ -19,15 +22,21 @@ def load_battlelog(battlelog, nations):
     return dataframes
 
 
-def distribution_charts(dataframes, nations):
+def win_score(winlog):
+
+    df = calc.wins(winlog)
+    sns.barplot(x='Nation', y='Wins', data=df, palette='Set3')
+
+
+def army_roi(dataframes, nations):
 
     attacker = dataframes['attacker']
     defender = dataframes['defender']
 
-    gcost = logcalc.calculate_army_cost(attacker, 'gcost')
+    gcost = calc.army_cost(attacker, 'gcost')
     attacker = attacker.join(gcost)
 
-    gcost = logcalc.calculate_army_cost(defender, 'gcost')
+    gcost = calc.army_cost(defender, 'gcost')
     defender = defender.join(gcost)
 
     atk_name = nation(nations['attacker'])
@@ -37,19 +46,42 @@ def distribution_charts(dataframes, nations):
     d = pd.Series(defender['gcost'], name=def_name)
     df = pd.concat([a, d], axis=1)
 
-    df[atk_name + " ROI"] = df[def_name] - df[atk_name]
-    df[def_name + " ROI"] = df[atk_name] - df[def_name]
+    df[atk_name + ' ROI'] = df[def_name] - df[atk_name]
+    df[def_name + ' ROI'] = df[atk_name] - df[def_name]
 
     try:
         plt.subplot(211)
-        sns.distplot(df[atk_name + " ROI"])
+        sns.distplot(df[atk_name + ' ROI'])
 
         plt.subplot(212)
-        sns.distplot(df[def_name + " ROI"])
+        sns.distplot(df[def_name + ' ROI'])
 
         # plt.subplot(223)
         sns.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
     except ArithmeticError:
         pass
+
+
+def unit_deaths(dataframes):
+
+    attacker = dataframes['attacker']
+    defender = dataframes['defender']
+
+    try:
+        plt.subplot(211)
+        sns.violinplot(data=attacker, scale="width")
+        plt.subplot(212)
+        sns.violinplot(data=defender, scale="width")
+
+    except ArithmeticError:
+        pass
+
+
+def visualize(nations, winlog, battlelog):
+
+    df = load_battlelog(battlelog, nations)
+    win_score(winlog)
+    army_roi(df, nations)
+    unit_deaths(df)
 
     plt.show()

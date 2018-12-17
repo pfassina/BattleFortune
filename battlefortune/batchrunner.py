@@ -1,11 +1,11 @@
+import keyboard
+from logparser import parselog
 import os
+from psutil import process_iter
 from pyautogui import locateOnScreen, click, locateCenterOnScreen
 import subprocess
 from turnhandler import backupturn, restoreturn
-from logparser import parselog
-from psutil import process_iter
 import yaml
-import keyboard
 
 
 def rundom(province, game='', switch=''):

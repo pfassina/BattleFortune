@@ -1,6 +1,6 @@
 from batchrunner import batchrun
 import os
-from visualization import load_battlelog, distribution_charts
+from visualization import visualize
 import yaml
 
 
@@ -51,5 +51,4 @@ def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
 
     # wl = logcalc.wincalc(w)
 
-    d = load_battlelog(b, n)
-    distribution_charts(d, n)
+    visualize(n, w, b)

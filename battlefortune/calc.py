@@ -1,8 +1,8 @@
-import pandas as pd
 from decode import nation, unit
+import pandas as pd
 
 
-def wincalc(winlog):
+def wins(winlog):
     '''
     Parses a list of WinLogs and calculates the ratio of winnings per Nation.
     Takes as input a list of WinLogs.
@@ -16,7 +16,6 @@ def wincalc(winlog):
     # Prepare Data for Display
     df = df['Nation'].value_counts().to_frame('Wins')
     df = df.reset_index().rename(columns={'index': 'Nation'})
-    df = pd.pivot_table(df, values='Wins', columns='Nation')
 
     return df
 
@@ -35,7 +34,7 @@ def pivot_battlelog(battlelog):
     return df
 
 
-def calculate_unit_losses(df, army):
+def unit_losses(df, army):
     '''
     Calculates Unit losses by army.
     Takes as input a prepared battlelog DataFrame.
@@ -66,7 +65,7 @@ def calculate_unit_losses(df, army):
     return army_losses
 
 
-def calculate_army_cost(df, attribute):
+def army_cost(df, attribute):
     '''
     Takes Army Losses DataFrame.
     Returns total resource cost per round of simulation.
