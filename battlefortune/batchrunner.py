@@ -17,11 +17,13 @@ def rundom(province, game='', switch=''):
     dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
 
     # Run Dominions on minimal settings
-    program = '/k cd ' + dom + ' & Dominions5.exe --simpgui --nosteam -waxsco'  # noqa
+    program = '/k cd /d' + dom + ' & Dominions5.exe --simpgui --nosteam -waxsco'  # noqa
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
 
-    # check for autohost switch
+    # che
+
+    ck for autohost switch
     if switch == 'g -T':
         pass
 
