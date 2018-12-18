@@ -25,7 +25,26 @@ def load_battlelog(battlelog, nations):
 def win_score(winlog):
 
     df = calc.wins(winlog)
-    sns.barplot(x='Nation', y='Wins', data=df, palette='Set3')
+    plt.figure(1)
+    sns.barplot(x='Nation', y='Wins', data=df)
+
+
+def unit_deaths(dataframes):
+
+    attacker = dataframes['attacker']
+    defender = dataframes['defender']
+
+    try:
+        plt.figure(2)
+
+        plt.subplot(211)
+        sns.violinplot(data=attacker, scale="width")
+
+        plt.subplot(212)
+        sns.violinplot(data=defender, scale="width")
+
+    except ArithmeticError:
+        pass
 
 
 def army_roi(dataframes, nations):
@@ -50,28 +69,14 @@ def army_roi(dataframes, nations):
     df[def_name + ' ROI'] = df[atk_name] - df[def_name]
 
     try:
+        plt.figure(3)
         plt.subplot(211)
         sns.distplot(df[atk_name + ' ROI'])
 
         plt.subplot(212)
         sns.distplot(df[def_name + ' ROI'])
 
-        # plt.subplot(223)
         sns.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
-    except ArithmeticError:
-        pass
-
-
-def unit_deaths(dataframes):
-
-    attacker = dataframes['attacker']
-    defender = dataframes['defender']
-
-    try:
-        plt.subplot(211)
-        sns.violinplot(data=attacker, scale="width")
-        plt.subplot(212)
-        sns.violinplot(data=defender, scale="width")
 
     except ArithmeticError:
         pass
