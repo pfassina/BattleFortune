@@ -21,8 +21,9 @@ def parse_nations(log):
 
 
 def find_battle(log):
+
     start = log.find('getbattlecountfromvcr') + 21
-    end = log.find('SetMainEventMode')
+    end = log.find('getfatherland')
     battle = log[start:end-1]
     blurb = battle.split('\n')[1:]
 
@@ -113,7 +114,6 @@ def parselog(turn):
     # parse battle log
     battle = find_battle(log)
     battlelog = parse_battle(turn, battle, attacker, defender)
-
     # parse winner
     turn_score = parse_winner(turn, log, attacker, defender)
 

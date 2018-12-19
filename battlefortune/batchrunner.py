@@ -6,7 +6,7 @@ from pyautogui import locateOnScreen, click, locateCenterOnScreen
 import subprocess
 from turnhandler import backupturn, restoreturn
 import yaml
-
+from time import sleep
 
 def rundom(province, game='', switch=''):
     '''
@@ -21,9 +21,7 @@ def rundom(province, game='', switch=''):
     cmd = 'cmd ' + program + switch + ' ' + game
     process = subprocess.Popen(cmd)
 
-    # che
-
-    ck for autohost switch
+    # check for autohost switch
     if switch == 'g -T':
         pass
 
@@ -60,24 +58,13 @@ def clicker(province):
 
     click((s[0] + 15, s[1] + 40))
 
-    # Clicks on the first "Battle" word in the message list screen.
-    m = None
-    while m is None:
-        try:
-            battle = './battlefortune/imgs/battlemsg.png'
-            m_region = (600, 500, 100, 100)
-            m = locateCenterOnScreen(battle, region=m_region, grayscale=True)
-        except RuntimeError:
-            print('Battle Message not found.')
-
-    click((m[0], m[1]))
-
-    # go to province and try to add PD
-    keyboard.press_and_release('esc')
+    sleep(1)
     keyboard.press_and_release('esc')
     keyboard.press_and_release('g')
     keyboard.write(str(province))
     keyboard.press_and_release('enter')
+    keyboard.press_and_release('c')
+    keyboard.press_and_release('esc')
     keyboard.press_and_release('d')
 
 
