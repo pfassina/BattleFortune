@@ -40,7 +40,7 @@ def gotoprov(path, province):
     keyboard.press_and_release('esc')  # back to map
     keyboard.press_and_release('d')  # try to add PD
     
-    #test commit
+    #test commit 2
 
 
 def rundom(province, game='', switch=''):
