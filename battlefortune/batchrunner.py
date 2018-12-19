@@ -40,10 +40,6 @@ def gotoprov(path, province):
     keyboard.press_and_release('c')  # view casualities
     keyboard.press_and_release('esc')  # back to map
     keyboard.press_and_release('d')  # try to add PD
-    keyboard.press_and_release('esc')
-    sleep(3)
-    
-    #test commit
 
 
 def rundom(province, game='', switch=''):
@@ -67,7 +63,7 @@ def rundom(province, game='', switch=''):
         # Wait until turn is over
         done = None
         while done is None:
-            sleep(1)
+            sleep(0.1)
             if "Dominions5.exe" not in (p.name() for p in process_iter()):
                 done = 'done'
                 process.terminate()
@@ -77,7 +73,6 @@ def rundom(province, game='', switch=''):
         confirm_log(dom)  # validate log
 
     process.terminate()
-    sleep(1)
     if "Dominions5.exe" in (p.name() for p in process_iter()):
         os.system("TASKKILL /F /IM Dominions5.exe")
 
