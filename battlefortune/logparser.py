@@ -12,11 +12,20 @@ def confirm_log(path):
     while done is False:
         with open(path + 'log.txt') as file:
             blurb = file.read()
+            print("blurb: " + blurb)
             start = blurb.find('getbattlecountfromvcr') + 21  # battle loaded
-            log = blurb[start:]
-            won = log.find('WhatPD')  # player won
-            lost = log.find('spreadpath for no one')  # player lost
+            print("start: " + str(start))
+            won = -1
+            lost = -1
+            if start > 20:
+                log = blurb[start:]
+                print("blurb log: " + log)
+                won = log.find('WhatPD')  # player won
+                lost = log.find('spreadpath for no one')  # player lost
+                print("won: " + str(won))
+                print("lost: " + str(lost))
             if won != -1 or lost != -1:
+                print("found won/lost")
                 done = True
                 file.close()
             else:
