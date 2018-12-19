@@ -61,11 +61,11 @@ def rundom(province, game='', switch=''):
         pass
 
         # Wait until turn is over
-        done = None
-        while done is None:
+        done = False
+        while done is False:
             sleep(0.1)
             if "Dominions5.exe" not in (p.name() for p in process_iter()):
-                done = 'done'
+                done = True
                 process.terminate()
     else:
         clicker()  # select nation
