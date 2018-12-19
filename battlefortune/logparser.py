@@ -44,7 +44,6 @@ def parse_nations(log):
 
 
 def find_battle(log):
-    print("%%% log: " + log)
     start = log.find('getbattlecountfromvcr') + 21
     end = log.rfind('getfatherland')
     battle = log[start:end-1]
@@ -124,7 +123,6 @@ def parselog(turn):
     First contains the winner nation, and the second the battle casualities.
     '''
 
-    sleep(3)
     # get battle log
     stream = open('./battlefortune/data/config.yaml')
     path = yaml.load(stream)['gamepath'] + 'turns\\'
