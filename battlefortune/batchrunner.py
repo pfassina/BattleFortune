@@ -1,12 +1,12 @@
 import keyboard
-from logparser import parselog
+from logparser import parselog, confirm_log
 import os
 from psutil import process_iter
 from pyautogui import locateOnScreen, click
 import subprocess
 from turnhandler import backupturn, restoreturn
 import yaml
-from time import sleep
+
 
 def rundom(province, game='', switch=''):
     '''
@@ -34,6 +34,7 @@ def rundom(province, game='', switch=''):
     else:
         clicker()
         gotoprov(dom, province)
+        confirm_log(dom)
 
     process.terminate()
     if "Dominions5.exe" in (p.name() for p in process_iter()):
@@ -64,7 +65,7 @@ def gotoprov(path, province):
     Automates keyboard shortcuts to generate log.
     Takes as input the path to dominions log, and the province number.
     '''
-    # sleep(1)
+
     keyboard.press_and_release('esc')
     keyboard.press_and_release('g')
     keyboard.write(str(province))
@@ -72,7 +73,6 @@ def gotoprov(path, province):
     keyboard.press_and_release('c')
     keyboard.press_and_release('esc')
     keyboard.press_and_release('d')
-    sleep(2)
 
 
 def round(game, province, turn=1):

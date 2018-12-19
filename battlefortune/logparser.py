@@ -2,6 +2,28 @@ import os
 import yaml
 
 
+def confirm_log(path):
+    '''
+    Checks if Log finished loading.
+    '''
+
+    done = False
+    while done is False:
+        with open(path + 'log.txt') as file:
+            blurb = file.read()
+            start = blurb.find('getbattlecountfromvcr') + 21  # battle loaded
+            log = blurb[start:]
+            won = log.find('WhatPD')  # player won
+            lost = log.find('spreadpath for no one')  # player lost
+            if won != -1 or lost != -1:
+                done = True
+                file.close()
+            else:
+                pass
+
+    return done
+
+
 def parse_nations(log):
     loc = log.find('getbattlecount:') + 15
     armies = log[loc:].split(',', 3)[1:3]
