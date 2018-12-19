@@ -8,45 +8,11 @@ from turnhandler import backupturn, restoreturn
 import yaml
 
 
-def rundom(province, game='', switch=''):
-    '''
-    Runs a Dominions with game and switch settings.
-    Takes as input game name, switches.
-    '''
-
-    dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
-
-    # Run Dominions on minimal settings
-    program = '/k cd /d' + dom + ' & Dominions5.exe --simpgui --nosteam -waxsco'  # noqa
-    cmd = 'cmd ' + program + switch + ' ' + game
-    process = subprocess.Popen(cmd)
-
-    # check for autohost switch
-    if switch == 'g -T':
-        pass
-
-        # Wait until turn is over
-        done = None
-        while done is None:
-            if "Dominions5.exe" not in (p.name() for p in process_iter()):
-                done = 'done'
-                process.terminate()
-    else:
-        clicker()
-        gotoprov(dom, province)
-        confirm_log(dom)
-
-    process.terminate()
-    if "Dominions5.exe" in (p.name() for p in process_iter()):
-        os.system("TASKKILL /F /IM Dominions5.exe")
-
-
 def clicker():
     '''
-    Automates Clicking within Dominions.
+    Finds and clicks on Nation Flag.
     '''
 
-    # Select a Nation by clicking on the first flag.
     s = None
     while s is None:
         try:
@@ -66,13 +32,47 @@ def gotoprov(path, province):
     Takes as input the path to dominions log, and the province number.
     '''
 
-    keyboard.press_and_release('esc')
-    keyboard.press_and_release('g')
-    keyboard.write(str(province))
-    keyboard.press_and_release('enter')
-    keyboard.press_and_release('c')
-    keyboard.press_and_release('esc')
-    keyboard.press_and_release('d')
+    keyboard.press_and_release('esc')  # exit messages
+    keyboard.press_and_release('g')  # go to screen
+    keyboard.write(str(province))  # select province
+    keyboard.press_and_release('enter')  # confirm
+    keyboard.press_and_release('c')  # view casualities
+    keyboard.press_and_release('esc')  # back to map
+    keyboard.press_and_release('d')  # try to add PD
+
+
+def rundom(province, game='', switch=''):
+    '''
+    Runs a Dominions with game and switch settings.
+    Takes as input game name, switches.
+    '''
+
+    dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
+
+    # Run Dominions on minimal settings
+    switches = ' --simpgui --nosteam -waxsco' + switch + ' '
+    program = '/k cd /d' + dom + ' & Dominions5.exe'
+    cmd = 'cmd ' + program + switches + game
+    process = subprocess.Popen(cmd)
+
+    # if auto hosting battle
+    if switch == 'g -T':
+        pass
+
+        # Wait until turn is over
+        done = None
+        while done is None:
+            if "Dominions5.exe" not in (p.name() for p in process_iter()):
+                done = 'done'
+                process.terminate()
+    else:
+        clicker()  # select nation
+        gotoprov(dom, province)  # check battle report
+        confirm_log(dom)  # validate log
+
+    process.terminate()
+    if "Dominions5.exe" in (p.name() for p in process_iter()):
+        os.system("TASKKILL /F /IM Dominions5.exe")
 
 
 def round(game, province, turn=1):
@@ -89,11 +89,11 @@ def round(game, province, turn=1):
         7.  Parse Battle Log
     '''
 
-    restoreturn()
-    rundom(province=province, game=game, switch='g -T')
-    rundom(province=province, game=game, switch='d')
-    backupturn(turn)
-    turn_log = parselog(turn)
+    restoreturn()  # restore back-up files if needed
+    rundom(province=province, game=game, switch='g -T')  # auto host battle
+    rundom(province=province, game=game, switch='d')  # generate battle logs
+    backupturn(turn)  # back-up turn files
+    turn_log = parselog(turn)  # read and parse battle log
 
     return turn_log
 
@@ -109,12 +109,12 @@ def batchrun(rounds, game, province):
     battles = []
 
     for i in range(1, rounds + 1):
-        log = round(game, province, i)
+        log = round(game, province, i)  # get turn log
         if i == 1:
-            nations = log['nations']
-        winners.append(log['turn_score'])
+            nations = log['nations']  # get nation ids
+        winners.append(log['turn_score'])  # get turn winner
         for j in range(len(log['battlelog'])):
-            battles.append(log['battlelog'][j])
+            battles.append(log['battlelog'][j])  # get battle report
         print('Round: ' + str(i))
 
     output = {
