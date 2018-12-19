@@ -1,5 +1,6 @@
 import os
 import yaml
+from time import sleep
 
 
 def confirm_log(path):
@@ -43,9 +44,9 @@ def parse_nations(log):
 
 
 def find_battle(log):
-
+    print("%%% log: " + log)
     start = log.find('getbattlecountfromvcr') + 21
-    end = log.find('getfatherland')
+    end = log.rfind('getfatherland')
     battle = log[start:end-1]
     blurb = battle.split('\n')[1:]
 
@@ -123,10 +124,13 @@ def parselog(turn):
     First contains the winner nation, and the second the battle casualities.
     '''
 
+    sleep(3)
     # get battle log
     stream = open('./battlefortune/data/config.yaml')
     path = yaml.load(stream)['gamepath'] + 'turns\\'
     log = open(path + str(turn) + '_log.txt', mode='r').read()
+    
+    print("^^^ log in parselog: " + log)
 
     # identify armies
     nations = parse_nations(log)
