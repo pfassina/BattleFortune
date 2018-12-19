@@ -2,7 +2,7 @@ import keyboard
 from logparser import parselog
 import os
 from psutil import process_iter
-from pyautogui import locateOnScreen, click, locateCenterOnScreen
+from pyautogui import locateOnScreen, click
 import subprocess
 from turnhandler import backupturn, restoreturn
 import yaml
@@ -32,17 +32,17 @@ def rundom(province, game='', switch=''):
                 done = 'done'
                 process.terminate()
     else:
-        clicker(province)
+        clicker()
+        gotoprov(dom, province)
 
     process.terminate()
     if "Dominions5.exe" in (p.name() for p in process_iter()):
         os.system("TASKKILL /F /IM Dominions5.exe")
 
 
-def clicker(province):
+def clicker():
     '''
     Automates Clicking within Dominions.
-    Takes no input.
     '''
 
     # Select a Nation by clicking on the first flag.
@@ -58,7 +58,13 @@ def clicker(province):
 
     click((s[0] + 15, s[1] + 40))
 
-    sleep(1)
+
+def gotoprov(path, province):
+    '''
+    Automates keyboard shortcuts to generate log.
+    Takes as input the path to dominions log, and the province number.
+    '''
+    # sleep(1)
     keyboard.press_and_release('esc')
     keyboard.press_and_release('g')
     keyboard.write(str(province))
@@ -66,6 +72,7 @@ def clicker(province):
     keyboard.press_and_release('c')
     keyboard.press_and_release('esc')
     keyboard.press_and_release('d')
+    sleep(2)
 
 
 def round(game, province, turn=1):
