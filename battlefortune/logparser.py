@@ -1,6 +1,5 @@
 import os
 import yaml
-from time import sleep
 
 
 def validate_log(path):
@@ -9,22 +8,22 @@ def validate_log(path):
     '''
 
     valid = False
-    with open(path + 'log.txt') as file:
-        i = 0
-        while i < 1000:
+
+    i = 0
+    while i < 1000000:
+        with open(path + 'log.txt') as file:
             blurb = file.read()
-            start = blurb.find('getbattlecountfromvcr')  # battle loaded
+            start = blurb.rfind('getbattlecountfromvcr')  # battle loaded
             if start == -1:
                 i += 1
                 continue
-            if blurb[start:].find('WhatPD') != -1: # Player Won
+            if blurb[start:].rfind('whatPD') != -1:  # Player Won
                 valid = True
                 break
-            elif blurb[start:].find('spreadpath') != -1: # Player Lost
+            elif blurb[start:].rfind('createoverlaytex') != -1:  # Player Lost
                 valid = True
                 break
             i += 1
-
     file.close()
 
     return valid
@@ -132,8 +131,6 @@ def parselog(turn):
     stream = open('./battlefortune/data/config.yaml')
     path = yaml.load(stream)['gamepath'] + 'turns\\'
     log = open(path + str(turn) + '_log.txt', mode='r').read()
-
-    print("^^^ log in parselog: " + log)
 
     # identify armies
     nations = parse_nations(log)
