@@ -6,7 +6,6 @@ from pyautogui import locateOnScreen, click
 import subprocess
 from turnhandler import backupturn, restoreturn
 import yaml
-from time import sleep
 
 
 def clicker():
@@ -41,31 +40,47 @@ def gotoprov(path, province):
     keyboard.press_and_release('esc')  # back to map
     keyboard.press_and_release('d')  # try to add PD
 
+
+def wait_host(path, start):
+    '''
+    Waits Dominions Autohost to Host.
+    Checks for Fatherlnd update.
+    '''
+
+    done = False
+    while done is False:
+        end = os.path.getmtime(path + 'ftherlnd')
+        if end > start:
+            done = True
+            break
+        else:
+            continue
+
+    return done
+
+
 def rundom(province, game='', switch=''):
     '''
     Runs a Dominions with game and switch settings.
     Takes as input game name, switches.
     '''
 
+    # Get Paths
     dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
+    gpath = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
+    start = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
 
     # Run Dominions on minimal settings
     switches = ' --simpgui --nosteam -waxsco' + switch + ' '
     program = '/k cd /d' + dom + ' & Dominions5.exe'
     cmd = 'cmd ' + program + switches + game
+
     process = subprocess.Popen(cmd)
 
-    # if auto hosting battle
-    if switch == 'g -T':
-        pass
+    if switch == 'g -T':  # if auto hosting battle
 
-        # Wait until turn is over
-        done = False
-        while done is False:
-            sleep(0.1)
-            if "Dominions5.exe" not in (p.name() for p in process_iter()):
-                done = True
-                process.terminate()
+        wait_host(gpath, start)
+
     else:
         clicker()  # select nation
         gotoprov(dom, province)  # check battle report
