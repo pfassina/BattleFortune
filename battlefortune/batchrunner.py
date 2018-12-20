@@ -66,13 +66,16 @@ def rundom(province, game='', switch=''):
     '''
 
     # Get Paths
-    dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
-    gpath = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
+    with open('./battlefortune/data/config.yaml') as file:
+        paths = yaml.load(file)
+
+    dpath = paths['dompath']
+    gpath = paths['gamepath']
     start = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
 
     # Run Dominions on minimal settings
     switches = ' --simpgui --nosteam -waxsco' + switch + ' '
-    program = '/k cd /d' + dom + ' & Dominions5.exe'
+    program = '/k cd /d' + dpath + ' & Dominions5.exe'
     cmd = 'cmd ' + program + switches + game
 
     process = subprocess.Popen(cmd)
@@ -83,8 +86,8 @@ def rundom(province, game='', switch=''):
 
     else:
         clicker()  # select nation
-        gotoprov(dom, province)  # check battle report
-        validate_log(dom)  # validate log
+        gotoprov(dpath, province)  # check battle report
+        validate_log(dpath)  # validate log
 
     process.terminate()
     if "Dominions5.exe" in (p.name() for p in process_iter()):
