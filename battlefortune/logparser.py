@@ -8,30 +8,26 @@ def confirm_log(path):
     Checks if Log finished loading.
     '''
 
-    done = False
-    while done is False:
-        with open(path + 'log.txt') as file:
+    valid = False
+    with open(path + 'log.txt') as file:
+        i = 0
+        while i < 1000:
             blurb = file.read()
-            print("blurb: " + blurb)
-            start = blurb.find('getbattlecountfromvcr') + 21  # battle loaded
-            print("start: " + str(start))
-            won = -1
-            lost = -1
-            if start > 20:
-                log = blurb[start:]
-                print("blurb log: " + log)
-                won = log.find('WhatPD')  # player won
-                lost = log.find('spreadpath for no one')  # player lost
-                print("won: " + str(won))
-                print("lost: " + str(lost))
-            if won != -1 or lost != -1:
-                print("found won/lost")
-                done = True
-                file.close()
-            else:
-                pass
+            start = blurb.find('getbattlecountfromvcr')  # battle loaded
+            if start == -1:
+                i += 1
+                continue
+            if blurb[start:].find('WhatPD') != -1: # Player Won
+                valid = True
+                break
+            elif blurb[start:].find('spreadpath') != -1: # Player Lost
+                valid = True
+                break
+            i += 1
 
-    return done
+    file.close()
+
+    return valid
 
 
 def parse_nations(log):
@@ -136,7 +132,7 @@ def parselog(turn):
     stream = open('./battlefortune/data/config.yaml')
     path = yaml.load(stream)['gamepath'] + 'turns\\'
     log = open(path + str(turn) + '_log.txt', mode='r').read()
-    
+
     print("^^^ log in parselog: " + log)
 
     # identify armies
