@@ -1,5 +1,5 @@
 import keyboard
-from logparser import parselog, confirm_log
+from logparser import parselog, validate_log
 import os
 from psutil import process_iter
 from pyautogui import locateOnScreen, click
@@ -69,7 +69,7 @@ def rundom(province, game='', switch=''):
     else:
         clicker()  # select nation
         gotoprov(dom, province)  # check battle report
-        confirm_log(dom)  # validate log
+        validate_log(dom)  # validate log
 
     process.terminate()
     if "Dominions5.exe" in (p.name() for p in process_iter()):
