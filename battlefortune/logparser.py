@@ -3,7 +3,7 @@ import yaml
 from time import sleep
 
 
-def confirm_log(path):
+def validate_log(path):
     '''
     Checks if Log finished loading.
     '''
