@@ -4,7 +4,7 @@ import os
 from psutil import process_iter
 from pyautogui import locateOnScreen, click
 import subprocess
-from turnhandler import backupturn, restoreturn, clonegame
+from turnhandler import backupturn, clonegame, cleanturns
 import yaml
 from time import sleep
 import threading
@@ -129,7 +129,6 @@ def prepareTurn(turn=1):
 
     print("called prepareTurn")
     clonegame(turn)
-    restoreturn(turn)  # restore back-up files if needed
 
 def host(game, province, rounds):   
     print("called host")
@@ -178,6 +177,8 @@ def batchrun(rounds, game, province):
         for j in range(len(log['battlelog'])):
             battles.append(log['battlelog'][j])  # get battle report
         print('Round: ' + str(i))
+        
+    cleanturns(rounds)
 
     output = {
         'nations': nations,
