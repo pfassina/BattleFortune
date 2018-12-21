@@ -9,6 +9,7 @@ import yaml
 from time import sleep
 import threading
 
+
 def clicker():
     '''
     Finds and clicks on Nation Flag.
@@ -77,13 +78,13 @@ def rundom(province, game='', switch='', turn=-1):
 
     dpath = paths['dompath']
     gpath = paths['gamepath']
-    
+
     if turn > -1:
         idx = gpath.rfind("/")
         gpath = gpath[:idx] + str(turn) + gpath[idx:]
         game = game + str(turn)
-    
-    print("gpath: " + gpath)    
+
+    print("gpath: " + gpath)
     start = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
 
     # Run Dominions on minimal settings
@@ -96,8 +97,6 @@ def rundom(province, game='', switch='', turn=-1):
 
     if switch == 'g -T':  # if auto hosting battle
 
-        #out,error = process.communicate() 
-        #memory = out.splitlines()
         wait_host(gpath, start)
         print("hosting done for turn " + str(turn))
 
@@ -107,7 +106,7 @@ def rundom(province, game='', switch='', turn=-1):
         validate_log(dpath)  # validate log
 
     process.terminate()
-    
+
     if switch != 'g -T':
         if "Dominions5.exe" in (p.name() for p in process_iter()):
             os.system("TASKKILL /F /IM Dominions5.exe")
@@ -131,23 +130,27 @@ def prepareTurn(turn=1):
     clonegame(turn)
     restoreturn(turn)  # restore back-up files if needed
 
-def host(game, province, rounds):   
+
+def host(game, province, rounds):
+
     print("called host")
-    switch='g -T'
+    switch = 'g -T'
     threads = []
+
     for i in range(1, rounds + 1):
-        t = threading.Thread(target=rundom, args=(province,game,switch,i,)) # auto host battle
+        # auto host battle
+        t = threading.Thread(target=rundom, args=(province, game, switch, i))
         threads.append(t)
         t.start()
-        #rundom(province=province, game=game, switch='g -T', i)  # auto host battle
-    
+
     for thread in threads:
         thread.join()
-    
 
-def finalizeTurn(game, province, turn=1):   
-    print("called finalizeTurn") 
-    rundom(province=province, game=game, switch='d', turn=turn)  # generate battle logs
+
+def finalizeTurn(game, province, turn=1):
+    print("called finalizeTurn")
+    # generate battle logs
+    rundom(province=province, game=game, switch='d', turn=turn)
     backupturn(turn)  # back-up turn files
     turn_log = parselog(turn)  # read and parse battle log
 
@@ -167,9 +170,9 @@ def batchrun(rounds, game, province):
 
     for i in range(1, rounds + 1):
         prepareTurn(i)
-        
+
     host(game, province, rounds)
-        
+
     for i in range(1, rounds + 1):
         log = finalizeTurn(game, province, i)  # get turn log
         if i == 1:

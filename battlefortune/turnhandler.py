@@ -62,7 +62,8 @@ def restoreturn(turn=-1):
                 print("src: " + src)
                 print("dst: " + dst)
                 shutil.copy(src, dst)
-            
+
+
 def clonegame(turn):
     '''
     Creates clone of game to analyze for turn.
@@ -71,12 +72,12 @@ def clonegame(turn):
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
     idx = path.rfind("/")
     turnpath = path[:idx] + str(turn) + path[idx:]
-    
+
     print("turn path: " + turnpath)
-    
+
     if not os.path.exists(turnpath):
         os.makedirs(turnpath)
-        
+
     folder = os.listdir(path)
     files = [f for f in folder]
     print("path: " + path)
