@@ -32,12 +32,15 @@ def backupturn(turn):
     shutil.copy(log, path + 'turns/' + str(turn) + '_log.txt')
 
 
-def restoreturn():
+def restoreturn(turn=-1):
     '''
     Restores Pre-Battle turn 0.
     '''
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
+    if turn > -1:
+        idx = path.rfind("/")
+        path = path[:idx] + str(turn) + path[idx:]
 
     if not os.path.exists(path + 'turns/'):
         os.makedirs(path + 'turns/')
@@ -53,6 +56,37 @@ def restoreturn():
             shutil.copy(src, dst)
     else:
         for file in os.listdir(path):
-            src = path + file
-            dst = path + 'turns/0_' + file
-            shutil.copy(src, dst)
+            if os.path.isfile(path + file):
+                src = path + file
+                dst = path + 'turns/0_' + file
+                print("src: " + src)
+                print("dst: " + dst)
+                shutil.copy(src, dst)
+            
+def clonegame(turn):
+    '''
+    Creates clone of game to analyze for turn.
+    '''
+
+    path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
+    idx = path.rfind("/")
+    turnpath = path[:idx] + str(turn) + path[idx:]
+    
+    print("turn path: " + turnpath)
+    
+    if not os.path.exists(turnpath):
+        os.makedirs(turnpath)
+        
+    folder = os.listdir(path)
+    files = [f for f in folder]
+    print("path: " + path)
+    print("files: " + str(len(files)))
+    if len(files) > 0:
+        for file in files:
+            print("file: " + file)
+            if os.path.isfile(path + file):
+                src = path + file
+                dst = turnpath + file
+                print("clone src: " + src)
+                print("clone dst: " + dst)
+                shutil.copy(src, dst)

@@ -4,9 +4,10 @@ import os
 from psutil import process_iter
 from pyautogui import locateOnScreen, click
 import subprocess
-from turnhandler import backupturn, restoreturn
+from turnhandler import backupturn, restoreturn, clonegame
 import yaml
-
+from time import sleep
+import threading
 
 def clicker():
     '''
@@ -47,8 +48,12 @@ def wait_host(path, start):
     Checks for Fatherlnd update.
     '''
 
+    print("wait_host, path: " + path)
+    print("wait_host, start: " + str(start))
     done = False
     while done is False:
+        print("wait_host, still waiting for path " + path)
+        sleep(1)
         end = os.path.getmtime(path + 'ftherlnd')
         if end > start:
             done = True
@@ -59,11 +64,12 @@ def wait_host(path, start):
     return done
 
 
-def rundom(province, game='', switch=''):
+def rundom(province, game='', switch='', turn=-1):
     '''
     Runs a Dominions with game and switch settings.
     Takes as input game name, switches.
     '''
+    print("called rundom for turn " + str(turn))
 
     # Get Paths
     with open('./battlefortune/data/config.yaml') as file:
@@ -71,6 +77,13 @@ def rundom(province, game='', switch=''):
 
     dpath = paths['dompath']
     gpath = paths['gamepath']
+    
+    if turn > -1:
+        idx = gpath.rfind("/")
+        gpath = gpath[:idx] + str(turn) + gpath[idx:]
+        game = game + str(turn)
+    
+    print("gpath: " + gpath)    
     start = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
 
     # Run Dominions on minimal settings
@@ -78,11 +91,15 @@ def rundom(province, game='', switch=''):
     program = '/k cd /d' + dpath + ' & Dominions5.exe'
     cmd = 'cmd ' + program + switches + game
 
+    print("about to open process for cmd: " + cmd)
     process = subprocess.Popen(cmd)
 
     if switch == 'g -T':  # if auto hosting battle
 
+        #out,error = process.communicate() 
+        #memory = out.splitlines()
         wait_host(gpath, start)
+        print("hosting done for turn " + str(turn))
 
     else:
         clicker()  # select nation
@@ -90,11 +107,13 @@ def rundom(province, game='', switch=''):
         validate_log(dpath)  # validate log
 
     process.terminate()
-    if "Dominions5.exe" in (p.name() for p in process_iter()):
-        os.system("TASKKILL /F /IM Dominions5.exe")
+    
+    if switch != 'g -T':
+        if "Dominions5.exe" in (p.name() for p in process_iter()):
+            os.system("TASKKILL /F /IM Dominions5.exe")
 
 
-def round(game, province, turn=1):
+def prepareTurn(turn=1):
     '''
     Run a full round of the simulation.
     Takes as input the game name, and the current simulation turn
@@ -108,9 +127,27 @@ def round(game, province, turn=1):
         7.  Parse Battle Log
     '''
 
-    restoreturn()  # restore back-up files if needed
-    rundom(province=province, game=game, switch='g -T')  # auto host battle
-    rundom(province=province, game=game, switch='d')  # generate battle logs
+    print("called prepareTurn")
+    clonegame(turn)
+    restoreturn(turn)  # restore back-up files if needed
+
+def host(game, province, rounds):   
+    print("called host")
+    switch='g -T'
+    threads = []
+    for i in range(1, rounds + 1):
+        t = threading.Thread(target=rundom, args=(province,game,switch,i,)) # auto host battle
+        threads.append(t)
+        t.start()
+        #rundom(province=province, game=game, switch='g -T', i)  # auto host battle
+    
+    for thread in threads:
+        thread.join()
+    
+
+def finalizeTurn(game, province, turn=1):   
+    print("called finalizeTurn") 
+    rundom(province=province, game=game, switch='d', turn=turn)  # generate battle logs
     backupturn(turn)  # back-up turn files
     turn_log = parselog(turn)  # read and parse battle log
 
@@ -123,12 +160,18 @@ def batchrun(rounds, game, province):
     Takes as input number of simultated rounds, game name.
     Outputs a dictionary with lists of parsed game logs.
     '''
+    print("called batchrun")
 
     winners = []
     battles = []
 
     for i in range(1, rounds + 1):
-        log = round(game, province, i)  # get turn log
+        prepareTurn(i)
+        
+    host(game, province, rounds)
+        
+    for i in range(1, rounds + 1):
+        log = finalizeTurn(game, province, i)  # get turn log
         if i == 1:
             nations = log['nations']  # get nation ids
         winners.append(log['turn_score'])  # get turn winner
