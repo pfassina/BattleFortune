@@ -120,10 +120,9 @@ def rundom(province, game='', switch='', turn=-1):
         validate_log(dpath)  # validate log
 
     
-    
+    process.terminate()
     
     if switch != 'g -T':
-        process.terminate()
         if "Dominions5.exe" in (p.name() for p in process_iter()):
             os.system("TASKKILL /F /IM Dominions5.exe")
 
