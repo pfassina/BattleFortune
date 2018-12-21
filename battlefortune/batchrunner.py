@@ -92,23 +92,38 @@ def rundom(province, game='', switch='', turn=-1):
     cmd = 'cmd ' + program + switches + game
 
     print("about to open process for cmd: " + cmd)
-    process = subprocess.Popen(cmd)
+    #process = subprocess.Popen(cmd)
+    
+    try:
+        process = subprocess.Popen(cmd)
+    except:
+        print('An error occurred.')
+    
 
     if switch == 'g -T':  # if auto hosting battle
 
         #out,error = process.communicate() 
         #memory = out.splitlines()
+#         try:
+#             subprocess.check_call(cmd)
+#         except subprocess.CalledProcessError:
+#             # There was an error - command exited with non-zero code
+#             print("error while hosting")
+        
         wait_host(gpath, start)
         print("hosting done for turn " + str(turn))
 
     else:
+        #process = subprocess.Popen(cmd)
         clicker()  # select nation
         gotoprov(dpath, province)  # check battle report
         validate_log(dpath)  # validate log
 
-    process.terminate()
+    
+    
     
     if switch != 'g -T':
+        process.terminate()
         if "Dominions5.exe" in (p.name() for p in process_iter()):
             os.system("TASKKILL /F /IM Dominions5.exe")
 
