@@ -132,13 +132,13 @@ def prepareTurn(turn=1):
 
 def host(game, province, rounds):   
     print("called host")
-    switch='g -T'
+    switch = 'g -T'
     threads = []
     for i in range(1, rounds + 1):
-        t = threading.Thread(target=rundom, args=(province,game,switch,i,)) # auto host battle
+        t = threading.Thread(target=rundom, args=(province,game,switch,i)) 
+        # auto host battle
         threads.append(t)
         t.start()
-        #rundom(province=province, game=game, switch='g -T', i)  # auto host battle
     
     for thread in threads:
         thread.join()

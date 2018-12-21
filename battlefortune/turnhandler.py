@@ -41,7 +41,6 @@ def cleanturns(rounds):
     
     for i in range(1, rounds + 1):
         folder = path[:idx] + str(i) + path[idx:]
-        print("folder to remove: " + folder)
         shutil.rmtree(folder)
     
     turnspath = path + "turns"
