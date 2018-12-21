@@ -2,9 +2,10 @@ from batchrunner import batchrun
 import os
 from visualization import visualize
 import yaml
+import json
+import time
 
-
-def setup(dompath, gamepath):
+def setup(dompath, gamepath, maxthreads):
     '''
     Setups config.yaml file with file pathsself.
     Takes as input the absolute path for Dominions Game and Turn Files
@@ -12,7 +13,8 @@ def setup(dompath, gamepath):
 
     config = {
         'dompath': dompath,
-        'gamepath': gamepath
+        'gamepath': gamepath,
+        'maxthreads': maxthreads
     }
 
     stream = open('./battlefortune/data/config.yaml', 'w')
@@ -21,7 +23,7 @@ def setup(dompath, gamepath):
     return
 
 
-def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
+def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=False):
     '''
     Runs BattleFortune.
     Takes as required inputs:
@@ -33,7 +35,7 @@ def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
     Outputs distribution charts.
     '''
 
-    setup(dompath, gamepath)
+    setup(dompath, gamepath, maxthreads)
 
     logs = batchrun(turns, game, province)
     n = logs['nations']
@@ -48,7 +50,19 @@ def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
 
         yaml.dump(data=w, stream=open(logpath + 'winlog.yaml', 'w'))
         yaml.dump(data=b, stream=open(logpath + 'battlelog.yaml', 'w'))
+        
+        with open(logpath + 'battlelog.json', 'w') as outfile:  
+            json.dump(b, outfile)
 
     # wl = logcalc.wincalc(w)
 
-    visualize(n, w, b)
+    #visualize(n, w, b)
+    
+    
+    
+
+print("start of operation - git project")
+millis1 = int(round(time.time() * 1000))
+BattleFortune(5, 3, 'nazcaystestreinvigsim',10,'C:/Program Files (x86)/Steam/steamapps/common/Dominions5/','C:/Users/Alan/AppData/Roaming/Dominions5/savedgames/nazcaystestreinvigsim/', True)
+millis2 = int(round(time.time() * 1000))
+print("BattleFortune took " + str((millis2 - millis1)/1000) + " seconds")

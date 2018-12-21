@@ -42,7 +42,7 @@ def gotoprov(path, province):
     keyboard.press_and_release('d')  # try to add PD
 
 
-def wait_host(path, start):
+def wait_host(path, start, process):
     '''
     Waits Dominions Autohost to Host.
     Checks for Fatherlnd update.
@@ -53,6 +53,8 @@ def wait_host(path, start):
     done = False
     while done is False:
         print("wait_host, still waiting for path " + path)
+        #returnCode = process.poll()
+        #print("wait_host, returnCode: " + str(returnCode) + " for path " + path)
         sleep(1)
         end = os.path.getmtime(path + 'ftherlnd')
         if end > start:
@@ -96,6 +98,18 @@ def rundom(province, game='', switch='', turn=-1):
     
     try:
         process = subprocess.Popen(cmd)
+        #returnCode = process.poll()
+        #print("returnCode before termination: " + str(returnCode))
+        
+#         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+# 
+# 
+#         stdout_data, stderr_data = process.communicate()
+#         if process.returncode != 0:
+#             raise RuntimeError("%r failed, status code %s stdout %r stderr %r" % (cmd, process.returncode, stdout_data, stderr_data))
+#             output_lines = stdout_data.splitlines()  # you could also use `keepends=True`
+#             print("output_lines: " + output_lines)
+
     except:
         print('An error occurred.')
     
@@ -110,7 +124,7 @@ def rundom(province, game='', switch='', turn=-1):
 #             # There was an error - command exited with non-zero code
 #             print("error while hosting")
         
-        wait_host(gpath, start)
+        wait_host(gpath, start, process)
         print("hosting done for turn " + str(turn))
 
     else:
@@ -121,6 +135,11 @@ def rundom(province, game='', switch='', turn=-1):
 
     
     process.terminate()
+    #returnCode = process.poll()
+    #print("returnCode after termination1: " + str(returnCode))
+    #sleep(2)
+    #returnCode = process.poll()
+    #print("returnCode after termination2: " + str(returnCode))
     
     if switch != 'g -T':
         if "Dominions5.exe" in (p.name() for p in process_iter()):
@@ -148,14 +167,37 @@ def host(game, province, rounds):
     print("called host")
     switch = 'g -T'
     threads = []
-    for i in range(1, rounds + 1):
-        t = threading.Thread(target=rundom, args=(province,game,switch,i)) 
-        # auto host battle
-        threads.append(t)
-        t.start()
     
-    for thread in threads:
-        thread.join()
+    maxthreads = yaml.load(open('./battlefortune/data/config.yaml'))['maxthreads']
+    print("maxthreads: " + str(maxthreads))
+    
+    startrange = 1
+    endrange = startrange + maxthreads
+    if endrange > (rounds + 1):
+        endrange = rounds + 1
+    
+    while startrange < (rounds + 1):
+        print("startrange: " + str(startrange))
+        print("endrange: " + str(endrange))
+        for i in range(startrange, endrange):
+            print("about to host round: " + str(i))
+            t = threading.Thread(target=rundom, args=(province,game,switch,i)) 
+            # auto host battle
+            threads.append(t)
+            t.start()
+        
+        for thread in threads:
+            thread.join()
+            print("joined a thread")
+        
+        threads = []
+        startrange = startrange + maxthreads
+        endrange = endrange + maxthreads
+        if endrange > (rounds + 1):
+            endrange = rounds + 1
+    
+    
+    print("finished host")
     
 
 def finalizeTurn(game, province, turn=1):   
