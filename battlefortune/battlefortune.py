@@ -61,8 +61,8 @@ def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=
     
     
 
-print("start of operation - git project")
-millis1 = int(round(time.time() * 1000))
-BattleFortune(5, 3, 'nazcaystestreinvigsim',10,'C:/Program Files (x86)/Steam/steamapps/common/Dominions5/','C:/Users/Alan/AppData/Roaming/Dominions5/savedgames/nazcaystestreinvigsim/', True)
-millis2 = int(round(time.time() * 1000))
-print("BattleFortune took " + str((millis2 - millis1)/1000) + " seconds")
+# print("start of operation - git project")
+# millis1 = int(round(time.time() * 1000))
+# BattleFortune(20, 20, 'nazcaystestreinvigsim',10,'C:/Program Files (x86)/Steam/steamapps/common/Dominions5/','C:/Users/Alan/AppData/Roaming/Dominions5/savedgames/nazcaystestreinvigsim/', True)
+# millis2 = int(round(time.time() * 1000))
+# print("BattleFortune took " + str((millis2 - millis1)/1000) + " seconds")

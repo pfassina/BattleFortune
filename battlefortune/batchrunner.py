@@ -8,6 +8,7 @@ from turnhandler import backupturn, clonegame, cleanturns
 import yaml
 from time import sleep
 import threading
+import time
 
 def clicker():
     '''
@@ -51,12 +52,19 @@ def wait_host(path, start, process):
     print("wait_host, path: " + path)
     print("wait_host, start: " + str(start))
     done = False
+    beforeHostCheck = int(round(time.time() * 1000))
     while done is False:
-        print("wait_host, still waiting for path " + path)
         #returnCode = process.poll()
         #print("wait_host, returnCode: " + str(returnCode) + " for path " + path)
         sleep(1)
+        lastHostCheck = int(round(time.time() * 1000))
+        hostingDuration = (lastHostCheck - beforeHostCheck)/1000
+        print("wait_host, still waiting for path " + path + ", hostingDuration: " + str(hostingDuration))
         end = os.path.getmtime(path + 'ftherlnd')
+        
+        if hostingDuration > 60:
+            break
+        
         if end > start:
             done = True
             break
@@ -66,7 +74,7 @@ def wait_host(path, start, process):
     return done
 
 
-def rundom(province, game='', switch='', turn=-1):
+def rundom(province, game='', switch='', turn=-1, failedrounds=[]):
     '''
     Runs a Dominions with game and switch settings.
     Takes as input game name, switches.
@@ -124,8 +132,10 @@ def rundom(province, game='', switch='', turn=-1):
 #             # There was an error - command exited with non-zero code
 #             print("error while hosting")
         
-        wait_host(gpath, start, process)
-        print("hosting done for turn " + str(turn))
+        success = wait_host(gpath, start, process)
+        print("hosting done for turn " + str(turn) + ", success: " + str(success))
+        if not success:
+            failedrounds.append(turn)
 
     else:
         #process = subprocess.Popen(cmd)
@@ -146,6 +156,7 @@ def rundom(province, game='', switch='', turn=-1):
             os.system("TASKKILL /F /IM Dominions5.exe")
 
 
+
 def prepareTurn(turn=1):
     '''
     Run a full round of the simulation.
@@ -163,7 +174,7 @@ def prepareTurn(turn=1):
     print("called prepareTurn")
     clonegame(turn)
 
-def host(game, province, rounds):   
+def host(game, province, rounds, failedrounds):   
     print("called host")
     switch = 'g -T'
     threads = []
@@ -181,7 +192,7 @@ def host(game, province, rounds):
         print("endrange: " + str(endrange))
         for i in range(startrange, endrange):
             print("about to host round: " + str(i))
-            t = threading.Thread(target=rundom, args=(province,game,switch,i)) 
+            t = threading.Thread(target=rundom, args=(province,game,switch,i,failedrounds))
             # auto host battle
             threads.append(t)
             t.start()
@@ -219,13 +230,26 @@ def batchrun(rounds, game, province):
 
     winners = []
     battles = []
+    failedrounds = []
 
     for i in range(1, rounds + 1):
         prepareTurn(i)
         
-    host(game, province, rounds)
+    host(game, province, rounds, failedrounds)
+    
+    print("finished hosting in batchrun")
         
     for i in range(1, rounds + 1):
+        
+        if not failedrounds:
+            print("failedrounds is empty")
+        else:
+            print("failedrounds: " + str(failedrounds))
+        #print("failedrounds: " + failedrounds)
+        if i in failedrounds:
+            print("skipping i: " + str(i))
+            continue
+        
         log = finalizeTurn(game, province, i)  # get turn log
         if i == 1:
             nations = log['nations']  # get nation ids
@@ -235,6 +259,7 @@ def batchrun(rounds, game, province):
         print('Round: ' + str(i))
         
     cleanturns(rounds)
+    failedrounds = []
 
     output = {
         'nations': nations,
