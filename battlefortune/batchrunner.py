@@ -9,6 +9,7 @@ import yaml
 from time import sleep
 import threading
 import time
+import signal
 
 def clicker():
     '''
@@ -38,9 +39,13 @@ def gotoprov(path, province):
     keyboard.press_and_release('g')  # go to screen
     keyboard.write(str(province))  # select province
     keyboard.press_and_release('enter')  # confirm
+    #sleep(0.1)
     keyboard.press_and_release('c')  # view casualities
+    #sleep(0.1)
     keyboard.press_and_release('esc')  # back to map
+    #sleep(1)
     keyboard.press_and_release('d')  # try to add PD
+    #sleep(1)
 
 
 def wait_host(path, start, process):
@@ -62,7 +67,7 @@ def wait_host(path, start, process):
         print("wait_host, still waiting for path " + path + ", hostingDuration: " + str(hostingDuration))
         end = os.path.getmtime(path + 'ftherlnd')
         
-        if hostingDuration > 60:
+        if hostingDuration > 35:
             break
         
         if end > start:
@@ -144,13 +149,22 @@ def rundom(province, game='', switch='', turn=-1, failedrounds=[]):
         validate_log(dpath)  # validate log
 
     
-    process.terminate()
+    print("trying to terminate process for turn " + str(turn))
+    #process.terminate()
+    process.kill()
+    #os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+    #os.kill(process.pid)
+    print("terminated process for turn " + str(turn))
     #returnCode = process.poll()
     #print("returnCode after termination1: " + str(returnCode))
     #sleep(2)
     #returnCode = process.poll()
     #print("returnCode after termination2: " + str(returnCode))
     
+#     if "Dominions5.exe" in (p.name() for p in process_iter()):
+#         os.system("TASKKILL /F /IM Dominions5.exe")
+            
+    print("2terminated process for turn " + str(turn))
     if switch != 'g -T':
         if "Dominions5.exe" in (p.name() for p in process_iter()):
             os.system("TASKKILL /F /IM Dominions5.exe")
@@ -245,7 +259,6 @@ def batchrun(rounds, game, province):
             print("failedrounds is empty")
         else:
             print("failedrounds: " + str(failedrounds))
-        #print("failedrounds: " + failedrounds)
         if i in failedrounds:
             print("skipping i: " + str(i))
             continue
