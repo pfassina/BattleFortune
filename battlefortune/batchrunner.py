@@ -146,7 +146,13 @@ def rundom(province, game='', switch='', turn=-1, failedrounds=[]):
         #process = subprocess.Popen(cmd)
         clicker()  # select nation
         gotoprov(dpath, province)  # check battle report
-        validate_log(dpath)  # validate log
+        valid = validate_log(dpath)  # validate log
+        print("log validation done for turn " + str(turn) + ", valid: " + str(valid))
+        if not valid:
+            print("log validation failed for turn " + str(turn) + ", appending to failedrounds (before): " + str(failedrounds))
+            failedrounds.append(turn)
+            print("log validation failed for turn " + str(turn) + ", appending to failedrounds (after): " + str(failedrounds))
+        
 
     
     print("trying to terminate process for turn " + str(turn))
@@ -225,11 +231,16 @@ def host(game, province, rounds, failedrounds):
     print("finished host")
     
 
-def finalizeTurn(game, province, turn=1):   
+def finalizeTurn(game, province, failedrounds, turn=1):   
     print("called finalizeTurn") 
-    rundom(province=province, game=game, switch='d', turn=turn)  # generate battle logs
-    backupturn(turn)  # back-up turn files
-    turn_log = parselog(turn)  # read and parse battle log
+    rundom(province=province, game=game, switch='d', turn=turn, failedrounds=failedrounds)  # generate battle logs
+    
+    turn_log = {}
+    
+    print("failedrounds before backupturn: " + str(failedrounds))
+    if turn not in failedrounds:
+        backupturn(turn)  # back-up turn files
+        turn_log = parselog(turn)  # read and parse battle log
 
     return turn_log
 
@@ -260,10 +271,15 @@ def batchrun(rounds, game, province):
         else:
             print("failedrounds: " + str(failedrounds))
         if i in failedrounds:
-            print("skipping i: " + str(i))
+            print("skipping i due to parsing issue: " + str(i))
             continue
         
-        log = finalizeTurn(game, province, i)  # get turn log
+        log = finalizeTurn(game, province, failedrounds, i)  # get turn log
+        if i in failedrounds:
+            print("skipping i due to logging failure: " + str(i))
+            continue
+        
+        
         if i == 1:
             nations = log['nations']  # get nation ids
         winners.append(log['turn_score'])  # get turn winner
