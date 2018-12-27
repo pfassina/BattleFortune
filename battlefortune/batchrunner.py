@@ -59,8 +59,8 @@ def wait_host(path, start, process):
     done = False
     beforeHostCheck = int(round(time.time() * 1000))
     while done is False:
-        #returnCode = process.poll()
-        #print("wait_host, returnCode: " + str(returnCode) + " for path " + path)
+        # returnCode = process.poll()
+        # print("wait_host, returnCode: " + str(returnCode) + " for path " + path)
         sleep(1)
         lastHostCheck = int(round(time.time() * 1000))
         hostingDuration = (lastHostCheck - beforeHostCheck)/1000
@@ -122,7 +122,7 @@ def rundom(province, game='', switch='', turn=-1, failedrounds=[]):
         #     output_lines = stdout_data.splitlines()  # you could also use `keepends=True`
         #     print("output_lines: " + output_lines)
 
-    except:
+    except ChildProcessError:
         print('An error occurred.')
 
     if switch == 'g -T':  # if auto hosting battle
@@ -150,8 +150,6 @@ def rundom(province, game='', switch='', turn=-1, failedrounds=[]):
             print("log validation failed for turn " + str(turn) + ", appending to failedrounds (before): " + str(failedrounds))
             failedrounds.append(turn)
             print("log validation failed for turn " + str(turn) + ", appending to failedrounds (after): " + str(failedrounds))
-
-
 
     print("trying to terminate process for turn " + str(turn))
     # process.terminate()
@@ -246,7 +244,7 @@ def finalizeTurn(game, province, failedrounds, turn=1):
 def batchrun(rounds, game, province):
     """
     Runs X numbers of Simulation Rounds.
-    Takes as input number of simultated rounds, game name.
+    Takes as input number of simulated rounds, game name.
     Outputs a dictionary with lists of parsed game logs.
     """
     print("called batchrun")
