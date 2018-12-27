@@ -3,11 +3,11 @@ import pandas as pd
 
 
 def wins(winlog):
-    '''
+    """
     Parses a list of WinLogs and calculates the ratio of winnings per Nation.
     Takes as input a list of WinLogs.
     Returns a DataFrame with the Win Counts per Nation.
-    '''
+    """
 
     # Decode Nation IDs
     df = pd.DataFrame(winlog)
@@ -21,11 +21,11 @@ def wins(winlog):
 
 
 def pivot_battlelog(battlelog):
-    '''
+    """
     Prepares battlelog for manipulation.
     Takes as input a disctionary-like battlelog.
     Outputs a pandas DataFrame.
-    '''
+    """
 
     c = ['Army', 'Unit', 'Phase']
     df = pd.DataFrame(battlelog)
@@ -35,11 +35,11 @@ def pivot_battlelog(battlelog):
 
 
 def unit_losses(df, army):
-    '''
+    """
     Calculates Unit losses by army.
     Takes as input a prepared battlelog DataFrame.
     Returns an army DataFrame with losses per unit
-    '''
+    """
 
     # filter by army
     army_df = df[army].copy()
@@ -53,7 +53,7 @@ def unit_losses(df, army):
         # temp.columns.rename(item)
         army_results.append(temp[item])
 
-    # assemple army dataframe
+    # assemble army dataframe
     army_losses = pd.DataFrame({'Turn': range(1, 101)})
     for item in army_results:
         army_losses = army_losses.join(item, on='Turn')
@@ -66,11 +66,11 @@ def unit_losses(df, army):
 
 
 def army_cost(df, attribute):
-    '''
+    """
     Takes Army Losses DataFrame.
     Returns total resource cost per round of simulation.
     Accepets 'gold' or 'resources' as attribute cost.
-    '''
+    """
 
     # get units from army DataFrame
     units = df.columns.get_level_values(0).unique()

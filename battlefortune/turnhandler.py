@@ -4,10 +4,10 @@ import yaml
 
 
 def backupturn(turn):
-    '''
+    """
     Backups turn and log files.
     Takes as input the simulation turn number.
-    '''
+    """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
 
@@ -31,10 +31,11 @@ def backupturn(turn):
     log = dom + 'log.txt'
     shutil.copy(log, path + 'turns/' + str(turn) + '_log.txt')
 
+
 def cleanturns(rounds):
-    '''
+    """
     Cleans up temporary folders
-    '''
+    """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
     idx = path.rfind("/")
@@ -48,9 +49,9 @@ def cleanturns(rounds):
                    
             
 def clonegame(turn):
-    '''
+    """
     Creates clone of game to analyze for turn.
-    '''
+    """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
     idx = path.rfind("/")

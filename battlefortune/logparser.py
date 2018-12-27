@@ -3,9 +3,9 @@ import yaml
 
 
 def validate_log(path):
-    '''
+    """
     Checks if Log finished loading.
-    '''
+    """
 
     valid = False
 
@@ -24,7 +24,6 @@ def validate_log(path):
                 valid = True
                 break
             i += 1
-    file.close()
 
     return valid
 
@@ -122,10 +121,10 @@ def remove_turn_files(path, turn):
 
 
 def parselog(turn):
-    '''
+    """
     Parses Turn Log and returns two dictionary.
     First contains the winner nation, and the second the battle casualities.
-    '''
+    """
 
     # get battle log
     stream = open('./battlefortune/data/config.yaml')
