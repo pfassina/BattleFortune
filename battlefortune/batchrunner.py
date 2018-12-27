@@ -256,6 +256,7 @@ def batchrun(rounds, game, province):
     winners = []
     battles = []
     failedrounds = []
+    nations = {}
 
     for i in range(1, rounds + 1):
         prepareTurn(i)
@@ -279,8 +280,8 @@ def batchrun(rounds, game, province):
             print("skipping i due to logging failure: " + str(i))
             continue
         
-        
-        if i == 1:
+        #if i == 1:
+        if not nations:
             nations = log['nations']  # get nation ids
         winners.append(log['turn_score'])  # get turn winner
         for j in range(len(log['battlelog'])):
