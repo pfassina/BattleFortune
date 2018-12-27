@@ -5,10 +5,10 @@ import yaml
 
 
 def setup(dompath, gamepath):
-    '''
+    """
     Setups config.yaml file with file pathsself.
     Takes as input the absolute path for Dominions Game and Turn Files
-    '''
+    """
 
     config = {
         'dompath': dompath,
@@ -22,7 +22,7 @@ def setup(dompath, gamepath):
 
 
 def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
-    '''
+    """
     Runs BattleFortune.
     Takes as required inputs:
         1. Number of turns to be simulated.
@@ -31,7 +31,7 @@ def BattleFortune(turns, game, province, dompath, gamepath, dumplog=False):
         4. Dominions 5 executable path.
         5. Dominions 5 game folder path.
     Outputs distribution charts.
-    '''
+    """
 
     setup(dompath, gamepath)
 

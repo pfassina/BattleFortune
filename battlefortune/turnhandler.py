@@ -4,10 +4,10 @@ import yaml
 
 
 def backupturn(turn):
-    '''
+    """
     Backups turn and log files.
     Takes as input the simulation turn number.
-    '''
+    """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
 
@@ -33,9 +33,9 @@ def backupturn(turn):
 
 
 def restoreturn():
-    '''
+    """
     Restores Pre-Battle turn 0.
-    '''
+    """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
 

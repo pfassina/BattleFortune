@@ -9,9 +9,9 @@ import yaml
 
 
 def clicker():
-    '''
+    """
     Finds and clicks on Nation Flag.
-    '''
+    """
 
     s = None
     while s is None:
@@ -27,10 +27,10 @@ def clicker():
 
 
 def gotoprov(path, province):
-    '''
+    """
     Automates keyboard shortcuts to generate log.
     Takes as input the path to dominions log, and the province number.
-    '''
+    """
 
     keyboard.press_and_release('esc')  # exit messages
     keyboard.press_and_release('g')  # go to screen
@@ -42,10 +42,10 @@ def gotoprov(path, province):
 
 
 def wait_host(path, start):
-    '''
+    """
     Waits Dominions Autohost to Host.
     Checks for Fatherlnd update.
-    '''
+    """
 
     done = False
     while done is False:
@@ -60,10 +60,10 @@ def wait_host(path, start):
 
 
 def rundom(province, game='', switch=''):
-    '''
+    """
     Runs a Dominions with game and switch settings.
     Takes as input game name, switches.
-    '''
+    """
 
     # Get Paths
     with open('./battlefortune/data/config.yaml') as file:
@@ -95,7 +95,7 @@ def rundom(province, game='', switch=''):
 
 
 def round(game, province, turn=1):
-    '''
+    """
     Run a full round of the simulation.
     Takes as input the game name, and the current simulation turn
     Returns parsed logs after a full round of simulation.
@@ -106,7 +106,7 @@ def round(game, province, turn=1):
         5.  Run Turn after Battle
         6.  Backup turn tiles
         7.  Parse Battle Log
-    '''
+    """
 
     restoreturn()  # restore back-up files if needed
     rundom(province=province, game=game, switch='g -T')  # auto host battle
@@ -118,11 +118,11 @@ def round(game, province, turn=1):
 
 
 def batchrun(rounds, game, province):
-    '''
+    """
     Runs X numbers of Simulation Rounds.
     Takes as input number of simultated rounds, game name.
     Outputs a dictionary with lists of parsed game logs.
-    '''
+    """
 
     winners = []
     battles = []
