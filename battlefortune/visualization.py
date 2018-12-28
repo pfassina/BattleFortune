@@ -9,6 +9,12 @@ sns.set(palette="Set3", style="white")
 
 
 def load_battlelog(battlelog, nations):
+    """
+    Converts battle log into DataFrames
+    :param battlelog: list of battle logs dictionaries
+    :param nations: list of nations
+    :return: dictionary with attacker and defender DataFrames
+    """
 
     df = calc.pivot_battlelog(battlelog)
     attacker = calc.unit_losses(df, nations['attacker'])
@@ -23,14 +29,22 @@ def load_battlelog(battlelog, nations):
 
 
 def win_score(winlog):
-
+    """
+    Generates Win Score bar plot
+    :param winlog: win log file
+    :return: win score bar plot
+    """
     df = calc.wins(winlog)
     plt.figure(1)
     sns.barplot(x='Nation', y='Wins', data=df)
 
 
 def unit_deaths(dataframes):
-
+    """
+    Generates unit losses bar plot
+    :param dataframes: dictionary with attacker and defender DataFrames
+    :return: unit losses bar plot
+    """
     attacker = dataframes['attacker']
     defender = dataframes['defender']
 
@@ -48,7 +62,12 @@ def unit_deaths(dataframes):
 
 
 def army_roi(dataframes, nations):
-
+    """
+    Generates the Army ROI distribution plots
+    :param dataframes: dictionary with attacker and defender DataFrames
+    :param nations: list of nations
+    :return:
+    """
     attacker = dataframes['attacker']
     defender = dataframes['defender']
 
@@ -83,6 +102,13 @@ def army_roi(dataframes, nations):
 
 
 def visualize(nations, winlog, battlelog):
+    """
+    Calculate and Visualize battle results
+    :param nations: Nations participating in the battle
+    :param winlog: list of win logs
+    :param battlelog: list of battle logs
+    :return: plot visualizations
+    """
 
     df = load_battlelog(battlelog, nations)
     win_score(winlog)
