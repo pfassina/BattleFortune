@@ -24,7 +24,6 @@ def validate_log(path):
                 valid = True
                 break
             i += 1
-    file.close()
 
     return valid
 

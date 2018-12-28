@@ -1,3 +1,4 @@
+pywin32
 cycler==0.10.0
 keyboard==0.13.2
 kiwisolver==1.0.1

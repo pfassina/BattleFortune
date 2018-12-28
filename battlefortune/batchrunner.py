@@ -6,27 +6,45 @@ from pyautogui import locateOnScreen, click
 import subprocess
 from turnhandler import backupturn, restoreturn
 import yaml
+import win32gui
 
 
-def clicker():
-    """
-    Finds and clicks on Nation Flag.
-    """
+def wait_screen_load(path):
 
-    s = None
-    while s is None:
+    valid = False
+
+    i = 0
+    while i < 1000000:
         try:
-            select = './battlefortune/imgs/select.png'
-            s_region = (800, 400, 100, 100)
-            s = locateOnScreen(select, region=s_region, grayscale=True)
+            with open(path + 'log.txt') as file:
+                blurb = file.read()
+                load_complete = blurb.rfind('playturn: autohost')  # battle loaded
+                if load_complete == -1:
+                    i += 1
+                    continue
+                if load_complete != -1:  # Player Won
+                    valid = True
+                    break
+        except FileNotFoundError:
+            i += 1
+    return valid
 
-        except RuntimeError:
-            print('Unable to select Nation.')
 
-    click((s[0] + 15, s[1] + 40))
+def select_nation():
+    """
+    Find Dominions Window and Clicks Selects First Nation.
+    """
+
+    hwnd = 0
+    while hwnd is 0:
+        hwnd = win32gui.FindWindow(None, 'Dominions 5')
+
+    x, y = win32gui.ClientToScreen(hwnd, (0, 0))
+
+    click((x + 400, y + 280))
 
 
-def gotoprov(path, province):
+def go_to_prov(path, province):
     """
     Automates keyboard shortcuts to generate log.
     Takes as input the path to dominions log, and the province number.
@@ -85,8 +103,9 @@ def rundom(province, game='', switch=''):
         wait_host(gpath, start)
 
     else:
-        clicker()  # select nation
-        gotoprov(dpath, province)  # check battle report
+        wait_screen_load(dpath)
+        select_nation()  # select nation
+        go_to_prov(dpath, province)  # check battle report
         validate_log(dpath)  # validate log
 
     process.terminate()
