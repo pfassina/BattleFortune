@@ -2,7 +2,7 @@ import keyboard
 from logparser import parselog, validate_log
 import os
 from psutil import process_iter
-from pyautogui import locateOnScreen, click
+from pyautogui import click
 import subprocess
 from turnhandler import backupturn, clonegame, cleanturns, delete_log
 import yaml
@@ -229,8 +229,10 @@ def finalize_turn(game, province, turn=1):
 def batchrun(rounds, game, province):
     """
     Runs X numbers of Simulation Rounds.
-    Takes as input number of simulated rounds, game name.
-    Outputs a dictionary with lists of parsed game logs.
+    :param rounds: Number of rounds to be simulated
+    :param game: game name that will be simulated
+    :param province: province number where battle occurs
+    :return:
     """
 
     global failed_rounds
