@@ -92,7 +92,7 @@ def rundom(province, game='', switch=''):
     start = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
 
     # Run Dominions on minimal settings
-    switches = ' --simpgui --nosteam -waxsco' + switch + ' '
+    switches = ' --simpgui --nosteam --res 960 720 -waxsco' + switch + ' '
     program = '/k cd /d' + dpath + ' & Dominions5.exe'
     cmd = 'cmd ' + program + switches + game
 
