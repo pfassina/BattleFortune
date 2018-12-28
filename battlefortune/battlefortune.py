@@ -8,7 +8,10 @@ import json
 def setup(dompath, gamepath, maxthreads):
     """
     Setups config.yaml file with file paths.
-    Takes as input the absolute path for Dominions Game and Turn Files
+    :param dompath: OS path to dominions executable file
+    :param gamepath: OS path to game folder
+    :param maxthreads: maximum number of simultaneous threads
+    :return: True when config file is updated
     """
 
     config = {
@@ -20,19 +23,20 @@ def setup(dompath, gamepath, maxthreads):
     stream = open('./battlefortune/data/config.yaml', 'w')
     yaml.dump(data=config, stream=stream)
 
-    return
+    return True
 
 
 def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=False):
     """
-    Runs BattleFortune.
-    Takes as required inputs:
-        1. Number of turns to be simulated.
-        2. Name of the Game to be simulated.
-        3. Number of the province where the battle is happening.
-        4. Dominions 5 executable path.
-        5. Dominions 5 game folder path.
-    Outputs distribution charts.
+    Runs BattleFortune, simulate battles, and return results.
+    :param turns: Number of Turns to be simulated.
+    :param maxthreads: Maximum number of simultaneous threads.
+    :param game: Game to be simulated.
+    :param province: Province where battle occurs.
+    :param dompath: dominions OS path.
+    :param gamepath: game OS path.
+    :param dumplog: If true, created log files.
+    :return: True when simulation is completed.
     """
 
     setup(dompath, gamepath, maxthreads)
@@ -55,3 +59,5 @@ def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=
             json.dump(b, outfile)
 
     visualize(n, w, b)
+
+    return True

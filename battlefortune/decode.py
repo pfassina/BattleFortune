@@ -4,8 +4,9 @@ import pickle
 def nation(id, attribute='name'):
     """
     Decodes Nation Id.
-    Takes Nation Id as input, and returns nation attribute.
-    Nation attributes:  name (default), abbreviation, epithet, file_name, era
+    :param id: Nation Id
+    :param attribute: Nation Attribute to be decoded (name (default), abbreviation, epithet, file_name, era)
+    :return: Decoded attribute
     """
 
     file = open('./battlefortune/data/nations', 'rb')
@@ -15,9 +16,10 @@ def nation(id, attribute='name'):
 
 def unit(name, attribute='gcost'):
     """
-    Decodes Nation Id.
-    Takes Nation Id as input, and returns nation attribute.
-    Nation attributes:  name (default), abbreviation, epithet, file_name, era
+    Returns Unit resource cost by Unit Name.
+    :param name: Unit Name
+    :param attribute: Attribute Value (gcost (default), rcost)
+    :return: Decoded attribute
     """
 
     file = open('./battlefortune/data/units', 'rb')

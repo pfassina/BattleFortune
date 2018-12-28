@@ -5,6 +5,7 @@ import pandas as pd
 import seaborn as sns
 
 
+# set visualization palette
 sns.set(palette="Set3", style="white")
 
 
@@ -34,6 +35,7 @@ def win_score(winlog):
     :param winlog: win log file
     :return: win score bar plot
     """
+
     df = calc.wins(winlog)
     plt.figure(1)
     sns.barplot(x='Nation', y='Wins', data=df)
@@ -45,6 +47,7 @@ def unit_deaths(dataframes):
     :param dataframes: dictionary with attacker and defender DataFrames
     :return: unit losses bar plot
     """
+
     attacker = dataframes['attacker']
     defender = dataframes['defender']
 
@@ -68,6 +71,7 @@ def army_roi(dataframes, nations):
     :param nations: list of nations
     :return:
     """
+
     attacker = dataframes['attacker']
     defender = dataframes['defender']
 
