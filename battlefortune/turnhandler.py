@@ -75,3 +75,12 @@ def clonegame(turn):
                 print("clone src: " + src)
                 print("clone dst: " + dst)
                 shutil.copy(src, dst)
+
+
+def delete_log():
+
+    dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
+    log = dom + 'log.txt'
+    os.remove(log)
+
+    return True
