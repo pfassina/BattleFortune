@@ -58,6 +58,9 @@ def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=
         with open(logpath + 'battlelog.json', 'w') as outfile:  
             json.dump(b, outfile)
 
+        with open(logpath + 'winlog.json', 'w') as outfile:
+            json.dump(w, outfile)
+
     visualize(n, w, b)
 
     return True

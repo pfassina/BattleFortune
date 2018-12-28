@@ -65,24 +65,17 @@ def clonegame(turn):
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
     idx = path.rfind("/")
     turn_path = path[:idx] + str(turn) + path[idx:]
-    
-    print("turn path: " + turn_path)
-    
+
     if not os.path.exists(turn_path):
         os.makedirs(turn_path)
         
     folder = os.listdir(path)
     files = [f for f in folder]
-    print("path: " + path)
-    print("files: " + str(len(files)))
     if len(files) > 0:
         for file in files:
-            print("file: " + file)
             if os.path.isfile(path + file):
                 src = path + file
                 dst = turn_path + file
-                print("clone src: " + src)
-                print("clone dst: " + dst)
                 shutil.copy(src, dst)
 
     return True

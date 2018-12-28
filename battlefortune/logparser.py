@@ -16,11 +16,9 @@ def validate_log(path):
     beforeValidateCheck = int(round(time.time() * 1000))
     while i < 1000000:
         with open(path + 'log.txt') as file:
-            #sleep(1)
             lastValidateCheck = int(round(time.time() * 1000))
             validateDuration = (lastValidateCheck - beforeValidateCheck)/1000
-            print("validate_log, still waiting for path " + path + ", validateDuration: " + str(validateDuration))
-            
+
             blurb = file.read()
             start = blurb.rfind('getbattlecountfromvcr')  # battle loaded
             if start == -1 and validateDuration <= 3:
@@ -33,7 +31,6 @@ def validate_log(path):
                 valid = True
                 break
             elif validateDuration > 3:
-                print("validate_log, waited too long for path " + path + ", validateDuration: " + str(validateDuration))
                 break
             i += 1
 

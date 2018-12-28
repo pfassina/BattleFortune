@@ -150,7 +150,6 @@ def run_dominions(province, game='', switch='', turn=-1):
     else:
         # Generate Log
         wait_screen_load(dpath)  # wait nation selection screen to load
-        sleep(1)
         select_nation()  # select first nation
         go_to_province(province)  # check battle report
 
