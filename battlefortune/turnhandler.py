@@ -6,7 +6,8 @@ import yaml
 def backupturn(turn):
     """
     Backups turn and log files.
-    Takes as input the simulation turn number.
+    :param turn: Simulation round.
+    :return: True when files are backed-up
     """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
@@ -31,28 +32,62 @@ def backupturn(turn):
     log = dom + 'log.txt'
     shutil.copy(log, path + 'turns/' + str(turn) + '_log.txt')
 
+    return True
 
-def restoreturn():
+
+def cleanturns(rounds):
     """
-    Restores Pre-Battle turn 0.
+    Cleans up temporary folders
+    :param rounds: number of simulation rounds
+    :return: True when temporary turn files are removed.
     """
 
     path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
+    idx = path.rfind("/")
+    
+    for i in range(1, rounds + 1):
+        folder = path[:idx] + str(i) + path[idx:]
+        shutil.rmtree(folder)
+    
+    turnspath = path + "turns"
+    shutil.rmtree(turnspath)
 
-    if not os.path.exists(path + 'turns/'):
-        os.makedirs(path + 'turns/')
+    return True
 
-    dir = os.listdir(path + 'turns/')
-    files = [f for f in dir if f.startswith('0_')]
 
+def clonegame(turn):
+    """
+    Clones game files for each round.
+    :param turn: simulation round
+    :return: True when all files were cloned
+    """
+
+    path = yaml.load(open('./battlefortune/data/config.yaml'))['gamepath']
+    idx = path.rfind("/")
+    turn_path = path[:idx] + str(turn) + path[idx:]
+
+    if not os.path.exists(turn_path):
+        os.makedirs(turn_path)
+        
+    folder = os.listdir(path)
+    files = [f for f in folder]
     if len(files) > 0:
-
         for file in files:
-            src = path + 'turns/' + file
-            dst = path + file[2:len(file)]
-            shutil.copy(src, dst)
-    else:
-        for file in os.listdir(path):
-            src = path + file
-            dst = path + 'turns/0_' + file
-            shutil.copy(src, dst)
+            if os.path.isfile(path + file):
+                src = path + file
+                dst = turn_path + file
+                shutil.copy(src, dst)
+
+    return True
+
+
+def delete_log():
+    """
+    Delete Log file.
+    :return: True when log is deleted.
+    """
+    dom = yaml.load(open('./battlefortune/data/config.yaml'))['dompath']
+    log = dom + 'log.txt'
+    os.remove(log)
+
+    return True

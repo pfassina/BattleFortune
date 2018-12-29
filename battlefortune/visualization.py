@@ -5,14 +5,22 @@ import pandas as pd
 import seaborn as sns
 
 
+# set visualization palette
 sns.set(palette="Set3", style="white")
 
 
-def load_battlelog(battlelog, nations):
+def load_battle_log(battle_log, nations, rounds):
+    """
+    Converts battle log into DataFrames
+    :param rounds: total number of rounds being simulated
+    :param battle_log: list of battle logs dictionaries
+    :param nations: list of nations
+    :return: dictionary with attacker and defender DataFrames
+    """
 
-    df = calc.pivot_battlelog(battlelog)
-    attacker = calc.unit_losses(df, nations['attacker'])
-    defender = calc.unit_losses(df, nations['defender'])
+    df = calc.pivot_battlelog(battle_log)
+    defender = calc.unit_losses(df, nations['defender'], rounds)
+    attacker = calc.unit_losses(df, nations['attacker'], rounds)
 
     dataframes = {
         'attacker': attacker,
@@ -22,14 +30,24 @@ def load_battlelog(battlelog, nations):
     return dataframes
 
 
-def win_score(winlog):
+def win_score(win_log):
+    """
+    Generates Win Score bar plot
+    :param win_log: win log file
+    :return: win score bar plot
+    """
 
-    df = calc.wins(winlog)
+    df = calc.wins(win_log)
     plt.figure(1)
     sns.barplot(x='Nation', y='Wins', data=df)
 
 
 def unit_deaths(dataframes):
+    """
+    Generates unit losses bar plot
+    :param dataframes: dictionary with attacker and defender DataFrames
+    :return: unit losses bar plot
+    """
 
     attacker = dataframes['attacker']
     defender = dataframes['defender']
@@ -48,6 +66,12 @@ def unit_deaths(dataframes):
 
 
 def army_roi(dataframes, nations):
+    """
+    Generates the Army ROI distribution plots
+    :param dataframes: dictionary with attacker and defender DataFrames
+    :param nations: list of nations
+    :return:
+    """
 
     attacker = dataframes['attacker']
     defender = dataframes['defender']
@@ -82,10 +106,18 @@ def army_roi(dataframes, nations):
         pass
 
 
-def visualize(nations, winlog, battlelog):
+def visualize(nations, win_log, battle_log, rounds):
+    """
+    Calculate and Visualize battle results
+    :param rounds: Total number of rounds being simulated
+    :param nations: Nations participating in the battle
+    :param win_log: list of win logs
+    :param battle_log: list of battle logs
+    :return: plot visualizations
+    """
 
-    df = load_battlelog(battlelog, nations)
-    win_score(winlog)
+    df = load_battle_log(battle_log, nations, rounds)
+    win_score(win_log)
     army_roi(df, nations)
     unit_deaths(df)
 

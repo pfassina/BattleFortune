@@ -2,14 +2,25 @@ import keyboard
 from logparser import parselog, validate_log
 import os
 from psutil import process_iter
-from pyautogui import locateOnScreen, click
+from pyautogui import click
 import subprocess
-from turnhandler import backupturn, restoreturn
+from turnhandler import backupturn, clonegame, cleanturns, delete_log
 import yaml
+from time import sleep
+import threading
+import time
 import win32gui
 
 
+failed_rounds = []
+
+
 def wait_screen_load(path):
+    """
+    Waits Nation Selection screen to load
+    :param path: dominions log path
+    :return: True if load was complete
+    """
 
     valid = False
 
@@ -27,27 +38,35 @@ def wait_screen_load(path):
                     break
         except FileNotFoundError:
             i += 1
+
     return valid
 
 
 def select_nation():
     """
-    Find Dominions Window and Clicks Selects First Nation.
+    Selects the first Nation on Nation selection screen.
+    :return: True if Dominions window handle was found.
     """
 
+    # Loop until Dominions Window Handle is found
     hwnd = 0
-    while hwnd is 0:
+    while hwnd == 0:
         hwnd = win32gui.FindWindow(None, 'Dominions 5')
 
+    # Get Dominions Windows Coordinates
     x, y = win32gui.ClientToScreen(hwnd, (0, 0))
 
+    # Move cursor by 400x280 to select first Nation
     click((x + 400, y + 280))
 
+    return True
 
-def go_to_prov(path, province):
+
+def go_to_province(province):
     """
     Automates keyboard shortcuts to generate log.
-    Takes as input the path to dominions log, and the province number.
+    :param province: Province number where battle occurs
+    :return: True when all commands were executed
     """
 
     keyboard.press_and_release('esc')  # exit messages
@@ -58,30 +77,48 @@ def go_to_prov(path, province):
     keyboard.press_and_release('esc')  # back to map
     keyboard.press_and_release('d')  # try to add PD
 
+    return True
 
-def wait_host(path, start):
+
+def wait_host(path, start_time):
     """
-    Waits Dominions Autohost to Host.
-    Checks for Fatherlnd update.
+    Waits Dominions to Host battle.
+    :param path: dominions game path
+    :param start_time: Time when ftherlnd was last updated
+    :return: True if ftherlnd was updated
     """
 
+    # Loop until host is finished
     done = False
+    before_host_check = int(round(time.time() * 1000))
     while done is False:
-        end = os.path.getmtime(path + 'ftherlnd')
-        if end > start:
+        # check if ftherlnd was updated
+        ftherlnd_update_time = os.path.getmtime(path + 'ftherlnd')
+        if ftherlnd_update_time > start_time:
             done = True
             break
-        else:
-            continue
+        # break if host duration greater than 35 seconds
+        last_host_check = int(round(time.time() * 1000))
+        hosting_duration = (last_host_check - before_host_check)/1000
+        if hosting_duration > 35:
+            break
+
+        sleep(1)  # sleep 1 second between checks
 
     return done
 
 
-def rundom(province, game='', switch=''):
+def run_dominions(province, game='', switch='', turn=-1):
     """
-    Runs a Dominions with game and switch settings.
-    Takes as input game name, switches.
+    Runs Dominions.
+    :param province: Province where battle occurs
+    :param game: Name of the game being simulated
+    :param switch: Additional Dominions switches
+    :param turn: Turn of the simulation
+    :return: True after process is terminated
     """
+
+    global failed_rounds
 
     # Get Paths
     with open('./battlefortune/data/config.yaml') as file:
@@ -89,49 +126,102 @@ def rundom(province, game='', switch=''):
 
     dpath = paths['dompath']
     gpath = paths['gamepath']
-    start = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
+    
+    if turn > -1:
+        idx = gpath.rfind("/")
+        gpath = gpath[:idx] + str(turn) + gpath[idx:]
+        game = game + str(turn)
+
+    start_time = os.path.getmtime(gpath + 'ftherlnd')  # ftherlnd last update
 
     # Run Dominions on minimal settings
     switches = ' --simpgui --nosteam --res 960 720 -waxsco' + switch + ' '
     program = '/k cd /d' + dpath + ' & Dominions5.exe'
     cmd = 'cmd ' + program + switches + game
 
-    process = subprocess.Popen(cmd)
+    process = subprocess.Popen(cmd)  # run Dominions
 
     if switch == 'g -T':  # if auto hosting battle
 
-        wait_host(gpath, start)
+        success = wait_host(path=gpath, start_time=start_time)
+        if not success:
+            failed_rounds.append(turn)
 
     else:
-        wait_screen_load(dpath)
-        select_nation()  # select nation
-        go_to_prov(dpath, province)  # check battle report
-        validate_log(dpath)  # validate log
+        # Generate Log
+        wait_screen_load(dpath)  # wait nation selection screen to load
+        select_nation()  # select first nation
+        go_to_province(province)  # check battle report
 
-    process.terminate()
-    if "Dominions5.exe" in (p.name() for p in process_iter()):
-        os.system("TASKKILL /F /IM Dominions5.exe")
+        # Validate Round
+        valid = validate_log(dpath)  # validate log
+        if not valid:
+            failed_rounds.append(turn)
+
+    # Terminate process
+    process.kill()
+    if switch != 'g -T':
+        if "Dominions5.exe" in (p.name() for p in process_iter()):
+            os.system("TASKKILL /F /IM Dominions5.exe")
+
+    return True
 
 
-def round(game, province, turn=1):
+def host_battle(game, province, rounds):
+    """"
+    Host games concurrently based on the number of threads.
+    :param game: game name
+    :param province: province where battle occurs
+    :param rounds: number of rounds to be hosted
     """
-    Run a full round of the simulation.
-    Takes as input the game name, and the current simulation turn
-    Returns parsed logs after a full round of simulation.
 
-    Round sequence of events:
-        1.  Restore turn backups if needed
-        2.  Run Dominions on Host Mode
-        5.  Run Turn after Battle
-        6.  Backup turn tiles
-        7.  Parse Battle Log
+    switch = 'g -T'
+    threads = []
+
+    max_threads = yaml.load(open('./battlefortune/data/config.yaml'))['maxthreads']
+
+    start_range = 1
+    end_range = start_range + max_threads
+    if end_range > (rounds + 1):
+        end_range = rounds + 1
+
+    while start_range < (rounds + 1):
+        for i in range(start_range, end_range):
+            t = threading.Thread(target=run_dominions, args=(province, game, switch, i))
+            threads.append(t)
+            t.start()
+
+        for thread in threads:
+            thread.join()
+
+        threads = []
+        start_range = start_range + max_threads
+        end_range = end_range + max_threads
+        if end_range > (rounds + 1):
+            end_range = rounds + 1
+
+
+def finalize_turn(game, province, turn=1):
+    """
+    Generates the log for each simulation round, one at a time.
+    :param game: name of the game to be hosted
+    :param province: number of the province where battle occurs
+    :param turn: number of the simulation round
+    :return: turn log
     """
 
-    restoreturn()  # restore back-up files if needed
-    rundom(province=province, game=game, switch='g -T')  # auto host battle
-    rundom(province=province, game=game, switch='d')  # generate battle logs
-    backupturn(turn)  # back-up turn files
-    turn_log = parselog(turn)  # read and parse battle log
+    global failed_rounds
+
+    run_dominions(province=province, game=game, switch='d', turn=turn)  # generate battle logs
+
+    turn_log = {}
+
+    if turn not in failed_rounds:
+        backupturn(turn)  # back-up turn files
+        turn_log = parselog(turn)  # read and parse battle log
+
+    # delete log
+    delete_log()
 
     return turn_log
 
@@ -139,21 +229,39 @@ def round(game, province, turn=1):
 def batchrun(rounds, game, province):
     """
     Runs X numbers of Simulation Rounds.
-    Takes as input number of simultated rounds, game name.
-    Outputs a dictionary with lists of parsed game logs.
+    :param rounds: Number of rounds to be simulated
+    :param game: game name that will be simulated
+    :param province: province number where battle occurs
+    :return:
     """
 
+    global failed_rounds
     winners = []
     battles = []
+    nations = {}
 
     for i in range(1, rounds + 1):
-        log = round(game, province, i)  # get turn log
-        if i == 1:
-            nations = log['nations']  # get nation ids
+        clonegame(i)
+
+    host_battle(game, province, rounds)
+
+    for i in range(1, rounds + 1):
+
+        if i in failed_rounds:
+            continue
+
+        log = finalize_turn(game, province, i)  # get turn log
+        if i in failed_rounds:
+            continue
+
+        nations = log['nations']  # get nation ids
         winners.append(log['turn_score'])  # get turn winner
         for j in range(len(log['battlelog'])):
             battles.append(log['battlelog'][j])  # get battle report
         print('Round: ' + str(i))
+
+    cleanturns(rounds)
+    failed_rounds = []
 
     output = {
         'nations': nations,
