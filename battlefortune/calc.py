@@ -34,9 +34,10 @@ def pivot_battlelog(battlelog):
     return df
 
 
-def unit_losses(df, army):
+def unit_losses(df, army, rounds):
     """
     Calculates Unit losses by army.
+    :param rounds: number of round simulations
     :param df: Battle Log DataFrame
     :param army: One of the Nations participating in the battle
     :return: DataFrame with calculated unit losses
@@ -55,7 +56,7 @@ def unit_losses(df, army):
         army_results.append(temp[item])
 
     # assemble army dataframe
-    army_losses = pd.DataFrame({'Turn': range(1, 101)})
+    army_losses = pd.DataFrame({'Turn': range(1, rounds + 1)})
     for item in army_results:
         army_losses = army_losses.join(item, on='Turn')
 

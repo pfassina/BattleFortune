@@ -5,19 +5,19 @@ import yaml
 import json
 
 
-def setup(dompath, gamepath, maxthreads):
+def setup(dom_path, game_path, max_threads):
     """
     Setups config.yaml file with file paths.
-    :param dompath: OS path to dominions executable file
-    :param gamepath: OS path to game folder
-    :param maxthreads: maximum number of simultaneous threads
+    :param dom_path: OS path to dominions executable file
+    :param game_path: OS path to game folder
+    :param max_threads: maximum number of simultaneous threads
     :return: True when config file is updated
     """
 
     config = {
-        'dompath': dompath,
-        'gamepath': gamepath,
-        'maxthreads': maxthreads
+        'dompath': dom_path,
+        'gamepath': game_path,
+        'maxthreads': max_threads
     }
 
     stream = open('./battlefortune/data/config.yaml', 'w')
@@ -26,27 +26,27 @@ def setup(dompath, gamepath, maxthreads):
     return True
 
 
-def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=False):
+def BattleFortune(turns, max_threads, game, province, dom_path, game_path, dump_log=False):
     """
     Runs BattleFortune, simulate battles, and return results.
     :param turns: Number of Turns to be simulated.
-    :param maxthreads: Maximum number of simultaneous threads.
+    :param max_threads: Maximum number of simultaneous threads.
     :param game: Game to be simulated.
     :param province: Province where battle occurs.
-    :param dompath: dominions OS path.
-    :param gamepath: game OS path.
-    :param dumplog: If true, created log files.
+    :param dom_path: dominions OS path.
+    :param game_path: game OS path.
+    :param dump_log: If true, created log files.
     :return: True when simulation is completed.
     """
 
-    setup(dompath, gamepath, maxthreads)
+    setup(dom_path=dom_path, game_path=game_path, max_threads=max_threads)
 
     logs = batchrun(turns, game, province)
     n = logs['nations']
     w = logs['winners']
     b = logs['battles']
 
-    if dumplog:
+    if dump_log:
 
         logpath = './battlefortune/logs/' + game + '/'
         if not os.path.exists(logpath):
@@ -61,6 +61,6 @@ def BattleFortune(turns, maxthreads, game, province, dompath, gamepath, dumplog=
         with open(logpath + 'winlog.json', 'w') as outfile:
             json.dump(w, outfile)
 
-    visualize(n, w, b)
+    visualize(nations=n, win_log=w, battle_log=b, rounds=turns)
 
     return True
