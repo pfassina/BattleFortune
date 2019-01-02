@@ -95,7 +95,7 @@ def delete_log():
 
 def delete_temp():
     """
-    Delete Log file.
+    Delete Temporary Dominions files.
     :return: True when log is deleted.
     """
     path = yaml.load(open('./battlefortune/data/config.yaml'))['temppath']
