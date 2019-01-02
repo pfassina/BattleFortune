@@ -5,9 +5,10 @@ import yaml
 import json
 
 
-def setup(dom_path, game_path, max_threads):
+def setup(dom_path, game_path, max_threads, temp_path):
     """
     Setups config.yaml file with file paths.
+    :param temp_path: OS path to dominions temporary files
     :param dom_path: OS path to dominions executable file
     :param game_path: OS path to game folder
     :param max_threads: maximum number of simultaneous threads
@@ -17,7 +18,8 @@ def setup(dom_path, game_path, max_threads):
     config = {
         'dompath': dom_path,
         'gamepath': game_path,
-        'maxthreads': max_threads
+        'maxthreads': max_threads,
+        'temppath': temp_path
     }
 
     stream = open('./battlefortune/data/config.yaml', 'w')
@@ -26,9 +28,10 @@ def setup(dom_path, game_path, max_threads):
     return True
 
 
-def BattleFortune(turns, max_threads, game, province, dom_path, game_path, dump_log=False):
+def BattleFortune(turns, max_threads, game, province, dom_path, game_path, temp_path, dump_log=False):
     """
     Runs BattleFortune, simulate battles, and return results.
+    :param temp_path: OS path to dominions temporary files
     :param turns: Number of Turns to be simulated.
     :param max_threads: Maximum number of simultaneous threads.
     :param game: Game to be simulated.
@@ -39,7 +42,7 @@ def BattleFortune(turns, max_threads, game, province, dom_path, game_path, dump_
     :return: True when simulation is completed.
     """
 
-    setup(dom_path=dom_path, game_path=game_path, max_threads=max_threads)
+    setup(dom_path=dom_path, game_path=game_path, max_threads=max_threads, temp_path=temp_path)
 
     logs = batchrun(turns, game, province)
     n = logs['nations']

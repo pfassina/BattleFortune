@@ -4,13 +4,13 @@ import os
 from psutil import process_iter
 from pyautogui import click
 import subprocess
-from turnhandler import backupturn, clonegame, cleanturns, delete_log
+from turnhandler import backupturn, clonegame, cleanturns, delete_log, delete_temp
 import yaml
 from time import sleep
 import threading
 import time
 import win32gui
-
+import win32con
 
 failed_rounds = []
 
@@ -90,20 +90,18 @@ def wait_host(path, start_time):
 
     # Loop until host is finished
     done = False
-    before_host_check = int(round(time.time() * 1000))
     while done is False:
         # check if ftherlnd was updated
         ftherlnd_update_time = os.path.getmtime(path + 'ftherlnd')
         if ftherlnd_update_time > start_time:
             done = True
             break
-        # break if host duration greater than 35 seconds
-        last_host_check = int(round(time.time() * 1000))
-        hosting_duration = (last_host_check - before_host_check)/1000
-        if hosting_duration > 35:
+        # check for host error
+        hwnd = win32gui.FindWindow(None, 'NÃ¥got gick fel!')
+        if hwnd > 0:
+            win32gui.SetForegroundWindow(hwnd)
+            win32gui.PostMessage(hwnd, win32con.WM_CLOSE, 0, 0)
             break
-
-        sleep(1)  # sleep 1 second between checks
 
     return done
 
@@ -222,6 +220,7 @@ def finalize_turn(game, province, turn=1):
 
     # delete log
     delete_log()
+    delete_temp()
 
     return turn_log
 
