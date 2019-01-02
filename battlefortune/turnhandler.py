@@ -91,3 +91,18 @@ def delete_log():
     os.remove(log)
 
     return True
+
+
+def delete_temp():
+    """
+    Delete Log file.
+    :return: True when log is deleted.
+    """
+    path = yaml.load(open('./battlefortune/data/config.yaml'))['temppath']
+    dir = os.listdir(path)
+    temp = [f for f in dir if f.startswith('dom5')]
+
+    for item in temp:
+        shutil.rmtree(path + item + '/')
+
+    return True
