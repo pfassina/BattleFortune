@@ -18,7 +18,7 @@ def load_battle_log(battle_log, nations, rounds):
     :return: dictionary with attacker and defender DataFrames
     """
 
-    df = calculate.pivot_battlelog(battle_log)
+    df = calculate.pivot_battle_log(battle_log)
     defender = calculate.unit_losses(df, nations['defender'], rounds)
     attacker = calculate.unit_losses(df, nations['attacker'], rounds)
 

@@ -2,15 +2,15 @@ from decode import nation, unit
 import pandas as pd
 
 
-def wins(winlog):
+def wins(win_log):
     """
     Parses a list of WinLogs and calculates the ratio of winnings per Nation.
-    :param winlog: list of win logs
+    :param win_log: list of win logs
     :return: DataFrame with Win Counts per Nation.
     """
 
     # Decode Nation IDs
-    df = pd.DataFrame(winlog)
+    df = pd.DataFrame(win_log)
     df['Nation'] = df['Nation'].apply(lambda x: nation(x))
 
     # Prepare Data for Display
@@ -20,15 +20,15 @@ def wins(winlog):
     return df
 
 
-def pivot_battlelog(battlelog):
+def pivot_battle_log(battle_log):
     """
     Prepares battle log for manipulation.
-    :param battlelog: Battle Log dictionary
+    :param battle_log: Battle Log dictionary
     :return: Battle Log DataFrame
     """
 
     c = ['Army', 'Unit', 'Phase']
-    df = pd.DataFrame(battlelog)
+    df = pd.DataFrame(battle_log)
     df = df.pivot_table(values='Count', index='Turn', columns=c, aggfunc='sum')
 
     return df
@@ -55,7 +55,7 @@ def unit_losses(df, army, rounds):
         # temp.columns.rename(item)
         army_results.append(temp[item])
 
-    # assemble army dataframe
+    # assemble army DataFrame
     army_losses = pd.DataFrame({'Turn': range(1, rounds + 1)})
     for item in army_results:
         army_losses = army_losses.join(item, on='Turn')

@@ -1,6 +1,3 @@
-import os
-import yaml
-import time
 
 
 def validate_log(path):
@@ -13,26 +10,20 @@ def validate_log(path):
     valid = False
 
     i = 0
-    beforeValidateCheck = int(round(time.time() * 1000))
     while i < 1000000:
         with open(path + 'log.txt') as file:
-            lastValidateCheck = int(round(time.time() * 1000))
-            validateDuration = (lastValidateCheck - beforeValidateCheck)/1000
-
             blurb = file.read()
-            start = blurb.rfind('getbattlecountfromvcr')  # battle loaded
-            if start == -1 and validateDuration <= 3:
-                i += 1
-                continue
-            if blurb[start:].rfind('whatPD') != -1:  # Player Won
-                valid = True
-                break
-            if blurb[start:].rfind('createoverlaytex') != -1:  # Player Lost
-                valid = True
-                break
-            elif validateDuration > 3:
-                break
+        start = blurb.rfind('getbattlecountfromvcr')  # battle loaded
+        if start == -1:
             i += 1
+            continue
+        if blurb[start:].rfind('whatPD') != -1:  # Player Won
+            valid = True
+            break
+        if blurb[start:].rfind('createoverlaytex') != -1:  # Player Lost
+            valid = True
+            break
+        i += 1
 
     return valid
 
@@ -183,7 +174,12 @@ def parse_log(game_path, battle_round):
 
 
 def logs(game_path, valid_rounds):
-
+    """
+    batch reads logs from all simulations
+    :param game_path: game folder path
+    :param valid_rounds: list of valid rounds
+    :return: log list
+    """
     winners = []
     battles = []
     nations = {}

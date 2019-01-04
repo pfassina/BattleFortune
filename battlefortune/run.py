@@ -13,17 +13,16 @@ import prepare
 failed_rounds = []
 
 
-# RUN DOMINIONS
-def run_dominions(path, game, host=False):
+def run_dominions(path, game, host_game=False):
     """
     Run command for Dominions
     :param path: dominions executable path
     :param game: game name
-    :param host: True to host battle
+    :param host_game: True to host battle
     :return: run process
     """
 
-    if host:
+    if host_game:
         switches = ' --simpgui --nosteam --res 960 720 -waxscog -T '
     else:
         switches = ' --simpgui --nosteam --res 960 720 -waxscod '
@@ -36,7 +35,6 @@ def run_dominions(path, game, host=False):
     return process
 
 
-# HOST BATTLES
 def host(dom_path, game_path, game, battle_round):
     """
     host battle for a single round
@@ -49,13 +47,13 @@ def host(dom_path, game_path, game, battle_round):
     global failed_rounds
 
     start_time = os.path.getmtime(game_path + 'ftherlnd')
-    process = run_dominions(path=dom_path, game=game, host=True)
+    process = run_dominions(path=dom_path, game=game, host_game=True)
     success = validate_host(path=game_path, start_time=start_time)
 
     if not success:
         failed_rounds.append(battle_round)
 
-    os.system("TASKKILL /F /T /PID %i" % process.pid)
+    os.system("TASKKILL /F /T /PID %i > nul 2> nul" % process.pid)
 
     return True
 
@@ -115,7 +113,6 @@ def batch_host(dom_path, game_path, game, rounds):
     return True
 
 
-# GENERATE LOG
 def wait_screen_load(path):
     """
     Waits Nation Selection screen to load
@@ -214,7 +211,7 @@ def batch_click(dom_path, game_path, game, rounds, province):
             failed_rounds.append(i)
 
         # Terminate process
-        os.system("TASKKILL /F /T /PID %i" % process.pid)
+        os.system("TASKKILL /F /T /PID %i > nul 2> nul" % process.pid)
 
         # Move Log to Round Folder
         round_path = game_path[:-1] + str(i) + '/'

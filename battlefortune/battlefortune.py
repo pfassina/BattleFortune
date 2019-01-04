@@ -29,19 +29,26 @@ def setup(dom_path, game_path, temp_path):
     return True
 
 
-def dump_log(game, win_log, battle_log, format='YAML'):
-
+def dump_log(game, win_log, battle_log, file_format='YAML'):
+    """
+    dump log into file
+    :param game: game name
+    :param win_log: parsed win log
+    :param battle_log: parsed battle log
+    :param file_format: 'YAML' or 'JSON'
+    :return: True if successful
+    """
     log_path = './battlefortune/logs/' + game + '/'
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
-    if format == 'YAML':
+    if file_format == 'YAML':
         with open(log_path + 'winlog.yaml', 'w') as outfile:
             yaml.dump(data=win_log, stream=outfile)
         with open(log_path + 'battlelog.yaml', 'w') as outfile:
             yaml.dump(data=battle_log, stream=outfile)
 
-    elif format == 'JSON':
+    elif file_format == 'JSON':
         with open(log_path + 'battlelog.json', 'w') as outfile:
             json.dump(battle_log, outfile)
         with open(log_path + 'winlog.json', 'w') as outfile:
