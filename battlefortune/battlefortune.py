@@ -29,13 +29,34 @@ def setup(dom_path, game_path, temp_path):
     return True
 
 
-def battlefortune(rounds, game, province, dump_log=False):
+def dump_log(game, win_log, battle_log, format='YAML'):
+
+    log_path = './battlefortune/logs/' + game + '/'
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    if format == 'YAML':
+        with open(log_path + 'winlog.yaml', 'w') as outfile:
+            yaml.dump(data=win_log, stream=outfile)
+        with open(log_path + 'battlelog.yaml', 'w') as outfile:
+            yaml.dump(data=battle_log, stream=outfile)
+
+    elif format == 'JSON':
+        with open(log_path + 'battlelog.json', 'w') as outfile:
+            json.dump(battle_log, outfile)
+        with open(log_path + 'winlog.json', 'w') as outfile:
+            json.dump(win_log, outfile)
+
+    return True
+
+
+def battlefortune(rounds, game, province, dump=False):
     """
     Runs BattleFortune, simulate battles, and return results.
     :param rounds: Number of Turns to be simulated.
     :param game: Game to be simulated.
     :param province: Province where battle occurs.
-    :param dump_log: If true, created log files.
+    :param dump: If true, dumps log files.
     :return: True when simulation is completed.
     """
 
@@ -59,20 +80,8 @@ def battlefortune(rounds, game, province, dump_log=False):
     b = logs['battles']
 
     # DUMP
-    if dump_log:
-
-        log_path = './battlefortune/logs/' + game + '/'
-        if not os.path.exists(log_path):
-            os.makedirs(log_path)
-
-        yaml.dump(data=w, stream=open(log_path + 'winlog.yaml', 'w'))
-        yaml.dump(data=b, stream=open(log_path + 'battlelog.yaml', 'w'))
-
-        with open(log_path + 'battlelog.json', 'w') as outfile:
-            json.dump(b, outfile)
-
-        with open(log_path + 'winlog.json', 'w') as outfile:
-            json.dump(w, outfile)
+    if dump:
+        dump_log(game=game, win_log=w, battle_log=b)
 
     # DISPLAY
     visualize.visualize(nations=n, win_log=w, battle_log=b, rounds=rounds)
