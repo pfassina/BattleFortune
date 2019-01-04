@@ -74,10 +74,10 @@ def find_battle(log):
     return blurb
 
 
-def parse_battle(turn, battle, attacker, defender):
+def parse_battle(battle_round, battle, attacker, defender):
     """
     Parses Battle Blurb
-    :param turn: Simulation Round
+    :param battle_round: Simulation Round
     :param battle: battle blurb
     :param attacker: attacker nation id
     :param defender: defender nation id
@@ -104,7 +104,7 @@ def parse_battle(turn, battle, attacker, defender):
         unit = battle[i][1].split(' ', 2)[2]
 
         result = {
-            'Turn': turn,
+            'Turn': battle_round,
             'Phase': phase,
             'Army': army,
             'Unit': unit,
@@ -116,10 +116,10 @@ def parse_battle(turn, battle, attacker, defender):
     return battle_log
 
 
-def parse_winner(turn, log, attacker, defender):
+def parse_winner(battle_round, log, attacker, defender):
     """
     parses round winner from log
-    :param turn: simulation round
+    :param battle_round: simulation round
     :param log: log file
     :param attacker: attacker nation id
     :param defender: defender nation id
@@ -142,39 +142,25 @@ def parse_winner(turn, log, attacker, defender):
         winner = attacker
 
     turn_score = {
-        'Turn': turn,
+        'Turn': battle_round,
         'Nation': winner
     }
 
     return turn_score
 
 
-def remove_turn_files(path, turn):
-    """
-    remove turn files from Dominions game folder
-    :param path: game path
-    :param turn: number of simulation round
-    :return: Returns true when all files are removed
-    """
-
-    files = [f for f in os.listdir(path) if os.path.isfile(
-        os.path.join(path, f)) and f.startswith(str(turn) + '_')]
-    for item in files:
-        os.remove(os.path.join(path, item))
-
-    return True
-
-def parselog(turn):
+def parse_log(game_path, battle_round):
     """
     Parses Turn Log and returns turn log dictionary.
-    :param turn: Simulation round.
+    :param game_path:  game path
+    :param battle_round: Simulation round.
     :return: dictionary with nations, win log and battle log.
     """
 
     # get battle log
-    stream = open('./battlefortune/data/config.yaml')
-    path = yaml.load(stream)['gamepath'] + 'turns\\'
-    log = open(path + str(turn) + '_log.txt', mode='r').read()
+    round_path = game_path[:-1] + str(battle_round) + '/'
+    with open(round_path + 'log.txt', mode='r') as file:
+        log = file.read()
 
     # identify armies
     nations = parse_nations(log)
@@ -183,17 +169,37 @@ def parselog(turn):
 
     # parse battle log
     battle = find_battle(log)
-    battlelog = parse_battle(turn, battle, attacker, defender)
+    battle_log = parse_battle(battle_round, battle, attacker, defender)
     # parse winner
-    turn_score = parse_winner(turn, log, attacker, defender)
-
-    # remove backup turn files
-    remove_turn_files(path, turn)
+    turn_score = parse_winner(battle_round, log, attacker, defender)
 
     turn_log = {
         'nations': nations,
         'turn_score': turn_score,
-        'battlelog': battlelog
+        'battle_log': battle_log
     }
 
     return turn_log
+
+
+def logs(game_path, valid_rounds):
+
+    winners = []
+    battles = []
+    nations = {}
+
+    for i in valid_rounds:
+        log = parse_log(game_path=game_path, battle_round=i)
+        if i == min(valid_rounds):
+            nations = log['nations']  # get nation ids
+        winners.append(log['turn_score'])  # get turn winner
+        for j in range(len(log['battle_log'])):
+            battles.append(log['battle_log'][j])  # get battle report
+
+    log_list = {
+        'nations': nations,
+        'winners': winners,
+        'battles': battles
+    }
+
+    return log_list

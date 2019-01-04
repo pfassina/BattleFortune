@@ -1,25 +1,26 @@
-from batchrunner import batchrun
 import os
-from visualization import visualize
+
 import yaml
 import json
 
+import run
+import prepare
+import visualize
 
-def setup(dom_path, game_path, max_threads, temp_path):
+
+def setup(dom_path, game_path, temp_path):
     """
     Setups config.yaml file with file paths.
     :param temp_path: OS path to dominions temporary files
     :param dom_path: OS path to dominions executable file
     :param game_path: OS path to game folder
-    :param max_threads: maximum number of simultaneous threads
     :return: True when config file is updated
     """
 
     config = {
-        'dompath': dom_path,
-        'gamepath': game_path,
-        'maxthreads': max_threads,
-        'temppath': temp_path
+        'dom_path': dom_path,
+        'game_path': game_path,
+        'temp_path': temp_path
     }
 
     stream = open('./battlefortune/data/config.yaml', 'w')
@@ -28,42 +29,52 @@ def setup(dom_path, game_path, max_threads, temp_path):
     return True
 
 
-def BattleFortune(turns, max_threads, game, province, dom_path, game_path, temp_path, dump_log=False):
+def battlefortune(rounds, game, province, dump_log=False):
     """
     Runs BattleFortune, simulate battles, and return results.
-    :param temp_path: OS path to dominions temporary files
-    :param turns: Number of Turns to be simulated.
-    :param max_threads: Maximum number of simultaneous threads.
+    :param rounds: Number of Turns to be simulated.
     :param game: Game to be simulated.
     :param province: Province where battle occurs.
-    :param dom_path: dominions OS path.
-    :param game_path: game OS path.
     :param dump_log: If true, created log files.
     :return: True when simulation is completed.
     """
 
-    setup(dom_path=dom_path, game_path=game_path, max_threads=max_threads, temp_path=temp_path)
+    # SETUP
+    with open('./battlefortune/data/config.yaml') as config:
+        paths = yaml.load(config)
 
-    logs = batchrun(turns, game, province)
+    dp = paths['dom_path']
+    gp = paths['game_path']
+    tp = paths['temp_path']
+
+    # PREPARE
+    prepare.clone_game(path=gp, rounds=rounds)
+
+    # RUN
+    logs = run.simulation(dom_path=dp, game_path=gp, temp_path=tp, game=game, rounds=rounds, province=province)
+
+    # COLLECT
     n = logs['nations']
     w = logs['winners']
     b = logs['battles']
 
+    # DUMP
     if dump_log:
 
-        logpath = './battlefortune/logs/' + game + '/'
-        if not os.path.exists(logpath):
-            os.makedirs(logpath)
+        log_path = './battlefortune/logs/' + game + '/'
+        if not os.path.exists(log_path):
+            os.makedirs(log_path)
 
-        yaml.dump(data=w, stream=open(logpath + 'winlog.yaml', 'w'))
-        yaml.dump(data=b, stream=open(logpath + 'battlelog.yaml', 'w'))
-        
-        with open(logpath + 'battlelog.json', 'w') as outfile:  
+        yaml.dump(data=w, stream=open(log_path + 'winlog.yaml', 'w'))
+        yaml.dump(data=b, stream=open(log_path + 'battlelog.yaml', 'w'))
+
+        with open(log_path + 'battlelog.json', 'w') as outfile:
             json.dump(b, outfile)
 
-        with open(logpath + 'winlog.json', 'w') as outfile:
+        with open(log_path + 'winlog.json', 'w') as outfile:
             json.dump(w, outfile)
 
-    visualize(nations=n, win_log=w, battle_log=b, rounds=turns)
+    # DISPLAY
+    visualize.visualize(nations=n, win_log=w, battle_log=b, rounds=rounds)
 
     return True

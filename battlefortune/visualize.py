@@ -1,4 +1,4 @@
-import calc
+import calculate
 from decode import nation
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -18,9 +18,9 @@ def load_battle_log(battle_log, nations, rounds):
     :return: dictionary with attacker and defender DataFrames
     """
 
-    df = calc.pivot_battlelog(battle_log)
-    defender = calc.unit_losses(df, nations['defender'], rounds)
-    attacker = calc.unit_losses(df, nations['attacker'], rounds)
+    df = calculate.pivot_battlelog(battle_log)
+    defender = calculate.unit_losses(df, nations['defender'], rounds)
+    attacker = calculate.unit_losses(df, nations['attacker'], rounds)
 
     dataframes = {
         'attacker': attacker,
@@ -37,7 +37,7 @@ def win_score(win_log):
     :return: win score bar plot
     """
 
-    df = calc.wins(win_log)
+    df = calculate.wins(win_log)
     plt.figure(1)
     sns.barplot(x='Nation', y='Wins', data=df)
 
@@ -76,10 +76,10 @@ def army_roi(dataframes, nations):
     attacker = dataframes['attacker']
     defender = dataframes['defender']
 
-    gcost = calc.army_cost(attacker, 'gcost')
+    gcost = calculate.army_cost(attacker, 'gcost')
     attacker = attacker.join(gcost)
 
-    gcost = calc.army_cost(defender, 'gcost')
+    gcost = calculate.army_cost(defender, 'gcost')
     defender = defender.join(gcost)
 
     atk_name = nation(nations['attacker'])
