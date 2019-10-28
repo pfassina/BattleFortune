@@ -24,7 +24,7 @@ VERSION = None
 REQUIRED = [
     'autopep8==1.4.3', 'cycler==0.10.0', 'flake8==3.6.0', 'keyboard==0.13.2',
     'kiwisolver==1.0.1', 'matplotlib==3.0.2', 'mccabe==0.6.1', 'numpy==1.15.4',
-    'packaging==18.0', 'pandas==0.23.4', 'Pillow==5.3.0', 'psutil==5.4.8',
+    'packaging==18.0', 'pandas==0.23.4', 'Pillow==6.2.0', 'psutil==5.4.8',
     'PyAutoGUI==0.9.39', 'pycodestyle==2.4.0', 'pyflakes==2.0.0',
     'PyMsgBox==1.0.6', 'pyparsing==2.3.0', 'PyScreeze==0.1.18',
     'python-dateutil==2.7.5', 'PyTweening==1.0.3', 'pytz==2018.7',
