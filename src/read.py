@@ -1,28 +1,36 @@
+import os
+import time
+
+import yaml
+
+from src import globals
 
 
-def validate_log(path):
+def validate_log():
     """
     Checks if Log finished loading.
-    :param path: log path
     :return: True if log is valid
     """
 
     valid = False
 
     i = 0
+    time.sleep(0.1)
     while i < 1000000:
-        with open(path + 'log.txt') as file:
+        with open(os.path.join(globals.DOM_PATH, 'log.txt')) as file:
             blurb = file.read()
-        start = blurb.rfind('getbattlecountfromvcr')  # battle loaded
+            start = blurb.rfind('getbattlecountfromvcr')  # battle loaded
         if start == -1:
             i += 1
             continue
         if blurb[start:].rfind('whatPD') != -1:  # Player Won
             valid = True
             break
-        if blurb[start:].rfind('createoverlaytex') != -1:  # Player Lost
-            valid = True
-            break
+        if blurb[start:].rfind('[eof]') != -1:  # Player Lost
+            time.sleep(0.1)
+            if blurb[start:].rfind('whatPD') == -1:
+                valid = True
+                break
         i += 1
 
     return valid
@@ -65,10 +73,10 @@ def find_battle(log):
     return blurb
 
 
-def parse_battle(battle_round, battle, attacker, defender):
+def parse_battle(simulation_round, battle, attacker, defender):
     """
     Parses Battle Blurb
-    :param battle_round: Simulation Round
+    :param simulation_round: Simulation Round
     :param battle: battle blurb
     :param attacker: attacker nation id
     :param defender: defender nation id
@@ -95,7 +103,7 @@ def parse_battle(battle_round, battle, attacker, defender):
         unit = battle[i][1].split(' ', 2)[2]
 
         result = {
-            'Turn': battle_round,
+            'Turn': simulation_round,
             'Phase': phase,
             'Army': army,
             'Unit': unit,
@@ -107,10 +115,10 @@ def parse_battle(battle_round, battle, attacker, defender):
     return battle_log
 
 
-def parse_winner(battle_round, log, attacker, defender):
+def parse_winner(simulation_round, log, attacker, defender):
     """
     parses round winner from log
-    :param battle_round: simulation round
+    :param simulation_round: simulation round
     :param log: log file
     :param attacker: attacker nation id
     :param defender: defender nation id
@@ -133,23 +141,22 @@ def parse_winner(battle_round, log, attacker, defender):
         winner = attacker
 
     turn_score = {
-        'Turn': battle_round,
+        'Turn': simulation_round,
         'Nation': winner
     }
 
     return turn_score
 
 
-def parse_log(game_path, battle_round):
+def parse_log(simulation_round):
     """
     Parses Turn Log and returns turn log dictionary.
-    :param game_path:  game path
-    :param battle_round: Simulation round.
+    :param simulation_round: Simulation round.
     :return: dictionary with nations, win log and battle log.
     """
 
     # get battle log
-    round_path = game_path[:-1] + str(battle_round) + '/'
+    round_path = f'{globals.GAME_PATH}_{str(simulation_round)}/'
     with open(round_path + 'log.txt', mode='r') as file:
         log = file.read()
 
@@ -160,9 +167,9 @@ def parse_log(game_path, battle_round):
 
     # parse battle log
     battle = find_battle(log)
-    battle_log = parse_battle(battle_round, battle, attacker, defender)
+    battle_log = parse_battle(simulation_round, battle, attacker, defender)
     # parse winner
-    turn_score = parse_winner(battle_round, log, attacker, defender)
+    turn_score = parse_winner(simulation_round, log, attacker, defender)
 
     turn_log = {
         'nations': nations,
@@ -173,20 +180,37 @@ def parse_log(game_path, battle_round):
     return turn_log
 
 
-def logs(game_path, valid_rounds):
+def dump_log():
+    """
+    dump log into file
+    :return: True if successful
+    """
+
+    log_path = f'./logs/{globals.GAME_NAME}/'
+    if not os.path.exists(log_path):
+        os.makedirs(log_path)
+
+    log_list = ['winners', 'battles', 'nations']
+    for log in log_list:
+        path = os.path.join(log_path, f'{log}.yaml')
+        with open(path, 'w') as file:
+            yaml.dump(data=globals.LOGS[log], stream=file)
+
+    return True
+
+
+def combine_logs():
     """
     batch reads logs from all simulations
-    :param game_path: game folder path
-    :param valid_rounds: list of valid rounds
     :return: log list
     """
     winners = []
     battles = []
     nations = {}
 
-    for i in valid_rounds:
-        log = parse_log(game_path=game_path, battle_round=i)
-        if i == min(valid_rounds):
+    for i in globals.VALID_ROUNDS:
+        log = parse_log(simulation_round=i)
+        if i == min(globals.VALID_ROUNDS):
             nations = log['nations']  # get nation ids
         winners.append(log['turn_score'])  # get turn winner
         for j in range(len(log['battle_log'])):
@@ -198,4 +222,10 @@ def logs(game_path, valid_rounds):
         'battles': battles
     }
 
-    return log_list
+    assert log_list['nations'], 'nation log not captured'
+    assert log_list['winners'], 'winners log not captured'
+    assert log_list['battles'], 'battles log not captured'
+
+    globals.LOGS = log_list
+
+    dump_log()

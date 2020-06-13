@@ -1,4 +1,4 @@
-import pickle
+import json
 
 
 def nation(nation_id, attribute='name'):
@@ -9,8 +9,8 @@ def nation(nation_id, attribute='name'):
     :return: Decoded attribute
     """
 
-    with open('./battlefortune/data/nations', 'rb') as file:
-        output = pickle.load(file)[nation_id][attribute]
+    with open('./data/nations.json', 'r') as file:
+        output = json.load(file)[str(nation_id)][attribute]
     return output
 
 
@@ -22,6 +22,10 @@ def unit(name, attribute='gcost'):
     :return: Decoded attribute
     """
 
-    with open('./battlefortune/data/units', 'rb') as file:
-        output = pickle.load(file)[name][attribute]
+    with open('./data/units.json', 'r') as file:
+        output = json.load(file)[name][attribute]
     return output
+
+
+def round_path(game_path, turn):
+    return f'{game_path}_{str(turn)}'

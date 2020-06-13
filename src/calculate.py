@@ -1,43 +1,41 @@
-from decode import nation, unit
 import pandas as pd
 
+from src import decode, globals
 
-def wins(win_log):
+
+def wins():
     """
     Parses a list of WinLogs and calculates the ratio of winnings per Nation.
-    :param win_log: list of win logs
     :return: DataFrame with Win Counts per Nation.
     """
 
     # Decode Nation IDs
-    df = pd.DataFrame(win_log)
-    df['Nation'] = df['Nation'].apply(lambda x: nation(x))
+    df = pd.DataFrame(globals.LOGS['winners'])
+    df['Nation'] = df['Nation'].apply(lambda x: decode.nation(x))
 
     # Prepare Data for Display
     df = df['Nation'].value_counts().to_frame('Wins')
     df = df.reset_index().rename(columns={'index': 'Nation'})
 
-    return df
+    globals.WIN_COUNTS = df
 
 
-def pivot_battle_log(battle_log):
+def pivot_battle_log():
     """
     Prepares battle log for manipulation.
-    :param battle_log: Battle Log dictionary
     :return: Battle Log DataFrame
     """
 
     c = ['Army', 'Unit', 'Phase']
-    df = pd.DataFrame(battle_log)
+    df = pd.DataFrame(globals.LOGS['battles'])
     df = df.pivot_table(values='Count', index='Turn', columns=c, aggfunc='sum')
 
     return df
 
 
-def unit_losses(df, army, rounds):
+def unit_losses(df, army):
     """
     Calculates Unit losses by army.
-    :param rounds: number of round simulations
     :param df: Battle Log DataFrame
     :param army: One of the Nations participating in the battle
     :return: DataFrame with calculated unit losses
@@ -56,7 +54,7 @@ def unit_losses(df, army, rounds):
         army_results.append(temp[item])
 
     # assemble army DataFrame
-    army_losses = pd.DataFrame({'Turn': range(1, rounds + 1)})
+    army_losses = pd.DataFrame({'Turn': range(1, globals.SIMULATIONS + 1)})
     for item in army_results:
         army_losses = army_losses.join(item, on='Turn')
 
@@ -81,10 +79,29 @@ def army_cost(df, attribute):
     # apply attribute cost to each unit
     ac = df.copy()
     for item in units:
-        ac[item] = ac[item].apply(lambda x: x * unit(item, attribute))
+        ac[item] = ac[item].apply(lambda x: x * decode.unit(item, attribute))
 
     # calculate each round cost by adding up unit costs
     ac[attribute] = ac.sum(axis=1)
     ac = ac[attribute]
 
     return ac
+
+
+def summary():
+    """
+    Converts battle log into DataFrames
+    :return: dictionary with attacker and defender DataFrames
+    """
+
+    nations = globals.LOGS['nations']
+
+    df = pivot_battle_log()
+    globals.ATTACKER_DF = unit_losses(df, nations['defender'])
+    globals.DEFENDER_DF = unit_losses(df, nations['attacker'])
+
+
+def results():
+
+    wins()
+    summary()
