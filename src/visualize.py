@@ -19,7 +19,7 @@ def win_score():
     sns.barplot(x='Nation', y='Wins', data=df)
 
 
-def army_roi():
+def army_roi(cost_type):
     """
     Generates the Army ROI distribution plots
     :return:
@@ -28,18 +28,18 @@ def army_roi():
     attacker = globals.ATTACKER_DF
     defender = globals.DEFENDER_DF
 
-    gcost = calculate.army_cost(attacker, 'gcost')
-    attacker = attacker.join(gcost)
+    cost = calculate.army_cost(attacker, cost_type)
+    attacker = attacker.join(cost)
 
-    gcost = calculate.army_cost(defender, 'gcost')
-    defender = defender.join(gcost)
+    cost = calculate.army_cost(defender, cost_type)
+    defender = defender.join(cost)
 
     nations = globals.LOGS['nations']
     atk_name = decode.nation(nations['attacker'])
     def_name = decode.nation(nations['defender'])
 
-    a = pd.Series(attacker['gcost'], name=atk_name)
-    d = pd.Series(defender['gcost'], name=def_name)
+    a = pd.Series(attacker[cost_type], name=atk_name)
+    d = pd.Series(defender[cost_type], name=def_name)
     df = pd.concat([a, d], axis=1)
 
     df[atk_name + ' ROI'] = df[def_name] - df[atk_name]
@@ -88,7 +88,7 @@ def charts():
     """
 
     win_score()
-    army_roi()
+    army_roi(cost_type='gcost')
     unit_deaths()
 
     plt.show()

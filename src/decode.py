@@ -14,7 +14,7 @@ def nation(nation_id, attribute='name'):
     return output
 
 
-def unit(name, attribute='gcost'):
+def unit(name, attribute):
     """
     Returns Unit resource cost by Unit Name.
     :param name: Unit Name
