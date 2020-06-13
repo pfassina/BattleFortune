@@ -107,9 +107,7 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Battlefortune
-/logs/
-.DS_Store
+# pycharm
 .idea/.gitignore
 .idea/BattleFortune.iml
 .idea/encodings.xml
@@ -117,3 +115,7 @@ venv.bak/
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
+.DS_Store
+
+# Battlefortune
+/logs/
