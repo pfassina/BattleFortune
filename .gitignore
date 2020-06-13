@@ -109,4 +109,11 @@ venv.bak/
 
 # Battlefortune
 /logs/
-/data/config.yaml
+.DS_Store
+.idea/.gitignore
+.idea/BattleFortune.iml
+.idea/encodings.xml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
