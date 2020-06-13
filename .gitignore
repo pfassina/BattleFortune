@@ -109,3 +109,4 @@ venv.bak/
 
 # Battlefortune
 /logs/
+/data/config.yaml
