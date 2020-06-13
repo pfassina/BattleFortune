@@ -1,3 +1,5 @@
+import os
+
 import yaml
 
 from src import calculate, read, visualize, utility, globals, run
@@ -11,8 +13,8 @@ def setup(dom_path, game_path):
     """
 
     path_dict = {
-        dom_path: None,
-        game_path: None
+        'dom_path': dom_path,
+        'game_path': game_path
     }
 
     with open('./data/config.yaml', 'w') as outfile:
@@ -27,7 +29,7 @@ def startup(game, simulations, province):
         paths = yaml.load(file, Loader=yaml.Loader)
 
     globals.DOM_PATH = paths['dom_path']
-    globals.GAME_PATH = paths['game_path']
+    globals.GAME_PATH = os.path.join(paths['game_path'], game)
 
     globals.SIMULATIONS = simulations
     globals.GAME_NAME = game

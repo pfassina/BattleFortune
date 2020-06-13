@@ -12,5 +12,5 @@ if __name__ == '__main__':
     sr = input('simulation rounds: ')
     pn = input('province number: ')
 
-    battlefortune.startup(game=gn, simulations=sr, province=pn)
+    battlefortune.startup(game=gn, simulations=int(sr), province=int(pn))
     battlefortune.battlefortune()
