@@ -9,7 +9,7 @@ def nation(nation_id, attribute='name'):
     :return: Decoded attribute
     """
 
-    with open('./data/nations.json', 'r') as file:
+    with open('data/nations.json', 'r') as file:
         output = json.load(file)[str(nation_id)][attribute]
     return output
 
@@ -22,7 +22,7 @@ def unit(name, attribute):
     :return: Decoded attribute
     """
 
-    with open('./data/units.json', 'r') as file:
+    with open('data/units.json', 'r') as file:
         output = json.load(file)[name][attribute]
     return output
 

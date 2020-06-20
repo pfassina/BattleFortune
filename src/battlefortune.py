@@ -5,37 +5,6 @@ import yaml
 from src import calculate, read, visualize, utility, globals, run
 
 
-def setup(dom_path, game_path):
-    """
-    Setups config.yaml file with file paths.
-    :param dom_path: OS path to dominions executable file
-    :param game_path: OS path to game folder
-    """
-
-    path_dict = {
-        'dom_path': dom_path,
-        'game_path': game_path
-    }
-
-    with open('./data/config.yaml', 'w') as outfile:
-        yaml.dump(path_dict, stream=outfile)
-
-
-def startup(game, simulations, province):
-
-    globals.init()
-
-    with open('./data/config.yaml', 'r') as file:
-        paths = yaml.load(file, Loader=yaml.Loader)
-
-    globals.DOM_PATH = paths['dom_path']
-    globals.GAME_PATH = os.path.join(paths['game_path'], game)
-
-    globals.SIMULATIONS = simulations
-    globals.GAME_NAME = game
-    globals.PROVINCE = province
-
-
 def battlefortune():
     """
     Runs BattleFortune, simulate battles, and return results.
@@ -58,3 +27,34 @@ def battlefortune():
 
     # CLEAN
     utility.remove_cloned_files()
+
+
+def setup(dom_path, game_path):
+    """
+    Setups config.yaml file with file paths.
+    :param dom_path: OS path to dominions executable file
+    :param game_path: OS path to game folder
+    """
+
+    path_dict = {
+        'dom_path': dom_path,
+        'game_path': game_path
+    }
+
+    with open('./data/config.yaml', 'w') as outfile:
+        yaml.dump(path_dict, stream=outfile)
+
+
+def startup(inputs):
+
+    globals.init()
+
+    setup(dom_path= inputs['dp'], game_path=inputs['gp'])
+
+    globals.DOM_PATH = inputs['dp']
+    globals.GAME_PATH = os.path.join(inputs['gp'], inputs['gn'])
+    globals.GAME_NAME = inputs['gn']
+    globals.PROVINCE = int(inputs['pn'])
+    globals.SIMULATIONS = int(inputs['sr'])
+
+    battlefortune()
