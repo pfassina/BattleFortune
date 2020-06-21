@@ -5,7 +5,7 @@ import pandas as pd
 from src import calculate, decode, globals
 
 # set visualization palette
-sns.set(palette="Set3", style="white")
+sns.set(palette="Set3", style="white", rc={'figure.figsize': (12.8, 9.6), 'figure.dpi': 72})
 
 
 def win_score():
@@ -16,7 +16,8 @@ def win_score():
 
     df = globals.WIN_COUNTS
     plt.figure(1)
-    sns.barplot(x='Nation', y='Wins', data=df)
+    plot = sns.barplot(x='Nation', y='Wins', data=df).get_figure()
+    plot.savefig('img/winscore.png')
 
 
 def army_roi(cost_type):
@@ -48,12 +49,14 @@ def army_roi(cost_type):
     try:
         plt.figure(3)
         plt.subplot(211)
-        sns.distplot(df[atk_name + ' ROI'])
+        sns.distplot(df[atk_name + ' ROI']).get_figure()
 
         plt.subplot(212)
-        sns.distplot(df[def_name + ' ROI'])
+        plot = sns.distplot(df[def_name + ' ROI']).get_figure()
+        plot.savefig('img/defender_roi.png')
 
-        sns.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
+        plot = sns.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
+        plot.savefig('img/army_roi.png')
 
     except ArithmeticError:
         pass
@@ -72,10 +75,11 @@ def unit_deaths():
         plt.figure(2)
 
         plt.subplot(211)
-        sns.violinplot(data=attacker, scale="width")
+        plot = sns.violinplot(data=attacker, scale="width").get_figure()
 
         plt.subplot(212)
-        sns.violinplot(data=defender, scale="width")
+        plot = sns.violinplot(data=defender, scale="width").get_figure()
+        plot.savefig('img/defender_unit_deaths.png')
 
     except ArithmeticError:
         pass
