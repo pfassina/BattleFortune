@@ -8,7 +8,6 @@ import yaml
 
 from src import battlefortune as bf
 
-os.chdir('/Users/pfass/code/BattleFortune')
 
 img_index = 0
 img_len = 0
@@ -16,7 +15,7 @@ img_len = 0
 
 def get_config():
 
-    config = {'dom_path': None, 'game_path': None}
+    config = {'dom_path': '', 'game_path': ''}
     if os.path.exists('data/config.yaml'):
         with open('data/config.yaml', 'r') as file:
             config = yaml.load(stream=file, Loader=yaml.Loader)
@@ -107,12 +106,12 @@ def initialize():
 
     dp_label = tk.Label(inputs_frame, text='Dominions Path: ')
     dp_entry = tk.Entry(inputs_frame, width=60)
-    dp_entry.insert(0, config['dom_path'])
+    dp_entry.insert(0, config.get('dom_path'))
     dp_button = tk.Button(inputs_frame, text='select', command=lambda: get_dir(dp_entry))
 
     gp_label = tk.Label(inputs_frame, text='Saved Games Path: ')
     gp_entry = tk.Entry(inputs_frame, width=60)
-    gp_entry.insert(0, config['game_path'])
+    gp_entry.insert(0, config.get('game_path'))
     gp_button = tk.Button(inputs_frame, text='select', command=lambda: get_dir(gp_entry))
 
     gn_label = tk.Label(inputs_frame, text='Game Name: ')
