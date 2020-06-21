@@ -119,5 +119,9 @@ venv.bak/
 
 # Battlefortune
 /logs/
+!logs/.gitkeep
 /data/config.yaml
+!data/.gitkeep
 /img/*
+!img/.gitkeep
+
