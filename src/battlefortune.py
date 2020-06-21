@@ -44,6 +44,9 @@ def setup(dom_path, game_path):
     with open('./data/config.yaml', 'w') as outfile:
         yaml.dump(path_dict, stream=outfile)
 
+    if not os.path.exists('img/'):
+        os.makedirs('img/')
+
 
 def startup(inputs):
 
