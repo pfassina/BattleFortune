@@ -118,8 +118,6 @@ venv.bak/
 .DS_Store
 
 # Battlefortune
-/logs/
-!logs/.gitkeep
+/logs/*
 /data/config.yaml
 /img/*
-!img/.gitkeep
