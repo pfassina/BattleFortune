@@ -52,7 +52,7 @@ def startup(inputs):
 
     globals.init()
 
-    setup(dom_path= inputs['dp'], game_path=inputs['gp'])
+    setup(dom_path=inputs['dp'], game_path=inputs['gp'])
 
     globals.DOM_PATH = inputs['dp']
     globals.GAME_PATH = os.path.join(inputs['gp'], inputs['gn'])
