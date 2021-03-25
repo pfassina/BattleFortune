@@ -28,7 +28,7 @@ REQUIRED = [
     'PyAutoGUI==0.9.39', 'pycodestyle==2.4.0', 'pyflakes==2.0.0',
     'PyMsgBox==1.0.6', 'pyparsing==2.3.0', 'PyScreeze==0.1.18',
     'python-dateutil==2.7.5', 'PyTweening==1.0.3', 'pytz==2018.7',
-    'PyYAML==3.13', 'scipy==1.2.0', 'seaborn==0.9.0', 'six==1.12.0'
+    'PyYAML==5.4', 'scipy==1.2.0', 'seaborn==0.9.0', 'six==1.12.0'
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
