@@ -66,7 +66,7 @@ def find_battle(log):
     :return: battle log blurb
     """
     start = log.find('getbattlecountfromvcr') + 21
-    end = log.rfind('getfatherland')
+    end = log.rfind('restoremonarrays')
     battle = log[start:end-1]
     blurb = battle.split('\n')[1:]
 

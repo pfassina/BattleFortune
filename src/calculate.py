@@ -49,7 +49,7 @@ def unit_losses(df, army):
     army_results = []
     for item in army_units:
         temp = army_df[item].copy()
-        temp[item] = temp['after'] - temp['before']
+        temp[item] = temp.get('after', 0) - temp.get('before', 0)
         # temp.columns.rename(item)
         army_results.append(temp[item])
 

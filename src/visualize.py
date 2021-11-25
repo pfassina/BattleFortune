@@ -95,4 +95,4 @@ def charts():
     army_roi(cost_type='gcost')
     unit_deaths()
 
-    plt.show()
+    # plt.show()
