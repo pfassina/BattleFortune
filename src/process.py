@@ -13,11 +13,10 @@ def wait_screen_load():
     Waits Nation Selection screen to load
     """
 
-    log = os.path.join(globals.DOM_PATH, 'log.txt')
     valid = False
     while valid is False:
         try:
-            with open(log, 'r') as file:
+            with open(os.path.join(globals.DOM_PATH, 'log.txt'), 'r') as file:
                 blurb = file.read()
                 load_complete = blurb.rfind('playturn: autohost')  # battle loaded
         except FileNotFoundError:

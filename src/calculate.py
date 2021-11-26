@@ -29,7 +29,6 @@ def pivot_battle_log():
     c = ['Army', 'Unit', 'Phase']
     df = pd.DataFrame(globals.LOGS['battles'])
     df = df.pivot_table(values='Count', index='Turn', columns=c, aggfunc='sum')
-
     return df
 
 

@@ -9,6 +9,13 @@ from tqdm import tqdm
 from src import process, globals
 
 
+def run_command(game, host_game):
+    if host_game:
+        return ['./dom5_mac', '--simpgui', '--nosteam', '-waxscog', '-T', game]
+    else:
+        return ['./dom5_mac', '--simpgui', '--nosteam', "'--res 960 720'", '-waxscod', game]
+
+
 def run_dominions(game, host_game=False):
     """
     Run command for Dominions
@@ -17,18 +24,11 @@ def run_dominions(game, host_game=False):
     :return: run process
     """
 
-    program = ['./dom5_mac']
-
     if host_game:
-        switches = ['--simpgui', '--nosteam', '-waxscog', '-T']
-        cmd = program + switches + [game]
-        dom_instance = subprocess.Popen(cmd, cwd=globals.DOM_PATH)
+        dom_instance = subprocess.Popen(run_command(game, host_game), cwd=globals.DOM_PATH)
     else:
-        switches = ['--simpgui', '--nosteam', "'--res 960 720'", '-waxscod']
-        log_path = os.path.join(globals.DOM_PATH, 'log.txt')
-        cmd = program + switches + [game]
-        with open(log_path, 'w') as log:
-            dom_instance = subprocess.Popen(cmd, cwd=globals.DOM_PATH, stdout=log)
+        with open(os.path.join(globals.DOM_PATH, 'log.txt'), 'w') as log:
+            dom_instance = subprocess.Popen(run_command(game, host_game), cwd=globals.DOM_PATH, stdout=log)
 
     return dom_instance.pid
 
@@ -83,9 +83,9 @@ def batch_host():
     """
 
     threads = []
-    for r in range(1, globals.SIMULATIONS + 1):
+    for round in range(globals.SIMULATIONS):
 
-        t = threading.Thread(target=host, kwargs={'simulation_round': r})
+        t = threading.Thread(target=host, kwargs={'simulation_round': round + 1})
         threads.append(t)
         t.start()
 

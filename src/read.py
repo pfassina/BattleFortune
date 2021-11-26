@@ -42,21 +42,15 @@ def parse_nations(log):
     :param log: log file
     :return: Dictionary with Nations Ids
     """
-    loc = log.find('getbattlecount:') + 15
-    armies = log[loc:].split(',', 3)[1:3]
-    if armies[0].find('def') == -1:
-        attacker = int(armies[0].strip().split(' ')[1])
-        defender = int(armies[1].strip().split(' ')[1])
-    else:
-        defender = int(armies[0].strip().split(' ')[1])
-        attacker = int(armies[1].strip().split(' ')[1])
 
-    nations = {
-        'attacker': attacker,
-        'defender': defender
+    armies = log[log.find('getbattlecount:') + 15:].split(',', 3)[1:3]
+    defender = False if armies[0].find('def') == -1 else True
+    a, b = [int(a.strip().split(' ')[1]) for a in armies]
+
+    return {
+        'attacker': b if defender else a,
+        'defender': a if defender else b
     }
-
-    return nations
 
 
 def find_battle(log):
@@ -65,54 +59,45 @@ def find_battle(log):
     :param log: log file
     :return: battle log blurb
     """
+
     start = log.find('getbattlecountfromvcr') + 21
     end = log.rfind('restoremonarrays')
-    battle = log[start:end-1]
-    blurb = battle.split('\n')[1:]
 
-    return blurb
+    return log[start:end-1].split('\n')[1:]
 
 
-def parse_battle(simulation_round, battle, attacker, defender):
+def parse_battle_entry(simulation_round, attacker, defender, battle_entry):
+    """
+    parse battle entry from battle battle log
+    :param simulation_round:  Simulation Round
+    :param attacker: attacker nation id
+    :param defender: defender nation id
+    :param battle_entry: entry on battle log
+    :return: dictionary with battle entry results
+    """
+
+    cleaned_blurb = battle_entry.split('(')[0].strip()
+    army, unit = [i.strip() for i in cleaned_blurb.split(':')]
+
+    return {
+            'Turn': simulation_round,
+            'Phase': 'before' if army in ['0', '2'] else 'after',
+            'Army': attacker if army in ['0', '1'] else defender,
+            'Unit': unit.split(' ', 2)[2],
+            'Count': sum([int(i) for i in unit.split(' ', 2)[:2]])
+    }
+
+
+def parse_battle(simulation_round, log, attacker, defender):
     """
     Parses Battle Blurb
     :param simulation_round: Simulation Round
-    :param battle: battle blurb
+    :param log: log file
     :param attacker: attacker nation id
     :param defender: defender nation id
     :return: battle log
     """
-
-    battle_log = []
-    for i in range(len(battle)):
-        battle[i] = battle[i].split('(')[0].strip()
-        battle[i] = [battle[i].split(':')[0], battle[i].split(':')[1].strip()]
-
-        if battle[i][0] == '0' or battle[i][0] == '2':
-            phase = 'before'
-        else:
-            phase = 'after'
-
-        if battle[i][0] == '0' or battle[i][0] == '1':
-            army = attacker
-        else:
-            army = defender
-
-        count = int(battle[i][1].split(' ', 2)[0])
-        count += int(battle[i][1].split(' ', 2)[1])
-        unit = battle[i][1].split(' ', 2)[2]
-
-        result = {
-            'Turn': simulation_round,
-            'Phase': phase,
-            'Army': army,
-            'Unit': unit,
-            'Count': count
-        }
-
-        battle_log.append(result)
-
-    return battle_log
+    return [parse_battle_entry(simulation_round, attacker, defender, i) for i in find_battle(log)]
 
 
 def parse_winner(simulation_round, log, attacker, defender):
@@ -125,27 +110,19 @@ def parse_winner(simulation_round, log, attacker, defender):
     :return: dictionary with the nation that won the turn
     """
 
-    p_loc = log.find('got turn info for player') + 25
-    player = int(log[p_loc:].split('\n')[0])
-    pd_log_string = log.find('whatPD')
+    # parse log to find player nation
+    player = int(log[log.find('got turn info for player') + 25:].split('\n')[0])
 
     # Define Winner based on Province Defense at Battle Province
-    winner = None
-    if pd_log_string > 0 and player == attacker:  # Player is attacker and won battle
-        winner = attacker
-    elif pd_log_string > 0 and player == defender:  # Player is defender and won battle
-        winner = defender
-    elif pd_log_string == -1 and player == attacker:  # Player is attacker lost battle
-        winner = defender
-    elif pd_log_string == -1 and player == defender:  # Player is defender and list battle
-        winner = attacker
+    if log.find('whatPD') > 0:  # Player can add PD
+        winner = attacker if player == attacker else defender
+    else:
+        winner = defender if player == attacker else defender
 
-    turn_score = {
+    return {
         'Turn': simulation_round,
         'Nation': winner
     }
-
-    return turn_score
 
 
 def parse_log(simulation_round):
@@ -165,19 +142,11 @@ def parse_log(simulation_round):
     attacker = nations['attacker']
     defender = nations['defender']
 
-    # parse battle log
-    battle = find_battle(log)
-    battle_log = parse_battle(simulation_round, battle, attacker, defender)
-    # parse winner
-    turn_score = parse_winner(simulation_round, log, attacker, defender)
-
-    turn_log = {
+    return {
         'nations': nations,
-        'turn_score': turn_score,
-        'battle_log': battle_log
+        'turn_score': parse_winner(simulation_round, log, attacker, defender),
+        'battle_log': parse_battle(simulation_round, log, attacker, defender)
     }
-
-    return turn_log
 
 
 def dump_log():
@@ -190,8 +159,7 @@ def dump_log():
     if not os.path.exists(log_path):
         os.makedirs(log_path)
 
-    log_list = ['winners', 'battles', 'nations']
-    for log in log_list:
+    for log in ['winners', 'battles', 'nations']:
         path = os.path.join(log_path, f'{log}.yaml')
         with open(path, 'w') as file:
             yaml.dump(data=globals.LOGS[log], stream=file)
@@ -204,28 +172,14 @@ def combine_logs():
     batch reads logs from all simulations
     :return: log list
     """
-    winners = []
-    battles = []
-    nations = {}
 
-    for i in globals.VALID_ROUNDS:
-        log = parse_log(simulation_round=i)
-        if i == min(globals.VALID_ROUNDS):
-            nations = log['nations']  # get nation ids
-        winners.append(log['turn_score'])  # get turn winner
-        for j in range(len(log['battle_log'])):
-            battles.append(log['battle_log'][j])  # get battle report
-
-    log_list = {
-        'nations': nations,
-        'winners': winners,
-        'battles': battles
+    valid_logs = [parse_log(r) for r in globals.VALID_ROUNDS]
+    battle_logs = [log['battle_log'] for log in valid_logs]
+    print(1)
+    globals.LOGS = {
+        'nations': valid_logs[0]['nations'],
+        'winners': [log['turn_score'] for log in valid_logs],
+        'battles': [battle for turn in battle_logs for battle in turn]
     }
-
-    assert log_list['nations'], 'nation log not captured'
-    assert log_list['winners'], 'winners log not captured'
-    assert log_list['battles'], 'battles log not captured'
-
-    globals.LOGS = log_list
 
     dump_log()

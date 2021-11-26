@@ -43,8 +43,8 @@ def army_roi(cost_type):
     d = pd.Series(defender[cost_type], name=def_name)
     df = pd.concat([a, d], axis=1)
 
-    df[atk_name + ' ROI'] = df[def_name] - df[atk_name]
-    df[def_name + ' ROI'] = df[atk_name] - df[def_name]
+    df[atk_name + ' ROI'] = -1 * (df[def_name] - df[atk_name])
+    df[def_name + ' ROI'] = -1 * (df[atk_name] - df[def_name])
 
     try:
         plt.figure(3)
