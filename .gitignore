@@ -122,3 +122,4 @@ venv.bak/
 /logs/*
 /data/config.yaml
 /img/*
+debug_request.py
