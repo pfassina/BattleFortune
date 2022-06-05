@@ -1,98 +1,129 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
 
-from src import calculate, decode, globals
-
-# set visualization palette
-sns.set(palette="Set3", style="white", rc={'figure.figsize': (12.8, 9.6), 'figure.dpi': 72})
+from src.calculate import Results
 
 
-def win_score():
+def win_score(results: Results) -> None:
     """
     Generates Win Score bar plot
-    :return: win score bar plot
     """
 
-    df = globals.WIN_COUNTS
-    plt.figure(1)
-    plot = sns.barplot(x='Nation', y='Wins', data=df).get_figure()
+    plt.figure(0)
+    plt.title('Win Score by Nation')
+    plt.ylabel('Simulations')
+    x = [n.name for n in results.win_score.index]
+    y = results.win_score.values
+    plot = sns.barplot(x=x, y=y, errwidth=0).get_figure()
     plot.savefig('img/winscore.png')
 
 
-def army_roi(cost_type):
+def nation_loss(results: Results) -> None:
+
+    attacker_name = results.attacker.name
+    defender_name = results.defender.name
+
+    attacker_losses = results.army_cost.loc[attacker_name].T
+    defender_losses = results.army_cost.loc[defender_name].T
+
+    plt.figure(1)
+    fig1, (ax1, ax2) = plt.subplots(2, 1)  # type: ignore
+
+    fig1.suptitle(attacker_name)
+    sns.histplot(data=attacker_losses, x='gold', ax=ax1)
+    sns.histplot(data=attacker_losses, x='resources', ax=ax2)
+    plt.savefig('img/attacker_losses.png')
+
+    plt.figure(2)
+    fig2, (ax3, ax4) = plt.subplots(2, 1)  # type: ignore
+
+    fig2.suptitle(defender_name)
+    sns.histplot(data=defender_losses, x='gold', ax=ax3)
+    sns.histplot(data=defender_losses, x='resources', ax=ax4)
+    plt.savefig('img/defender_losses.png')
+
+
+def army_roi(results: Results) -> None:
     """
     Generates the Army ROI distribution plots
     :return:
     """
 
-    attacker = globals.ATTACKER_DF
-    defender = globals.DEFENDER_DF
+    army_cost = results.army_cost
 
-    cost = calculate.army_cost(attacker, cost_type)
-    attacker = attacker.join(cost)
+    attacker_name = results.attacker.name
+    defender_name = results.defender.name
 
-    cost = calculate.army_cost(defender, cost_type)
-    defender = defender.join(cost)
+    attacker_losses = army_cost.loc[attacker_name, 'gold']
+    defender_losses = army_cost.loc[defender_name, 'gold']
 
-    nations = globals.LOGS['nations']
-    atk_name = decode.nation(nations['attacker'])
-    def_name = decode.nation(nations['defender'])
+    attacker_roi = -1 * (defender_losses - attacker_losses)  # type: ignore
+    defender_roi = -1 * (attacker_losses - defender_losses)  # type: ignore
 
-    a = pd.Series(attacker[cost_type], name=atk_name)
-    d = pd.Series(defender[cost_type], name=def_name)
-    df = pd.concat([a, d], axis=1)
+    plt.figure(3)
+    fig, (ax1, ax2) = plt.subplots(2, 1)  # type: ignore
 
-    df[atk_name + ' ROI'] = -1 * (df[def_name] - df[atk_name])
-    df[def_name + ' ROI'] = -1 * (df[atk_name] - df[def_name])
+    fig.suptitle('Gold ROI by Nation')
 
-    try:
-        plt.figure(3)
-        plt.subplot(211)
-        sns.distplot(df[atk_name + ' ROI']).get_figure()
+    ax1.set_xlabel(attacker_name)
+    ax1.set_ylabel('Simulations')
+    sns.histplot(data=attacker_roi, ax=ax1)
 
-        plt.subplot(212)
-        plot = sns.distplot(df[def_name + ' ROI']).get_figure()
-        plot.savefig('img/defender_roi.png')
+    ax2.set_xlabel(defender_name)
+    ax2.set_ylabel('Simulations')
+    sns.histplot(data=defender_roi, ax=ax2)
 
-        plot = sns.jointplot(x=atk_name, y=def_name, data=df, kind="kde")
-        plot.savefig('img/army_roi.png')
-
-    except ArithmeticError:
-        pass
+    plt.savefig('img/nation_roi.png')
 
 
-def unit_deaths():
+def unit_deaths(results: Results) -> None:
     """
     Generates unit losses bar plot
     :return: unit losses bar plot
     """
 
-    attacker = globals.ATTACKER_DF
-    defender = globals.DEFENDER_DF
+    unit_losses = results.unit_losses.sort_index()
 
-    try:
-        plt.figure(2)
+    attacker_name = results.attacker.name
+    defender_name = results.defender.name
 
-        plt.subplot(211)
-        plot = sns.violinplot(data=attacker, scale="width").get_figure()
+    attacker = unit_losses.loc[attacker_name, 'deaths'].T  # type: ignore
+    defender = unit_losses.loc[defender_name, 'deaths'].T  # type: ignore
 
-        plt.subplot(212)
-        plot = sns.violinplot(data=defender, scale="width").get_figure()
-        plot.savefig('img/defender_unit_deaths.png')
+    attacker.columns = [u.name for u in attacker.columns]
+    defender.columns = [u.name for u in defender.columns]
 
-    except ArithmeticError:
-        pass
+    plt.figure(4)
+    fig, (ax1, ax2) = plt.subplots(2, 1)  # type: ignore
+
+    fig.suptitle('Unit Deaths by Nation')
+
+    ax1.set_xlabel(f'{attacker_name} units')
+    ax1.set_ylabel('Unit Deaths')
+    sns.boxplot(data=attacker, ax=ax1)
+
+    ax2.set_xlabel(f'{defender_name} units')
+    ax2.set_ylabel('Unit Deaths')
+    sns.boxplot(data=defender, ax=ax2)
+
+    plt.savefig('img/unit_losses.png')
 
 
-def charts():
+def charts(results: Results):
     """
     Visualize battle results
     :return: plot visualizations
     """
 
-    win_score()
-    army_roi(cost_type='gcost')
-    unit_deaths()
+    # set visualization palette
+    sns.set(palette="Set3",
+            style="white",
+            rc={
+                'figure.figsize': (12.8, 9.6),
+                'figure.dpi': 72
+            })
 
-    # plt.show()
+    win_score(results)
+    nation_loss(results)
+    army_roi(results)
+    unit_deaths(results)

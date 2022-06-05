@@ -116,6 +116,7 @@ venv.bak/
 .idea/modules.xml
 .idea/vcs.xml
 .DS_Store
+.vscode
 
 # Battlefortune
 /logs/*
