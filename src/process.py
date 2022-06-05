@@ -5,93 +5,82 @@ import signal
 import keyboard
 import pyautogui
 
-from src import read, utility, globals
+from src import utility
+from src.config import SimConfig
 
 
-def wait_screen_load():
+def wait_screen_load(dominions_path: str) -> None:
     """
     Waits Nation Selection screen to load
     """
 
-    valid = False
-    while valid is False:
-        try:
-            with open(os.path.join(globals.DOM_PATH, 'log.txt'), 'r') as file:
-                blurb = file.read()
-                load_complete = blurb.rfind('playturn: autohost')  # battle loaded
-        except FileNotFoundError:
-            continue
-        if load_complete == -1:
-            continue
-        if load_complete != -1:
-            valid = True
+    log_path = os.path.join(dominions_path, 'log.txt')
+    while not os.path.exists(log_path):
+        continue
+
+    with open(log_path, 'r') as log:
+
+        load_complete = -1
+        while load_complete == -1:
+            blurb = log.read()
+            load_complete = blurb.rfind('playturn: autohost')
 
 
-def select_nation():
+def select_nation() -> None:
     """
     Selects the first Nation on Nation selection screen.
     """
 
-    x, y = (0, 0)
-    apps = Quartz.CGWindowListCopyWindowInfo(Quartz.kCGWindowListOptionOnScreenOnly & Quartz.kCGWindowListExcludeDesktopElements, Quartz.kCGNullWindowID)
+    apps = Quartz.CGWindowListCopyWindowInfo(  # type: ignore
+        Quartz.kCGWindowListOptionOnScreenOnly  # type: ignore
+        & Quartz.kCGWindowListExcludeDesktopElements,  # type: ignore
+        Quartz.kCGNullWindowID)  # type: ignore
+
     for app in apps:
-        if app.get('kCGWindowOwnerName') == 'dom5_mac' and app.get('kCGWindowIsOnscreen') == 1:
-            window = app.get('kCGWindowBounds')
-            x, y = window.get('X'), window.get('Y') + 25
-        else:
-            pass
 
-    # Move cursor by 400x280 to select first Nation
-    pyautogui.click((x + 500, y + 355))
+        if app.get('kCGWindowOwnerName') != 'dom5_mac':
+            continue
+
+        if app.get('kCGWindowIsOnscreen') != 1:
+            continue
+
+        window = app.get('kCGWindowBounds')
+        x, y = window.get('X'), window.get('Y') + 25
+        pyautogui.click((x + 500, y + 355))
+        break
 
 
-def go_to_province():
+def go_to_province(province: int) -> None:
     """
     Automates keyboard shortcuts to generate log.
     """
 
     keyboard.press_and_release('esc')  # exit messages
     keyboard.press_and_release('g')  # go to screen
-    keyboard.write(str(globals.PROVINCE))  # select province
+    keyboard.write(str(province))  # select province
     keyboard.press_and_release('enter')  # confirm
     keyboard.press_and_release('c')  # view results
     keyboard.press_and_release('esc')  # back to map
     keyboard.press_and_release('d')  # try to add PD
 
 
-def validate_round(simulation_round):
-    """
-    Check if round generated a valid log
-    :param simulation_round: simulation round number
-    """
-
-    valid = read.validate_log()  # validate log
-
-    if not valid:
-        globals.VALID_ROUNDS.remove(simulation_round)
-        globals.FAILED_ROUNDS.append(simulation_round)
-
-
-def rounds(simulation_round, process_id):
+def rounds(config: SimConfig, simulation_round: int, process_id: int) -> None:
     """
     Clicks through a Dominions game to generate log
     :return: True if successful
     """
 
     # wait nation selection screen to load
-    wait_screen_load()
+    wait_screen_load(config.dominions_path)
 
     # select first nation
     select_nation()
 
     # check battle report
-    go_to_province()
-
-    # validate round
-    validate_round(simulation_round)
+    go_to_province(config.province)
 
     # terminate process
     os.kill(process_id, signal.SIGTERM)
 
     # move log to round folder
-    utility.move_log(simulation_round)
+    utility.move_log(config, simulation_round)
