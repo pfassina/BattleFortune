@@ -72,7 +72,7 @@ class Log:
 
     attacker_id: int
     defender_id: int
-    simulation_round: int
+    turn: int
     winner_id: int
     battle_log: BattleLog
 
@@ -298,7 +298,7 @@ def parse_winner(log, attacker_id: int, defender_id: int) -> int:
     return defender_id if player == attacker_id else defender_id
 
 
-def parse_log(config: SimConfig, simulation_round: int) -> Log:
+def parse_log(config: SimConfig, turn: int) -> Log:
     """
     Parses Turn Log and returns turn log dictionary.
     :param simulation_round: Simulation round.
@@ -306,7 +306,7 @@ def parse_log(config: SimConfig, simulation_round: int) -> Log:
     """
 
     # get battle log
-    log_path = f'{config.game_path}_{simulation_round}/log.txt'
+    log_path = os.path.join(config.simulation_path(turn), 'log.txt')
     with open(log_path, mode='r') as file:
         log = file.read()
 
@@ -315,18 +315,18 @@ def parse_log(config: SimConfig, simulation_round: int) -> Log:
 
     return Log(attacker_id=attacker,
                defender_id=defender,
-               simulation_round=simulation_round,
+               turn=turn,
                winner_id=parse_winner(log, attacker, defender),
                battle_log=parse_battle(log, attacker, defender))
 
 
-def combine_logs(config: SimConfig, rounds: list[int]) -> ParsedLogs:
+def combine_logs(config: SimConfig, turns: list[int]) -> ParsedLogs:
     """
     batch reads logs from all simulations
     :return: log list
     """
 
-    parsed_logs = ParsedLogs([parse_log(config, r) for r in rounds])
+    parsed_logs = ParsedLogs([parse_log(config, t) for t in turns])
     parsed_logs.dump_to_yaml(config.game_name)
 
     return parsed_logs

@@ -1,4 +1,4 @@
-from src import calculate, read, visualize, utility, run
+from src import calculate, read, visualize, run
 from src.config import SimConfig
 
 
@@ -8,13 +8,13 @@ def start(config: SimConfig) -> None:
     """
 
     # PREPARE
-    utility.clone_game_files(config.game_path, config.simulations)
+    config.clone_game_files()
 
     # SIMULATE
-    rounds = run.simulation(config)
+    turns = run.simulation(config)
 
     # LOG
-    logs = read.combine_logs(config, rounds)
+    logs = read.combine_logs(config, turns)
 
     # CALCULATE
     results = calculate.results(logs)
@@ -23,4 +23,4 @@ def start(config: SimConfig) -> None:
     visualize.charts(results)
 
     # CLEAN
-    utility.remove_cloned_files(config.game_path, config.simulations)
+    config.remove_cloned_files()

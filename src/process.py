@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 import Quartz
 import signal
@@ -5,8 +6,19 @@ import signal
 import keyboard
 import pyautogui
 
-from src import utility
 from src.config import SimConfig
+
+
+@dataclass
+class AppWindow:
+    x: int
+    y: int
+
+    @property
+    def banner_position(self) -> tuple[int, int]:
+        banner_x = self.x + 500
+        banner_y = self.y + 25 + 355  # header + y delta
+        return (banner_x, banner_y)
 
 
 def wait_screen_load(dominions_path: str) -> None:
@@ -26,28 +38,28 @@ def wait_screen_load(dominions_path: str) -> None:
             load_complete = blurb.rfind('playturn: autohost')
 
 
-def select_nation() -> None:
-    """
-    Selects the first Nation on Nation selection screen.
-    """
+def get_app_window() -> AppWindow:
 
     apps = Quartz.CGWindowListCopyWindowInfo(  # type: ignore
         Quartz.kCGWindowListOptionOnScreenOnly  # type: ignore
         & Quartz.kCGWindowListExcludeDesktopElements,  # type: ignore
         Quartz.kCGNullWindowID)  # type: ignore
 
-    for app in apps:
+    dom_5_apps = (a for a in apps if a.get('kCGWindowOwnerName') == 'dom5_mac')
+    dom_5 = next(a for a in dom_5_apps if a.get('kCGWindowIsOnscreen') == 1)
+    window = dom_5.get('kCGWindowBounds')
 
-        if app.get('kCGWindowOwnerName') != 'dom5_mac':
-            continue
+    return AppWindow(window['X'], window['Y'])
 
-        if app.get('kCGWindowIsOnscreen') != 1:
-            continue
 
-        window = app.get('kCGWindowBounds')
-        x, y = window.get('X'), window.get('Y') + 25
-        pyautogui.click((x + 500, y + 355))
-        break
+def select_nation() -> None:
+    """
+    Selects the first Nation on Nation selection screen.
+    """
+
+    app_window = get_app_window()
+    banner_position = app_window.banner_position
+    pyautogui.click(banner_position)
 
 
 def go_to_province(province: int) -> None:
@@ -67,7 +79,6 @@ def go_to_province(province: int) -> None:
 def rounds(config: SimConfig, simulation_round: int, process_id: int) -> None:
     """
     Clicks through a Dominions game to generate log
-    :return: True if successful
     """
 
     # wait nation selection screen to load
@@ -83,4 +94,4 @@ def rounds(config: SimConfig, simulation_round: int, process_id: int) -> None:
     os.kill(process_id, signal.SIGTERM)
 
     # move log to round folder
-    utility.move_log(config, simulation_round)
+    config.move_log(simulation_round)

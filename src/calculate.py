@@ -23,11 +23,6 @@ def wins(logs: ParsedLogs):
     :return: DataFrame with Win Counts per Nation.
     """
 
-    win_dict = {
-        nation.name: simulation
-        for nation, simulation in logs.winners.items()
-    }
-
     df = pd.DataFrame.from_dict(logs.winners, orient='index').sum(axis=1)
     return df
 
@@ -41,11 +36,12 @@ def unit_results(logs: ParsedLogs, nation: Nation) -> pd.DataFrame:
 def unit_dataframe(results: pd.DataFrame) -> pd.DataFrame:
     b = results.apply(lambda x: x[Phase.BEFORE], axis=1, result_type='expand')
     a = results.apply(lambda x: x[Phase.AFTER], axis=1, result_type='expand')
-    l = a.sub(b)
-    g = l.apply(lambda x: x.name.gcost * x, axis=1)
-    r = l.apply(lambda x: x.name.rcost * x, axis=1)
+    d = a.sub(b)
+    g = d.apply(lambda x: x.name.gcost * x, axis=1)
+    r = d.apply(lambda x: x.name.rcost * x, axis=1)
     keys = ['before', 'after', 'deaths', 'gold', 'resources']
-    return pd.concat([b, a, l, g, r], keys=keys)
+
+    return pd.concat([b, a, d, g, r], keys=keys)
 
 
 def unit_losses(logs: ParsedLogs) -> pd.DataFrame:
