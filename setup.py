@@ -23,7 +23,7 @@ VERSION = None
 # What packages are required for this module to be executed?
 REQUIRED = [
     'autopep8==1.4.3', 'cycler==0.10.0', 'flake8==3.6.0', 'keyboard==0.13.2',
-    'kiwisolver==1.0.1', 'matplotlib==3.0.2', 'mccabe==0.6.1', 'numpy==1.15.4',
+    'kiwisolver==1.0.1', 'matplotlib==3.0.2', 'mccabe==0.6.1', 'numpy==1.22.0',
     'packaging==18.0', 'pandas==0.23.4', 'pillow>=8.1.1', 'psutil>=5.6.6',
     'PyAutoGUI==0.9.39', 'pycodestyle==2.4.0', 'pyflakes==2.0.0',
     'PyMsgBox==1.0.6', 'pyparsing==2.3.0', 'PyScreeze==0.1.18',
