@@ -1,13 +1,10 @@
-from src import battlefortune as bf
-from src.config import SimConfig
+from src import gui
 
 
-def main(config: SimConfig):
+def main() -> None:
+    app = gui.Application()
+    app.mainloop()
 
-    # gui.initialize()
-    bf.start(config)
 
-
-if __name__ == '__main__':
-    from debug_request import config
-    main(config)
+if __name__ == "__main__":
+    main()

@@ -14,10 +14,9 @@ class AppWindow:
     x: int
     y: int
 
-    @property
-    def banner_position(self) -> tuple[int, int]:
-        banner_x = self.x + 500
-        banner_y = self.y + 25 + 355  # header + y delta
+    def banner_position(self, dx: int, dy: int) -> tuple[int, int]:
+        banner_x = self.x + dx
+        banner_y = self.y + dy
         return (banner_x, banner_y)
 
 
@@ -52,13 +51,14 @@ def get_app_window() -> AppWindow:
     return AppWindow(window['X'], window['Y'])
 
 
-def select_nation() -> None:
+def select_nation(config: SimConfig) -> None:
     """
     Selects the first Nation on Nation selection screen.
     """
 
     app_window = get_app_window()
-    banner_position = app_window.banner_position
+    dx, dy = config.banner_x, config.banner_y
+    banner_position = app_window.banner_position(dx, dy)
     pyautogui.click(banner_position)
 
 
@@ -85,7 +85,7 @@ def rounds(config: SimConfig, simulation_round: int, process_id: int) -> None:
     wait_screen_load(config.dominions_path)
 
     # select first nation
-    select_nation()
+    select_nation(config)
 
     # check battle report
     go_to_province(config.province)

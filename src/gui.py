@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from PIL import ImageTk, Image
 
 import tkinter as tk
@@ -7,164 +8,170 @@ from tkinter import filedialog
 import yaml
 
 from src import battlefortune as bf
+from src.config import SimConfig
 
 img_index = 0
 img_len = 0
 
 
-def get_config():
+class ImageViewer(tk.LabelFrame):
+    def __init__(self, master) -> None:
 
-    config = {'dom_path': '', 'game_path': ''}
-    config_path = os.path.join('data', 'config.yaml')
-    if os.path.exists(config_path):
+        super().__init__(master, text="Results", padx=10, pady=10)
+        super().rowconfigure(0, weight=1)
+
+        self.current_image_index: int = 0
+        self.images: list[ImageTk.PhotoImage] = []
+
+        # widgets
+        self.image_label: tk.Label = tk.Label(self)
+        self.image_label.configure(text="You can't cheat fate")
+        self.prev_button: tk.Button = tk.Button(self, text="<<", command=self.show_previous_image)
+        self.next_button: tk.Button = tk.Button(self, text=">>", command=self.show_next_image)
+        self.image_counter: tk.Label = tk.Label(self, text="0/0")
+
+        
+        # layout
+        self.image_label.grid(row=0, column=0, columnspan=3, sticky=tk.NSEW)
+
+    def load_images(self, image_files):
+        self.images = [
+            ImageTk.PhotoImage(Image.open(file))
+            for file in image_files
+        ]
+        self.show_image()
+
+    def show_image(self) -> None:
+        image = self.images[self.current_image_index]
+        self.image_label.configure(image=image)
+        self.image_label.image = image  # type: ignore
+
+        current_image = self.current_image_index + 1
+        total_images = len(self.images)
+        self.image_counter.configure(text=f"{current_image}/{total_images}")
+
+        self.prev_button.grid(row=1, column=0, sticky=tk.W)
+        self.next_button.grid(row=1, column=2, sticky=tk.E)
+        self.image_counter.grid(row=1, column=1, sticky=tk.EW)
+
+    def show_next_image(self):
+        if self.current_image_index < len(self.images) - 1:
+            self.current_image_index += 1
+            self.show_image()
+            
+    def show_previous_image(self):
+        if self.current_image_index > 0:
+            self.current_image_index -= 1
+            self.show_image()
+
+class Form(tk.LabelFrame):
+
+    def __init__(self, master, image_viewer):
+        super().__init__(master, text='BattleFortune', padx=10, pady=10)
+        super().columnconfigure(1, weight=1)
+
+        # widgets
+
+        self.image_viewer: ImageViewer = image_viewer
+        self.config: Optional[SimConfig] = None
+
+        self.dp_label = tk.Label(self, text='Dominions Path: ')
+        self.dp_entry = tk.Entry(self)  # , width=60)
+        self.dp_button = tk.Button(self, text='select', command=self.get_dir)
+
+        self.gp_label = tk.Label(self, text='Saved Games Path: ')
+        self.gp_entry = tk.Entry(self)  # , width=60)
+        self.gp_button = tk.Button(self, text='select', command=self.get_dir)
+
+        self.gn_label = tk.Label(self, text='Game Name: ')
+        self.gn_entry = tk.Entry(self)  # , width=25)
+
+        self.pn_label = tk.Label(self, text='Province: ')
+        self.pn_entry = tk.Entry(self)  # , width=10)
+
+        self.sr_label = tk.Label(self, text='Rounds: ')
+        self.sr_entry = tk.Entry(self)  # , width=10)
+
+        self.simulate_button = tk.Button(
+            self,
+            text='Simulate',
+            command=self.simulate)
+
+        ## layout
+        self.dp_label.grid(row=0, column=0, sticky=tk.W)
+        self.dp_entry.grid(row=0, column=1, sticky=tk.EW, columnspan=5)
+        self.dp_button.grid(row=0, column=6, sticky=tk.EW)
+
+        self.gp_label.grid(row=1, column=0, sticky=tk.W)
+        self.gp_entry.grid(row=1, column=1, sticky=tk.EW, columnspan=5)
+        self.gp_button.grid(row=1, column=6, sticky=tk.EW)
+
+        self.gn_label.grid(row=2, column=0, sticky=tk.W)
+        self.gn_entry.grid(row=2, column=1, sticky=tk.EW)
+
+        self.pn_label.grid(row=2, column=2, sticky=tk.EW)
+        self.pn_entry.grid(row=2, column=3, sticky=tk.EW)
+
+        self.sr_label.grid(row=2, column=4, sticky=tk.EW)
+        self.sr_entry.grid(row=2, column=5, sticky=tk.EW, columnspan=2)
+
+        self.simulate_button.grid(row=5, column=0, columnspan=7, sticky=tk.NSEW, pady=10)
+
+        self.get_config()
+
+    def get_dir(self) -> str:
+        return filedialog.askdirectory()
+
+    def get_config(self) -> None:
+
+        config_path = 'data/config.yaml'
+        if not os.path.exists(config_path):
+            return
+
         with open(config_path, 'r') as file:
             config = yaml.load(stream=file, Loader=yaml.Loader)
-    return config
+
+        self.config = SimConfig(
+            config['dominions_path'],
+            config['game_path'],
+            config['game_name'],
+            int(config['province']),
+            int(config['simulations']),
+            int(config['banner_x']),
+            int(config['banner_y'])
+        )
+
+        self.dp_entry.insert(0, config['dominions_path'])
+        self.gp_entry.insert(0, config['game_path'])
+        self.gn_entry.insert(0, config['game_name'])
+        self.pn_entry.insert(0, config['province'])
+        self.sr_entry.insert(0, config['simulations'])
+
+    def simulate(self) -> None:
+
+        if not self.config:
+            raise ValueError
+
+        bf.start(self.config)
+
+        image_files = [
+            f'img/{img}' for img in os.listdir('img')
+            if img.endswith('.png')
+        ]
+        self.image_viewer.load_images(image_files)
+        self.image_viewer.show_image()
 
 
-def get_dir(path_input):
-    path = filedialog.askdirectory(title='Please select a directory')
-    path_input.delete(0, 'end')
-    path_input.insert(0, string=path)
+class Application(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        super().columnconfigure(0, weight=0)
+        super().rowconfigure(1, weight=0)
 
+        self.title("BattleFortune")
+        self.image_viewer = ImageViewer(self)
+        self.form = Form(self, self.image_viewer)
 
-def show_img(frame):
+        self.form.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        self.image_viewer.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
-    global img_index
-    global img_len
-
-    img1 = ImageTk.PhotoImage(Image.open('img/winscore.png'))
-    img2 = ImageTk.PhotoImage(Image.open('img/army_roi.png'))
-    img3 = ImageTk.PhotoImage(Image.open('img/defender_roi.png'))
-    img4 = ImageTk.PhotoImage(Image.open('img/defender_unit_deaths.png'))
-
-    image_list = [img1, img2, img3, img4]
-    img_len = len(image_list)
-
-    result_label = tk.Label(frame, image=image_list[img_index])
-    result_label.image = image_list[img_index]
-    result_label.grid(row=0, column=0, columnspan=2, sticky=tk.NSEW)
-
-
-def get_values(variables, frame):
-
-    dp, gp, gn, pn, sr = variables
-
-    inputs = {
-        'dp': dp.get(),
-        'gp': gp.get(),
-        'gn': gn.get(),
-        'pn': pn.get(),
-        'sr': sr.get(),
-    }
-
-    show_img(frame)
-
-    button_back = tk.Button(frame, text='<<', command=lambda: last_img(frame))
-    button_next = tk.Button(frame, text='>>', command=lambda: next_img(frame))
-
-    button_back.grid(row=1, column=0, sticky=tk.W)
-    button_next.grid(row=1, column=1, sticky=tk.E)
-
-
-def next_img(frame):
-
-    global img_index
-    global img_len
-
-    if img_index + 1 > img_len - 1:
-        img_index = 0
-    else:
-        img_index += 1
-
-    show_img(frame)
-
-
-def last_img(frame):
-
-    global img_index
-    global img_len
-
-    if img_index - 1 < 0:
-        img_index = img_len - 1
-    else:
-        img_index -= 1
-
-    show_img(frame)
-
-
-def initialize():
-
-    root = tk.Tk()
-    root.title('BattleFortune')
-
-    inputs_frame = tk.LabelFrame(master=root,
-                                 text='BattleFortune',
-                                 padx=10,
-                                 pady=10)
-    inputs_frame.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
-
-    config = get_config()
-
-    dp_label = tk.Label(inputs_frame, text='Dominions Path: ')
-    dp_entry = tk.Entry(inputs_frame, width=60)
-    dp_entry.insert(0, config.get('dom_path'))
-    dp_button = tk.Button(inputs_frame,
-                          text='select',
-                          command=lambda: get_dir(dp_entry))
-
-    gp_label = tk.Label(inputs_frame, text='Saved Games Path: ')
-    gp_entry = tk.Entry(inputs_frame, width=60)
-    gp_entry.insert(0, config.get('game_path'))
-    gp_button = tk.Button(inputs_frame,
-                          text='select',
-                          command=lambda: get_dir(gp_entry))
-
-    gn_label = tk.Label(inputs_frame, text='Game Name: ')
-    gn_entry = tk.Entry(inputs_frame, width=25)
-
-    pn_label = tk.Label(inputs_frame, text='Province: ')
-    pn_entry = tk.Entry(inputs_frame, width=10)
-
-    sr_label = tk.Label(inputs_frame, text='Rounds: ')
-    sr_entry = tk.Entry(inputs_frame, width=10)
-
-    dp_label.grid(row=0, column=0, sticky=tk.E)
-    dp_entry.grid(row=0, column=1, sticky=tk.W, columnspan=5)
-    dp_button.grid(row=0, column=6, sticky=tk.E)
-
-    gp_label.grid(row=1, column=0, sticky=tk.E)
-    gp_entry.grid(row=1, column=1, sticky=tk.W, columnspan=5)
-    gp_button.grid(row=1, column=6, sticky=tk.E)
-
-    gn_label.grid(row=2, column=0, sticky=tk.E)
-    gn_entry.grid(row=2, column=1, sticky=tk.W)
-
-    pn_label.grid(row=2, column=2, sticky=tk.E)
-    pn_entry.grid(row=2, column=3, sticky=tk.W)
-
-    sr_label.grid(row=2, column=4, sticky=tk.E)
-    sr_entry.grid(row=2, column=5, sticky=tk.E, columnspan=2)
-
-    results_frame = tk.LabelFrame(master=root,
-                                  text='Results',
-                                  padx=10,
-                                  pady=10)
-    results_frame.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
-
-    result_label = tk.Label(results_frame, text="You can't cheat fate.")
-    result_label.grid(row=0, column=0)
-
-    input_variables = (dp_entry, gp_entry, gn_entry, pn_entry, sr_entry)
-
-    button = tk.Button(
-        inputs_frame,
-        text='Simulate',
-        command=lambda: get_values(input_variables, results_frame))
-    button.grid(row=5, column=0, columnspan=7, sticky=tk.NSEW, pady=10)
-
-    root.mainloop()
-
-
-if __name__ == '__main__':
-    print('hello world')

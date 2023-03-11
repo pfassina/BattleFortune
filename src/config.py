@@ -1,6 +1,6 @@
-from dataclasses import dataclass
 import os
 import shutil
+from dataclasses import dataclass
 
 
 @dataclass
@@ -10,6 +10,8 @@ class SimConfig:
     game_name: str
     province: int
     simulations: int
+    banner_x: int
+    banner_y: int
 
     @property
     def game_path(self) -> str:
@@ -20,7 +22,7 @@ class SimConfig:
         return [t for t in range(1, self.simulations + 1)]
 
     def simulation_path(self, turn: int) -> str:
-        return f'{self.game_path}_{turn}'
+        return f"{self.game_path}_{turn}"
 
     def clone_game_files(self) -> None:
         for turn in self.simulation_turns:
@@ -33,6 +35,7 @@ class SimConfig:
             shutil.rmtree(self.simulation_path(turn))
 
     def move_log(self, turn) -> None:
-        src = os.path.join(self.dominions_path, 'log.txt')
-        dst = os.path.join(self.simulation_path(turn), 'log.txt')
+        src = os.path.join(self.dominions_path, "log.txt")
+        dst = os.path.join(self.simulation_path(turn), "log.txt")
         shutil.move(src, dst)
+
