@@ -13,13 +13,12 @@ VALID_ROUNDS: list[int] = []
 
 
 def run_command(game_name: str, host_game: bool) -> list[str]:
-
-    command = ['./dom5_mac', '--simpgui', '--nosteam']
+    command = ["./dom5_mac", "--simpgui", "--nosteam"]
 
     if host_game:
-        return command + ['-waxscog', '-T', game_name]
+        return command + ["-waxscog", "-T", game_name]
 
-    return command + ["'--res 960 720'", '-waxscod', game_name]
+    return command + ["--res", "960", "720", "-waxscod", game_name]
 
 
 def run_dominions(dominions_path: str, game_name: str, host_game: bool) -> int:
@@ -34,8 +33,8 @@ def run_dominions(dominions_path: str, game_name: str, host_game: bool) -> int:
     if host_game:
         return subprocess.Popen(cmd, cwd=dominions_path).pid
 
-    log_path = os.path.join(dominions_path, 'log.txt')
-    with open(log_path, 'w') as log:
+    log_path = os.path.join(dominions_path, "log.txt")
+    with open(log_path, "w") as log:
         return subprocess.Popen(cmd, cwd=dominions_path, stdout=log).pid
 
 
@@ -61,14 +60,12 @@ def host(config: SimConfig, simulation: int) -> None:
     :return: True if successful
     """
 
-    game_name = f'{config.game_name}_{simulation}'
-    game_path = f'{config.game_path}_{simulation}'
-    ftherland_path = os.path.join(game_path, 'ftherlnd')
+    game_name = f"{config.game_name}_{simulation}"
+    game_path = f"{config.game_path}_{simulation}"
+    ftherland_path = os.path.join(game_path, "ftherlnd")
 
     start_time = os.path.getmtime(ftherland_path)
-    process_id = run_dominions(config.dominions_path,
-                               game_name,
-                               host_game=True)
+    process_id = run_dominions(config.dominions_path, game_name, host_game=True)
 
     if wait_for_host(ftherland_path, start_time):
         VALID_ROUNDS.append(simulation)
@@ -77,14 +74,13 @@ def host(config: SimConfig, simulation: int) -> None:
 
 
 def batch_host(config: SimConfig) -> None:
-    """"
+    """ "
     Host games concurrently based on the number of threads.
     """
 
     threads = []
     for simulation in range(config.simulations):
-
-        simulation_args = {'config': config, 'simulation': simulation + 1}
+        simulation_args = {"config": config, "simulation": simulation + 1}
 
         t = threading.Thread(target=host, kwargs=simulation_args)
         threads.append(t)
@@ -101,7 +97,7 @@ def batch_process(config: SimConfig) -> None:
     """
 
     for r in tqdm(VALID_ROUNDS):
-        sim_path = f'{config.game_name}_{r}'
+        sim_path = f"{config.game_name}_{r}"
         pid = run_dominions(config.dominions_path, sim_path, False)
         process.rounds(config, simulation_round=r, process_id=pid)
 
