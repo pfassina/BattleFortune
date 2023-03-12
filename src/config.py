@@ -43,6 +43,8 @@ class SimConfig:
 
 
 def generate_config_file() -> None:
+    if not os.path.exists("./data"):
+        os.mkdir("data")
     if not os.path.exists("./logs"):
         os.mkdir("logs")
     if not os.path.exists("./img"):

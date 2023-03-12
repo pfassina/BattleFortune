@@ -1,5 +1,4 @@
 import os
-import time
 from dataclasses import dataclass
 from enum import Enum
 
@@ -185,144 +184,94 @@ class ParsedLogs:
             yaml.dump(data=battle_yaml, stream=file)
 
 
-def validate_log(dominions_path: str) -> bool:
-    """
-    Checks if Log finished loading.
-    :return: True if log is valid
-    """
+@dataclass
+class Parser:
+    config: SimConfig
+    turns: list[int]
 
-    start_time = time.time()
-    while time.time() - start_time <= 10:  # max wait time is 10 seconds
-        with open(f"{dominions_path}/log.txt", "r") as file:
+    def parse_log(self, turn: int) -> Log:
+        """
+        Parses Turn Log and returns turn log dictionary.
+        :param simulation_round: Simulation round.
+        :return: dictionary with nations, win log and battle log.
+        """
+
+        # get battle log
+        log_path = os.path.join(self.config.simulation_path(turn), "log.txt")
+        with open(log_path, mode="r") as file:
             log = file.read()
 
-        start = log.rfind("getbattlecountfromvcr")
-        if start == -1:
-            continue
+        # identify armies
+        attacker, defender = self.parse_nations(log)
 
-        if log[start:].rfind("whatPD") != -1:  # Player Won
-            return True
+        return Log(
+            attacker_id=attacker,
+            defender_id=defender,
+            turn=turn,
+            winner_id=self.parse_winner(log, attacker, defender),
+            battle_log=self.parse_battle(log, attacker, defender),
+        )
 
-        if log[start:].rfind("[eof]") != -1:  # Player Lost
-            return True
+    @property
+    def parsed_logs(self) -> ParsedLogs:
+        return ParsedLogs([self.parse_log(t) for t in self.turns])
 
-    return False
+    def parse_nations(self, log: str) -> tuple[int, int]:
+        armies = log[log.find("getbattlecount:") + 15 :].split(",", 3)[1:3]
+        defender = False if armies[0].find("def") == -1 else True
 
+        try:
+            a, b = [int(a.strip().split(" ")[1]) for a in armies]
 
-def parse_nations(log: str) -> tuple[int, int]:
-    """
-    Parses Nations from Log.
-    :param log: log file
-    :return: Dictionary with Nations Ids
-    """
+        except:
+            print(log)
+            raise ValueError
 
-    armies = log[log.find("getbattlecount:") + 15 :].split(",", 3)[1:3]
-    defender = False if armies[0].find("def") == -1 else True
+        return (b, a) if defender else (a, b)
 
-    try:
-        a, b = [int(a.strip().split(" ")[1]) for a in armies]
+    def parse_winner(self, log, attacker_id: int, defender_id: int) -> int:
+        # parse log to find player nation
+        player_blurb = log.find("got turn info for player")
+        player = int(log[player_blurb + 25 :].split("\n")[0])
 
-    except:
-        print(log)
-        raise ValueError
+        # Define Winner based on Province Defense at Battle Province
+        if log.find("whatPD") > 0:  # Player can add PD
+            return attacker_id if player == attacker_id else defender_id
 
-    return (b, a) if defender else (a, b)
+        return defender_id if player == attacker_id else defender_id
 
+    def parse_battle(self, log, attacker_id: int, defender_id: int) -> BattleLog:
+        entries = [
+            self.parse_battle_entry(attacker_id, defender_id, i)
+            for i in self.find_battle(log)
+        ]
 
-def find_battle(log) -> list[str]:
-    """
-    Find Battle log blurb
-    :param log: log file
-    :return: battle log blurb
-    """
+        return BattleLog(entries)
 
-    start = log.find("getbattlecountfromvcr") + 21
-    end = log.rfind("restoremonarrays")
+    def parse_battle_entry(
+        self, attacker_id: int, defender_id: int, blurb: str
+    ) -> BattleEntry:
+        cleaned_blurb = blurb.split("(")[0].strip()
+        nation_blurb, unit_blurb = [i.strip() for i in cleaned_blurb.split(":")]
 
-    return log[start : end - 1].split("\n")[1:]
+        nation = attacker_id if nation_blurb in ["0", "1"] else defender_id
+        unit = Unit(unit_blurb.split(" ", 2)[2])
+        phase = Phase.BEFORE if nation_blurb in ["0", "2"] else Phase.AFTER
+        count = sum([int(i) for i in unit_blurb.split(" ", 2)[:2]])
 
+        return BattleEntry(Nation(nation), unit, phase, count)
 
-def parse_battle_entry(attacker_id: int, defender_id: int, blurb: str) -> BattleEntry:
-    """
-    parse battle entry from battle log
-    :param simulation_round:  Simulation Round
-    :param attacker: attacker nation id
-    :param defender: defender nation id
-    :param battle_entry: entry on battle log
-    :return: dictionary with battle entry results
-    """
+    def find_battle(self, log) -> list[str]:
+        """
+        Find Battle log blurb
+        :param log: log file
+        :return: battle log blurb
+        """
 
-    cleaned_blurb = blurb.split("(")[0].strip()
-    nation_blurb, unit_blurb = [i.strip() for i in cleaned_blurb.split(":")]
+        start = log.find("getbattlecountfromvcr") + 21
+        end = log.rfind("restoremonarrays")
 
-    nation = attacker_id if nation_blurb in ["0", "1"] else defender_id
-    unit = Unit(unit_blurb.split(" ", 2)[2])
-    phase = Phase.BEFORE if nation_blurb in ["0", "2"] else Phase.AFTER
-    count = sum([int(i) for i in unit_blurb.split(" ", 2)[:2]])
-
-    return BattleEntry(Nation(nation), unit, phase, count)
-
-
-def parse_battle(log, attacker_id: int, defender_id: int) -> BattleLog:
-    """
-    Parses Battle Blurb
-    :param simulation_round: Simulation Round
-    :param log: log file
-    :param attacker: attacker nation id
-    :param defender: defender nation id
-    :return: battle log
-    """
-
-    entries = [
-        parse_battle_entry(attacker_id, defender_id, i) for i in find_battle(log)
-    ]
-
-    return BattleLog(entries)
-
-
-def parse_winner(log, attacker_id: int, defender_id: int) -> int:
-    """
-    parses round winner from log
-    :param simulation_round: simulation round
-    :param log: log file
-    :param attacker: attacker nation id
-    :param defender: defender nation id
-    :return: dictionary with the nation that won the turn
-    """
-
-    # parse log to find player nation
-    player_blurb = log.find("got turn info for player")
-    player = int(log[player_blurb + 25 :].split("\n")[0])
-
-    # Define Winner based on Province Defense at Battle Province
-    if log.find("whatPD") > 0:  # Player can add PD
-        return attacker_id if player == attacker_id else defender_id
-
-    return defender_id if player == attacker_id else defender_id
-
-
-def parse_log(config: SimConfig, turn: int) -> Log:
-    """
-    Parses Turn Log and returns turn log dictionary.
-    :param simulation_round: Simulation round.
-    :return: dictionary with nations, win log and battle log.
-    """
-
-    # get battle log
-    log_path = os.path.join(config.simulation_path(turn), "log.txt")
-    with open(log_path, mode="r") as file:
-        log = file.read()
-
-    # identify armies
-    attacker, defender = parse_nations(log)
-
-    return Log(
-        attacker_id=attacker,
-        defender_id=defender,
-        turn=turn,
-        winner_id=parse_winner(log, attacker, defender),
-        battle_log=parse_battle(log, attacker, defender),
-    )
+        return log[start : end - 1].split("\n")[1:]
 
 
 def combine_logs(config: SimConfig, turns: list[int]) -> ParsedLogs:
@@ -331,7 +280,8 @@ def combine_logs(config: SimConfig, turns: list[int]) -> ParsedLogs:
     :return: log list
     """
 
-    parsed_logs = ParsedLogs([parse_log(config, t) for t in turns])
+    parser = Parser(config, turns)
+    parsed_logs = parser.parsed_logs
     parsed_logs.dump_to_yaml(config.game_name)
 
     return parsed_logs
