@@ -108,10 +108,15 @@ def simulation(config: SimConfig) -> list[int]:
     :return: list of simulation rounds that successfully generated logs
     """
 
+    global VALID_ROUNDS
+
     # Host simulations
     batch_host(config)
 
     # Process hosted games
     batch_process(config)
 
-    return VALID_ROUNDS
+    turns = VALID_ROUNDS
+    VALID_ROUNDS = []
+
+    return turns

@@ -121,5 +121,7 @@ venv.bak/
 # Battlefortune
 /logs/*
 /data/config.yaml
+/data/_config.yaml
 /img/*
+/csv/*
 debug_request.py

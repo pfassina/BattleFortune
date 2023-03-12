@@ -2,6 +2,8 @@ import os
 import shutil
 from dataclasses import dataclass
 
+import yaml
+
 
 @dataclass
 class SimConfig:
@@ -39,3 +41,25 @@ class SimConfig:
         dst = os.path.join(self.simulation_path(turn), "log.txt")
         shutil.move(src, dst)
 
+
+def generate_config_file() -> None:
+    if not os.path.exists("./logs"):
+        os.mkdir("logs")
+    if not os.path.exists("./img"):
+        os.mkdir("img")
+    if not os.path.exists("./csv"):
+        os.mkdir("csv")
+
+    if not os.path.exists("./data/config.yaml"):
+        config = {
+            "dominions_path": None,
+            "game_path": None,
+            "game_name": None,
+            "province": None,
+            "simulations": None,
+            "banner_x": 400,
+            "banner_y": 310,
+        }
+
+        with open("data/config.yaml", "w") as file:
+            yaml.dump(config, file)

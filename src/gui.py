@@ -1,22 +1,17 @@
 import os
-from typing import Optional
-from PIL import ImageTk, Image
-
 import tkinter as tk
 from tkinter import filedialog
 
 import yaml
+from PIL import Image, ImageTk
 
 from src import battlefortune as bf
+from src import config
 from src.config import SimConfig
-
-img_index = 0
-img_len = 0
 
 
 class ImageViewer(tk.LabelFrame):
     def __init__(self, master) -> None:
-
         super().__init__(master, text="Results", padx=10, pady=10)
         super().rowconfigure(0, weight=1)
 
@@ -26,19 +21,19 @@ class ImageViewer(tk.LabelFrame):
         # widgets
         self.image_label: tk.Label = tk.Label(self)
         self.image_label.configure(text="You can't cheat fate")
-        self.prev_button: tk.Button = tk.Button(self, text="<<", command=self.show_previous_image)
-        self.next_button: tk.Button = tk.Button(self, text=">>", command=self.show_next_image)
+        self.prev_button: tk.Button = tk.Button(
+            self, text="<<", command=self.show_previous_image
+        )
+        self.next_button: tk.Button = tk.Button(
+            self, text=">>", command=self.show_next_image
+        )
         self.image_counter: tk.Label = tk.Label(self, text="0/0")
 
-        
         # layout
         self.image_label.grid(row=0, column=0, columnspan=3, sticky=tk.NSEW)
 
     def load_images(self, image_files):
-        self.images = [
-            ImageTk.PhotoImage(Image.open(file))
-            for file in image_files
-        ]
+        self.images = [ImageTk.PhotoImage(Image.open(file)) for file in image_files]
         self.show_image()
 
     def show_image(self) -> None:
@@ -58,44 +53,43 @@ class ImageViewer(tk.LabelFrame):
         if self.current_image_index < len(self.images) - 1:
             self.current_image_index += 1
             self.show_image()
-            
+
     def show_previous_image(self):
         if self.current_image_index > 0:
             self.current_image_index -= 1
             self.show_image()
 
-class Form(tk.LabelFrame):
 
+class Form(tk.LabelFrame):
     def __init__(self, master, image_viewer):
-        super().__init__(master, text='BattleFortune', padx=10, pady=10)
+        super().__init__(master, text="BattleFortune", padx=10, pady=10)
         super().columnconfigure(1, weight=1)
 
         # widgets
 
         self.image_viewer: ImageViewer = image_viewer
-        self.config: Optional[SimConfig] = None
 
-        self.dp_label = tk.Label(self, text='Dominions Path: ')
+        self.dp_label = tk.Label(self, text="Dominions Path: ")
         self.dp_entry = tk.Entry(self)  # , width=60)
-        self.dp_button = tk.Button(self, text='select', command=self.get_dir)
+        self.dp_button = tk.Button(self, text="select", command=self.get_dir)
 
-        self.gp_label = tk.Label(self, text='Saved Games Path: ')
+        self.gp_label = tk.Label(self, text="Saved Games Path: ")
         self.gp_entry = tk.Entry(self)  # , width=60)
-        self.gp_button = tk.Button(self, text='select', command=self.get_dir)
+        self.gp_button = tk.Button(self, text="select", command=self.get_dir)
 
-        self.gn_label = tk.Label(self, text='Game Name: ')
+        self.gn_label = tk.Label(self, text="Game Name: ")
         self.gn_entry = tk.Entry(self)  # , width=25)
 
-        self.pn_label = tk.Label(self, text='Province: ')
+        self.pn_label = tk.Label(self, text="Province: ")
         self.pn_entry = tk.Entry(self)  # , width=10)
 
-        self.sr_label = tk.Label(self, text='Rounds: ')
+        self.sr_label = tk.Label(self, text="Rounds: ")
         self.sr_entry = tk.Entry(self)  # , width=10)
 
-        self.simulate_button = tk.Button(
-            self,
-            text='Simulate',
-            command=self.simulate)
+        self.dx_entry = tk.Entry(self)
+        self.dy_entry = tk.Entry(self)
+
+        self.simulate_button = tk.Button(self, text="Simulate", command=self.simulate)
 
         ## layout
         self.dp_label.grid(row=0, column=0, sticky=tk.W)
@@ -115,7 +109,9 @@ class Form(tk.LabelFrame):
         self.sr_label.grid(row=2, column=4, sticky=tk.EW)
         self.sr_entry.grid(row=2, column=5, sticky=tk.EW, columnspan=2)
 
-        self.simulate_button.grid(row=5, column=0, columnspan=7, sticky=tk.NSEW, pady=10)
+        self.simulate_button.grid(
+            row=5, column=0, columnspan=7, sticky=tk.NSEW, pady=10
+        )
 
         self.get_config()
 
@@ -123,40 +119,41 @@ class Form(tk.LabelFrame):
         return filedialog.askdirectory()
 
     def get_config(self) -> None:
+        config_path = "data/config.yaml"
+        with open(config_path, "r") as file:
+            sim_config = yaml.load(stream=file, Loader=yaml.Loader)
 
-        config_path = 'data/config.yaml'
-        if not os.path.exists(config_path):
+        if not isinstance(sim_config, SimConfig):
+            set_text(self.dx_entry, str(sim_config["banner_x"]))
+            set_text(self.dy_entry, str(sim_config["banner_y"]))
             return
 
-        with open(config_path, 'r') as file:
-            config = yaml.load(stream=file, Loader=yaml.Loader)
-
-        self.config = SimConfig(
-            config['dominions_path'],
-            config['game_path'],
-            config['game_name'],
-            int(config['province']),
-            int(config['simulations']),
-            int(config['banner_x']),
-            int(config['banner_y'])
-        )
-
-        self.dp_entry.insert(0, config['dominions_path'])
-        self.gp_entry.insert(0, config['game_path'])
-        self.gn_entry.insert(0, config['game_name'])
-        self.pn_entry.insert(0, config['province'])
-        self.sr_entry.insert(0, config['simulations'])
+        set_text(self.dp_entry, sim_config.dominions_path)
+        set_text(self.gp_entry, sim_config.game_dir)
+        set_text(self.gn_entry, sim_config.game_name)
+        set_text(self.pn_entry, str(sim_config.province))
+        set_text(self.sr_entry, str(sim_config.simulations))
+        set_text(self.dx_entry, str(sim_config.banner_x))
+        set_text(self.dy_entry, str(sim_config.banner_y))
 
     def simulate(self) -> None:
+        sim_config = SimConfig(
+            self.dp_entry.get(),
+            self.gp_entry.get(),
+            self.gn_entry.get(),
+            int(self.pn_entry.get()),
+            int(self.sr_entry.get()),
+            int(self.dx_entry.get()),
+            int(self.dy_entry.get()),
+        )
 
-        if not self.config:
-            raise ValueError
+        with open("data/config.yaml", "w") as file:
+            yaml.dump(sim_config, file)
 
-        bf.start(self.config)
+        bf.start(sim_config)
 
         image_files = [
-            f'img/{img}' for img in os.listdir('img')
-            if img.endswith('.png')
+            f"img/{img}" for img in os.listdir("img") if img.endswith(".png")
         ]
         self.image_viewer.load_images(image_files)
         self.image_viewer.show_image()
@@ -175,3 +172,13 @@ class Application(tk.Tk):
         self.form.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
         self.image_viewer.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
+
+def set_text(entry: tk.Entry, text: str) -> None:
+    entry.delete(0, tk.END)
+    entry.insert(0, text)
+
+
+def start() -> None:
+    config.generate_config_file()
+    app = Application()
+    app.mainloop()
