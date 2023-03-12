@@ -76,7 +76,6 @@ class SimulationRunner:
 
 def simulation(config: SimConfig) -> list[int]:
     sim_runner = SimulationRunner(config)
-    # sim_runner.batch_host()
     asyncio.run(sim_runner.host_simulations())
     sim_runner.batch_process()
 
