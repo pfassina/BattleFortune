@@ -24,8 +24,6 @@ class SimulationRunner:
         start_time = os.path.getmtime(ftherland_path)
         process_id = self.run_dominions(game_name, host_game=True)
 
-        print(f"running simulation {simulation}")
-
         self.wait_for_host(ftherland_path, start_time)
 
         os.kill(process_id, signal.SIGTERM)
