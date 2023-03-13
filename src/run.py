@@ -43,7 +43,9 @@ class SimulationRunner:
     def wait_for_host(self, path: str, start_time: float) -> bool:
         # Loop until host is finished
         while os.path.getmtime(path) == start_time:
-            time.sleep(1)
+            continue
+
+        time.sleep(0.1)
 
         return True
 

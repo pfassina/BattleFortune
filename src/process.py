@@ -43,18 +43,6 @@ class TurnRobot:
     def province(self) -> str:
         return str(self.config.province)
 
-    def wait_screen_load(self) -> None:
-        while not os.path.exists(self.log_path):
-            continue
-
-        sleep(1)
-
-        with open(self.log_path, "r") as log:
-            load_complete = -1
-            while load_complete == -1:
-                blurb = log.read()
-                load_complete = blurb.rfind("playturn: autohost")
-
     def get_app_window(self) -> AppWindow:
         apps = Quartz.CGWindowListCopyWindowInfo(  # type: ignore
             Quartz.kCGWindowListOptionOnScreenOnly  # type: ignore
@@ -69,9 +57,27 @@ class TurnRobot:
         return AppWindow(window["X"], window["Y"])
 
     def select_nation(self) -> None:
+        while not self.check_log("playturn: autohost"):
+            sleep(0.1)
+
         app_window = self.get_app_window()
         banner_position = app_window.banner_position(self.dx, self.dy)
-        pyautogui.click(banner_position)
+
+        click_counter = 0
+        while not self.check_log("Viewmessages"):
+            pyautogui.click(banner_position)
+            sleep(0.1)
+            click_counter += 1
+            if click_counter > 50:
+                raise TimeoutError
+
+    def check_log(self, text: str) -> bool:
+        if not os.path.exists(self.log_path):
+            return False
+
+        with open(self.log_path, "r") as log:
+            blurb = log.read()
+        return blurb.rfind(text) != -1
 
     def go_to_province(self) -> None:
         keyboard.press_and_release("esc")  # exit messages
@@ -81,10 +87,9 @@ class TurnRobot:
         keyboard.press_and_release("c")  # view results
         keyboard.press_and_release("esc")  # back to map
         keyboard.press_and_release("d")  # try to add PD
+        sleep(0.1)
 
     def process_turn(self) -> None:
-        self.wait_screen_load()
-
         # select first nation
         self.select_nation()
 

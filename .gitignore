@@ -125,3 +125,4 @@ venv.bak/
 /img/*
 /csv/*
 debug_request.py
+*.spec

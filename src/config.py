@@ -39,6 +39,9 @@ class SimConfig:
     def move_log(self, turn) -> None:
         src = os.path.join(self.dominions_path, "log.txt")
         dst = os.path.join(self.simulation_path(turn), "log.txt")
+
+        copy = os.path.join("logs", f"{self.game_name}_{turn}")
+        shutil.copy(src, copy)
         shutil.move(src, dst)
 
 
