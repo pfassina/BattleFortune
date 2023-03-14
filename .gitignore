@@ -106,3 +106,23 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# pycharm
+.idea/.gitignore
+.idea/BattleFortune.iml
+.idea/encodings.xml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.DS_Store
+.vscode
+
+# Battlefortune
+/logs/*
+/data/config.yaml
+/data/_config.yaml
+/img/*
+/csv/*
+debug_request.py
+*.spec
