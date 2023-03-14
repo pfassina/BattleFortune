@@ -17,13 +17,12 @@ seaborn = "^0.12.2"
 pillow = "^9.4.0"
 psutil = "^5.9.4"
 pyobjc-framework-quartz = {version = "^9.0.1", platform = "darwin"}
-
+pywin32 = {version = "^305", platform = "win32"}
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
 isort = "^5.12.0"
 pyinstaller = "^5.8.0"
-pywin32 = {version = "^305", platform = "win32"}
 
 [build-system]
 requires = ["poetry-core"]
