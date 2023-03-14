@@ -1,3 +1,4 @@
+import logging
 import os
 import signal
 from dataclasses import dataclass
@@ -45,10 +46,13 @@ class TurnRobot:
         return str(self.config.province)
 
     def get_app_window(self) -> AppWindow:
+        logging.info("looking for dom5 window")
         x, y = self.platform.get_app_window()
+        logging.info(f"dom5 window found: {(x, y)}")
         return AppWindow(x, y)
 
     def select_nation(self) -> None:
+        logging.info("selecting nation")
         while not self.check_log("playturn: autohost"):
             sleep(0.1)
 
@@ -62,16 +66,20 @@ class TurnRobot:
             click_counter += 1
             if click_counter > 50:
                 raise TimeoutError
+        logging.info("click succesful")
 
     def check_log(self, text: str) -> bool:
         if not os.path.exists(self.log_path):
             return False
 
+        logging.info("log found")
         with open(self.log_path, "r") as log:
             blurb = log.read()
+
         return blurb.rfind(text) != -1
 
     def go_to_province(self) -> None:
+        logging.info("checking battle results")
         keyboard.press_and_release("esc")  # exit messages
         keyboard.press_and_release("g")  # go to screen
         keyboard.write(self.province)  # select province

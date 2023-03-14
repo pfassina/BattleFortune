@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import os
 import signal
 import subprocess
@@ -40,6 +41,7 @@ class SimulationRunner:
         for task in asyncio.as_completed(tasks):
             result = await task
             if result is not None:
+                logging.info(f"hosting simulation {result} completed")
                 self.valid_rounds.append(result)
 
     def wait_for_host(self, path: str, start_time: float) -> bool:
@@ -52,17 +54,21 @@ class SimulationRunner:
         return True
 
     def batch_process(self) -> None:
+        logging.info("simulation processing")
         for r in tqdm(self.valid_rounds):
             sim_name = f"{self.config.game_name}_{r}"
             pid = self.run_dominions(sim_name, False)
             robot = TurnRobot(self.config, self.platform, r, pid)
             robot.process_turn()
+            logging.info(f"processing of simulation {sim_name} completed")
 
     def run_dominions(self, sim_name: str, host_game: bool) -> int:
         cmd = self.platform.run_command(sim_name, host_game)
         if host_game:
+            logging.info(f"hosting simulation {sim_name}")
             return subprocess.Popen(cmd, cwd=self.config.dominions_path).pid
 
+        logging.info(f"processing simulaton {sim_name}")
         log_path = os.path.join(self.config.dominions_path, "log.txt")
         with open(log_path, "w") as log:
             return subprocess.Popen(cmd, cwd=self.config.dominions_path, stdout=log).pid

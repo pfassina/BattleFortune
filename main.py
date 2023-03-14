@@ -1,3 +1,4 @@
+import logging
 import os
 
 import psutil
@@ -10,10 +11,18 @@ def has_instance() -> bool:
 
 
 def main() -> None:
+    logging.basicConfig(
+        filename="battlefortune.log",
+        filemode="w",
+        format="%(name)s - %(levelname)s - %(message)s",
+        level=logging.INFO,
+    )
     abspath = os.path.abspath(__file__)
     dname = os.path.dirname(abspath)
     os.chdir(dname)
+    logging.info(f"changed path to {dname}")
 
+    logging.info("starting gui application")
     gui.start()
 
 

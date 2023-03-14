@@ -1,3 +1,4 @@
+import logging
 import os
 import tkinter as tk
 from tkinter import filedialog
@@ -124,10 +125,12 @@ class Form(tk.LabelFrame):
             sim_config = yaml.load(stream=file, Loader=yaml.Loader)
 
         if not isinstance(sim_config, SimConfig):
+            logging.info("no previous config detected")
             set_text(self.dx_entry, str(sim_config["banner_x"]))
             set_text(self.dy_entry, str(sim_config["banner_y"]))
             return
 
+        logging.info("previous config file detected. restoring coinfig.")
         set_text(self.dp_entry, sim_config.dominions_path)
         set_text(self.gp_entry, sim_config.game_dir)
         set_text(self.gn_entry, sim_config.game_name)
@@ -150,6 +153,7 @@ class Form(tk.LabelFrame):
         config_path = os.path.join("data", "config.yaml")
         with open(config_path, "w") as file:
             yaml.dump(sim_config, file)
+            logging.info("config file updated")
 
         bf.start(sim_config)
 
@@ -183,5 +187,7 @@ def set_text(entry: tk.Entry, text: str) -> None:
 
 def start() -> None:
     config.generate_config_file()
+    logging.info("config file generated")
+
     app = Application()
     app.mainloop()

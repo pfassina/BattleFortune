@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 from dataclasses import dataclass
@@ -27,9 +28,12 @@ class SimConfig:
         return f"{self.game_path}_{turn}"
 
     def clone_game_files(self) -> None:
+        logging.info("cloning game files")
         for turn in self.simulation_turns:
             if os.path.exists(self.simulation_path(turn)):
+                logging.info("previous simulation files detected. removing old files.")
                 shutil.rmtree(self.simulation_path(turn))
+            logging.info(f"creating files for simulation {turn}")
             shutil.copytree(self.game_path, self.simulation_path(turn))
 
     def remove_cloned_files(self) -> None:
