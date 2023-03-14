@@ -1,21 +1,20 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
+from pandas.compat import os
 
 from src.calculate import Results
 
 
 def win_score(results: Results) -> None:
-    """
-    Generates Win Score bar plot
-    """
-
     plt.figure(0)
     plt.title("Win Score by Nation")
     plt.ylabel("Simulations")
     x = [n.name for n in results.win_score.index]
     y = results.win_score.values
     plot = sns.barplot(x=x, y=y, errwidth=0).get_figure()
-    plot.savefig("img/winscore.png")
+
+    file_path = os.path.join("img", "winscore.png")
+    plot.savefig(file_path)
 
 
 def nation_loss(results: Results) -> None:
@@ -31,7 +30,9 @@ def nation_loss(results: Results) -> None:
     fig1.suptitle(attacker_name)
     sns.histplot(data=attacker_losses, x="gold", ax=ax1)
     sns.histplot(data=attacker_losses, x="resources", ax=ax2)
-    plt.savefig("img/attacker_losses.png")
+
+    file_path = os.path.join("img", "attacker_losses.png")
+    plt.savefig(file_path)
 
     plt.figure(2)
     fig2, (ax3, ax4) = plt.subplots(2, 1)  # type: ignore
@@ -39,7 +40,9 @@ def nation_loss(results: Results) -> None:
     fig2.suptitle(defender_name)
     sns.histplot(data=defender_losses, x="gold", ax=ax3)
     sns.histplot(data=defender_losses, x="resources", ax=ax4)
-    plt.savefig("img/defender_losses.png")
+
+    file_path = os.path.join("img", "defender_losses.png")
+    plt.savefig(file_path)
 
 
 def army_roi(results: Results) -> None:
@@ -72,7 +75,8 @@ def army_roi(results: Results) -> None:
     ax2.set_ylabel("Simulations")
     sns.histplot(data=defender_roi, ax=ax2)
 
-    plt.savefig("img/nation_roi.png")
+    file_path = os.path.join("img", "nation_roi.png")
+    plt.savefig(file_path)
 
 
 def unit_deaths(results: Results) -> None:
@@ -105,7 +109,8 @@ def unit_deaths(results: Results) -> None:
     ax2.set_ylabel("Unit Deaths")
     sns.boxplot(data=defender, ax=ax2)
 
-    plt.savefig("img/unit_losses.png")
+    file_path = os.path.join("img", "unit_losses.png")
+    plt.savefig(file_path)
 
 
 def charts(results: Results):

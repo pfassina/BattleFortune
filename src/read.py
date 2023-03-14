@@ -55,9 +55,6 @@ class BattleLog:
 
     @property
     def results(self) -> dict[Nation, dict[Unit, dict[Phase, int]]]:
-        """
-        returns dict containing a unit count for each nation, unit, and phase.
-        """
         return {
             nation: {
                 unit: {
@@ -190,12 +187,6 @@ class Parser:
     turns: list[int]
 
     def parse_log(self, turn: int) -> Log:
-        """
-        Parses Turn Log and returns turn log dictionary.
-        :param simulation_round: Simulation round.
-        :return: dictionary with nations, win log and battle log.
-        """
-
         # get battle log
         log_path = os.path.join(self.config.simulation_path(turn), "log.txt")
         with open(log_path, mode="r") as file:
@@ -262,12 +253,6 @@ class Parser:
         return BattleEntry(Nation(nation), unit, phase, count)
 
     def find_battle(self, log) -> list[str]:
-        """
-        Find Battle log blurb
-        :param log: log file
-        :return: battle log blurb
-        """
-
         start = log.find("getbattlecountfromvcr") + 21
         end = log.rfind("restoremonarrays")
 
@@ -275,11 +260,6 @@ class Parser:
 
 
 def combine_logs(config: SimConfig, turns: list[int]) -> ParsedLogs:
-    """
-    batch reads logs from all simulations
-    :return: log list
-    """
-
     parser = Parser(config, turns)
     parsed_logs = parser.parsed_logs
     parsed_logs.dump_to_yaml(config.game_name)

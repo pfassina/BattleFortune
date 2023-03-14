@@ -8,6 +8,7 @@ import pyautogui
 import Quartz
 
 from src.config import SimConfig
+from src.platform import PlatformProtocol
 
 
 @dataclass
@@ -24,6 +25,7 @@ class AppWindow:
 @dataclass
 class TurnRobot:
     config: SimConfig
+    platform: PlatformProtocol
     simulation_round: int
     process_id: int
 
@@ -44,17 +46,8 @@ class TurnRobot:
         return str(self.config.province)
 
     def get_app_window(self) -> AppWindow:
-        apps = Quartz.CGWindowListCopyWindowInfo(  # type: ignore
-            Quartz.kCGWindowListOptionOnScreenOnly  # type: ignore
-            & Quartz.kCGWindowListExcludeDesktopElements,  # type: ignore
-            Quartz.kCGNullWindowID,  # type: ignore
-        )
-
-        dom_5_apps = (a for a in apps if a.get("kCGWindowOwnerName") == "dom5_mac")
-        dom_5 = next(a for a in dom_5_apps if a.get("kCGWindowIsOnscreen") == 1)
-        window = dom_5.get("kCGWindowBounds")
-
-        return AppWindow(window["X"], window["Y"])
+        x, y = self.platform.get_app_window()
+        return AppWindow(x, y)
 
     def select_nation(self) -> None:
         while not self.check_log("playturn: autohost"):

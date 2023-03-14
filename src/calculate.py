@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import pandas as pd
+from pandas.compat import os
 
 from src.decode import Nation
 from src.read import ParsedLogs, Phase
@@ -43,7 +44,9 @@ class Calculator:
         df = pd.DataFrame.from_dict(self.winners, orient="index")
         df_csv = df.reset_index()
         df_csv.columns = ["nation"] + [f"sim_{s + 1}" for s in range(self.simulations)]
-        df_csv.to_csv("./csv/win_score.csv")
+
+        file_path = os.path.join("csv", "win_score.csv")
+        df_csv.to_csv(file_path)
         return df.sum(axis=1)
 
     @property
@@ -60,7 +63,9 @@ class Calculator:
         df_csv.columns = ["nation", "dimension", "unit"] + [
             f"sim_{s + 1}" for s in range(self.simulations)
         ]
-        df_csv.to_csv("./csv/unit_losses.csv")
+
+        file_path = os.path.join("csv", "unit_losses.csv")
+        df_csv.to_csv(file_path)
         return df
 
     def unit_results(self, nation: Nation) -> pd.DataFrame:

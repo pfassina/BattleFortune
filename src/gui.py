@@ -119,7 +119,7 @@ class Form(tk.LabelFrame):
         return filedialog.askdirectory()
 
     def get_config(self) -> None:
-        config_path = "data/config.yaml"
+        config_path = os.path.join("data", "config.yaml")
         with open(config_path, "r") as file:
             sim_config = yaml.load(stream=file, Loader=yaml.Loader)
 
@@ -147,13 +147,16 @@ class Form(tk.LabelFrame):
             int(self.dy_entry.get()),
         )
 
-        with open("data/config.yaml", "w") as file:
+        config_path = os.path.join("data", "config.yaml")
+        with open(config_path, "w") as file:
             yaml.dump(sim_config, file)
 
         bf.start(sim_config)
 
         image_files = [
-            f"img/{img}" for img in os.listdir("img") if img.endswith(".png")
+            os.path.join("img", img)
+            for img in os.listdir("img")
+            if img.endswith(".png")
         ]
         self.image_viewer.load_images(image_files)
         self.image_viewer.show_image()

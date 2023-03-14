@@ -8,12 +8,14 @@ from dataclasses import dataclass, field
 from tqdm import tqdm
 
 from src.config import SimConfig
+from src.platform import PlatformProtocol, get_platform
 from src.process import TurnRobot
 
 
 @dataclass
 class SimulationRunner:
     config: SimConfig
+    platform: PlatformProtocol
     valid_rounds: list[int] = field(default_factory=list)
 
     async def host_simulation(self, simulation: int) -> int:
@@ -53,11 +55,11 @@ class SimulationRunner:
         for r in tqdm(self.valid_rounds):
             sim_name = f"{self.config.game_name}_{r}"
             pid = self.run_dominions(sim_name, False)
-            robot = TurnRobot(self.config, r, pid)
+            robot = TurnRobot(self.config, self.platform, r, pid)
             robot.process_turn()
 
     def run_dominions(self, sim_name: str, host_game: bool) -> int:
-        cmd = self.run_command(sim_name, host_game)
+        cmd = self.platform.run_command(sim_name, host_game)
         if host_game:
             return subprocess.Popen(cmd, cwd=self.config.dominions_path).pid
 
@@ -65,17 +67,11 @@ class SimulationRunner:
         with open(log_path, "w") as log:
             return subprocess.Popen(cmd, cwd=self.config.dominions_path, stdout=log).pid
 
-    def run_command(self, sim_name: str, host_game: bool) -> list[str]:
-        command = ["./dom5_mac", "--simpgui", "--nosteam"]
-
-        if host_game:
-            return command + ["-waxscog", "-T", sim_name]
-
-        return command + ["--res", "960", "720", "-waxscod", sim_name]
 
 
 def simulation(config: SimConfig) -> list[int]:
-    sim_runner = SimulationRunner(config)
+    platform = get_platform()
+    sim_runner = SimulationRunner(config, platform)
     asyncio.run(sim_runner.host_simulations())
     sim_runner.batch_process()
 

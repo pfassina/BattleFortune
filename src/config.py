@@ -46,16 +46,14 @@ class SimConfig:
 
 
 def generate_config_file() -> None:
-    if not os.path.exists("./data"):
-        os.mkdir("data")
-    if not os.path.exists("./logs"):
-        os.mkdir("logs")
-    if not os.path.exists("./img"):
-        os.mkdir("img")
-    if not os.path.exists("./csv"):
-        os.mkdir("csv")
+    directories = ["data", "logs", "img", "csv"]
+    for dir in directories:
+        if os.path.exists(dir):
+            continue
+        os.mkdir(dir)
 
-    if not os.path.exists("./data/config.yaml"):
+    config_path = os.path.join("data", "config.yaml")
+    if not os.path.exists(config_path):
         config = {
             "dominions_path": None,
             "game_path": None,
@@ -66,5 +64,5 @@ def generate_config_file() -> None:
             "banner_y": 310,
         }
 
-        with open("data/config.yaml", "w") as file:
+        with open(config_path, "w") as file:
             yaml.dump(config, file)
