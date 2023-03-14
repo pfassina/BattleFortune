@@ -68,7 +68,6 @@ class SimulationRunner:
             return subprocess.Popen(cmd, cwd=self.config.dominions_path, stdout=log).pid
 
 
-
 def simulation(config: SimConfig) -> list[int]:
     platform = get_platform()
     sim_runner = SimulationRunner(config, platform)
