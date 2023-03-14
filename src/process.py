@@ -5,7 +5,6 @@ from time import sleep
 
 import keyboard
 import pyautogui
-import Quartz
 
 from src.config import SimConfig
 from src.platform import PlatformProtocol

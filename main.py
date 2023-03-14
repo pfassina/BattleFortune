@@ -14,9 +14,6 @@ def main() -> None:
     dname = os.path.dirname(abspath)
     os.chdir(dname)
 
-    if has_instance():
-        return
-
     gui.start()
 
 
