@@ -97,7 +97,7 @@ class TurnRobot:
         self.go_to_province()
 
         # terminate process
-        os.kill(self.process_id, signal.SIGTERM)
+        self.platform.kill_process(self.process_id)
 
         # move log to round folder
         self.config.move_log(self.simulation_round)

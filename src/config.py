@@ -46,7 +46,7 @@ class SimConfig:
 
         copy = os.path.join("logs", f"{self.game_name}_{turn}")
         shutil.copy(src, copy)
-        shutil.move(src, dst)
+        shutil.copy(src, dst)
 
 
 def generate_config_file() -> None:

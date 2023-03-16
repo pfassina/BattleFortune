@@ -1,5 +1,5 @@
 import win32gui
-
+from psutil import process_iter
 
 class Windows:
     def run_command(self, sim_name: str, host_game: bool) -> list[str]:
@@ -18,3 +18,11 @@ class Windows:
         x, y = win32gui.ClientToScreen(hwnd, (0, 0))
 
         return x, y
+
+    def kill_process(self, pid: int) -> None:
+        for p in process_iter():
+            if p.pid == pid:
+                p.kill()
+            if p.name() == "Dominions5.exe":
+                p.kill()
+        

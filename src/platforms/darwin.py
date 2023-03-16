@@ -1,4 +1,6 @@
 import Quartz
+import os
+import signal
 
 
 class Darwin:
@@ -22,3 +24,6 @@ class Darwin:
         window = dom_5.get("kCGWindowBounds")
 
         return window["X"], window["Y"]
+
+    def kill_process(self, pid: int) -> None:
+        os.kill(pid, signal.SIGTERM)

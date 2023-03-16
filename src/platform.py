@@ -15,6 +15,8 @@ class PlatformProtocol(Protocol):
     def get_app_window(self) -> tuple[int, int]:
         ...
 
+    def kill_process(self, pid: int) -> None:
+        ...
 
 def get_platform() -> PlatformProtocol:
     if sys.platform == OS.DARWIN:
