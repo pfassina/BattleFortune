@@ -7,8 +7,7 @@ import yaml
 from PIL import Image, ImageTk
 
 from src import battlefortune as bf
-from src import config
-from src.config import SimConfig
+from src.config import CONFIG
 
 
 class ImageViewer(tk.LabelFrame):
@@ -62,7 +61,7 @@ class ImageViewer(tk.LabelFrame):
 
 
 class Form(tk.LabelFrame):
-    def __init__(self, master, image_viewer):
+    def __init__(self, master, image_viewer) -> None:
         super().__init__(master, text="BattleFortune", padx=10, pady=10)
         super().columnconfigure(1, weight=1)
 
@@ -120,42 +119,33 @@ class Form(tk.LabelFrame):
         return filedialog.askdirectory()
 
     def get_config(self) -> None:
-        config_path = os.path.join("data", "config.yaml")
-        with open(config_path, "r") as file:
-            sim_config = yaml.load(stream=file, Loader=yaml.Loader)
-
-        if not isinstance(sim_config, SimConfig):
-            logging.info("no previous config detected")
-            set_text(self.dx_entry, str(sim_config["banner_x"]))
-            set_text(self.dy_entry, str(sim_config["banner_y"]))
-            return
-
         logging.info("previous config file detected. restoring coinfig.")
-        set_text(self.dp_entry, sim_config.dominions_path)
-        set_text(self.gp_entry, sim_config.game_dir)
-        set_text(self.gn_entry, sim_config.game_name)
-        set_text(self.pn_entry, str(sim_config.province))
-        set_text(self.sr_entry, str(sim_config.simulations))
-        set_text(self.dx_entry, str(sim_config.banner_x))
-        set_text(self.dy_entry, str(sim_config.banner_y))
+        set_text(self.dp_entry, CONFIG.data.dominions_path)
+        set_text(self.gp_entry, CONFIG.data.game_dir)
+        set_text(self.gn_entry, CONFIG.data.game_name)
+        set_text(self.pn_entry, str(CONFIG.data.province))
+        set_text(self.sr_entry, str(CONFIG.data.simulations))
+        set_text(self.dx_entry, str(CONFIG.data.banner_x))
+        set_text(self.dy_entry, str(CONFIG.data.banner_y))
 
     def simulate(self) -> None:
-        sim_config = SimConfig(
-            self.dp_entry.get(),
-            self.gp_entry.get(),
-            self.gn_entry.get(),
-            int(self.pn_entry.get()),
-            int(self.sr_entry.get()),
-            int(self.dx_entry.get()),
-            int(self.dy_entry.get()),
-        )
+        new_config = {
+            "dominions_path": self.dp_entry.get(),
+            "game_dir": self.gp_entry.get(),
+            "game_name": self.gn_entry.get(),
+            "province": int(self.pn_entry.get()),
+            "simulations": int(self.sr_entry.get()),
+            "banner_x": int(self.dx_entry.get()),
+            "banner_y": int(self.dy_entry.get()),
+        }
 
         config_path = os.path.join("data", "config.yaml")
         with open(config_path, "w") as file:
-            yaml.dump(sim_config, file)
+            yaml.dump(new_config, file)
             logging.info("config file updated")
 
-        bf.start(sim_config)
+        CONFIG.update_data()
+        bf.start()
 
         image_files = [
             os.path.join("img", img)
@@ -186,8 +176,5 @@ def set_text(entry: tk.Entry, text: str) -> None:
 
 
 def start() -> None:
-    config.generate_config_file()
-    logging.info("config file generated")
-
     app = Application()
     app.mainloop()

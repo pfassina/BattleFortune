@@ -1,20 +1,20 @@
-from src import calculate, read, visualize, run
-from src.config import SimConfig
+from src import calculate, read, run, visualize
+from src.config import CONFIG
 
 
-def start(config: SimConfig) -> None:
+def start() -> None:
     """
     Runs BattleFortune, simulate battles, and return results.
     """
 
     # PREPARE
-    config.clone_game_files()
+    CONFIG.clone_game_files()
 
     # SIMULATE
-    turns = run.simulation(config)
+    turns = run.simulation()
 
     # LOG
-    logs = read.combine_logs(config, turns)
+    logs = read.combine_logs(turns)
 
     # CALCULATE
     results = calculate.results(logs)
@@ -23,4 +23,4 @@ def start(config: SimConfig) -> None:
     visualize.charts(results)
 
     # CLEAN
-    config.remove_cloned_files()
+    CONFIG.remove_cloned_files()

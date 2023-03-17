@@ -1,13 +1,14 @@
 import logging
 import os
 import shutil
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional, Self
 
 import yaml
 
 
 @dataclass
-class SimConfig:
+class ConfigData:
     dominions_path: str
     game_dir: str
     game_name: str
@@ -27,46 +28,75 @@ class SimConfig:
     def simulation_path(self, turn: int) -> str:
         return f"{self.game_path}_{turn}"
 
+
+@dataclass
+class Configuration:
+    _config_data: Optional[ConfigData] = field(default=None)
+    _instance = None
+
+    def __new__(cls, *args, **kwargs) -> Self:
+        _, _ = args, kwargs
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __post_init__(self) -> None:
+        config_path = os.path.join("data", "config.yaml")
+        if not os.path.exists(config_path):
+            generate_config_file(config_path)
+        self.update_data()
+
+    @property
+    def data(self) -> ConfigData:
+        assert self._config_data
+        return self._config_data
+
+    def update_data(self) -> None:
+        config_path = os.path.join("data", "config.yaml")
+        if not os.path.exists(config_path):
+            raise FileNotFoundError
+        with open(config_path, "r") as file:
+            config_dict = yaml.safe_load(file)
+            self._config_data = ConfigData(**config_dict)
+
     def clone_game_files(self) -> None:
         logging.info("cloning game files")
-        for turn in self.simulation_turns:
-            if os.path.exists(self.simulation_path(turn)):
+        for turn in self.data.simulation_turns:
+            if os.path.exists(self.data.simulation_path(turn)):
                 logging.info("previous simulation files detected. removing old files.")
-                shutil.rmtree(self.simulation_path(turn))
+                shutil.rmtree(self.data.simulation_path(turn))
             logging.info(f"creating files for simulation {turn}")
-            shutil.copytree(self.game_path, self.simulation_path(turn))
+            shutil.copytree(self.data.game_path, self.data.simulation_path(turn))
 
     def remove_cloned_files(self) -> None:
-        for turn in self.simulation_turns:
-            shutil.rmtree(self.simulation_path(turn))
+        for turn in self.data.simulation_turns:
+            shutil.rmtree(self.data.simulation_path(turn))
 
-    def move_log(self, turn) -> None:
-        src = os.path.join(self.dominions_path, "log.txt")
-        dst = os.path.join(self.simulation_path(turn), "log.txt")
-
-        copy = os.path.join("logs", f"{self.game_name}_{turn}")
-        shutil.copy(src, copy)
+    def move_log(self, turn: int, save_log: bool = False) -> None:
+        src = os.path.join(self.data.dominions_path, "log.txt")
+        dst = os.path.join(self.data.simulation_path(turn), "log.txt")
         shutil.copy(src, dst)
 
+        if save_log:
+            copy = os.path.join("logs", f"{self.data.game_name}_{turn}.log")
+            shutil.copy(src, copy)
 
-def generate_config_file() -> None:
-    directories = ["data", "logs", "img", "csv"]
-    for dir in directories:
-        if os.path.exists(dir):
-            continue
-        os.mkdir(dir)
 
-    config_path = os.path.join("data", "config.yaml")
-    if not os.path.exists(config_path):
-        config = {
-            "dominions_path": None,
-            "game_path": None,
-            "game_name": None,
-            "province": None,
-            "simulations": None,
-            "banner_x": 400,
-            "banner_y": 310,
-        }
+def generate_config_file(config_path: str) -> None:
+    logging.info(f"creating new config file at {config_path}")
+    config = {
+        "dominions_path": None,
+        "game_path": None,
+        "game_name": None,
+        "province": None,
+        "simulations": None,
+        "banner_x": 400,
+        "banner_y": 310,
+    }
 
-        with open(config_path, "w") as file:
-            yaml.dump(config, file)
+    print(os.path.abspath(os.curdir))
+    with open(config_path, "w") as file:
+        yaml.dump(config, file)
+
+
+CONFIG = Configuration()

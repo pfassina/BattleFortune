@@ -1,13 +1,12 @@
 import logging
 import os
-import signal
 from dataclasses import dataclass
 from time import sleep
 
 import keyboard
 import pyautogui
 
-from src.config import SimConfig
+from src.config import CONFIG
 from src.platform import PlatformProtocol
 
 
@@ -24,26 +23,25 @@ class AppWindow:
 
 @dataclass
 class TurnRobot:
-    config: SimConfig
     platform: PlatformProtocol
     simulation_round: int
     process_id: int
 
     @property
     def log_path(self) -> str:
-        return os.path.join(self.config.dominions_path, "log.txt")
+        return os.path.join(CONFIG.data.dominions_path, "log.txt")
 
     @property
     def dx(self) -> int:
-        return self.config.banner_x
+        return CONFIG.data.banner_x
 
     @property
     def dy(self) -> int:
-        return self.config.banner_y
+        return CONFIG.data.banner_y
 
     @property
     def province(self) -> str:
-        return str(self.config.province)
+        return str(CONFIG.data.province)
 
     def get_app_window(self) -> AppWindow:
         logging.info("looking for dom5 window")
@@ -87,7 +85,8 @@ class TurnRobot:
         keyboard.press_and_release("c")  # view results
         keyboard.press_and_release("esc")  # back to map
         keyboard.press_and_release("d")  # try to add PD
-        sleep(0.1)
+        while not self.check_log("getfatherland"):
+            sleep(0.1)
 
     def process_turn(self) -> None:
         # select first nation
@@ -100,4 +99,4 @@ class TurnRobot:
         self.platform.kill_process(self.process_id)
 
         # move log to round folder
-        self.config.move_log(self.simulation_round)
+        CONFIG.move_log(self.simulation_round)

@@ -4,7 +4,7 @@ from enum import Enum
 
 import yaml
 
-from src.config import SimConfig
+from src.config import CONFIG
 from src.decode import Nation, Unit
 
 
@@ -147,8 +147,8 @@ class ParsedLogs:
             for nation in self.nations.values()
         }
 
-    def dump_to_yaml(self, game_name: str) -> None:
-        log_path = os.path.join("logs", game_name)
+    def dump_to_yaml(self) -> None:
+        log_path = os.path.join("logs", CONFIG.data.game_name)
         if not os.path.exists(log_path):
             os.makedirs(log_path)
 
@@ -183,12 +183,11 @@ class ParsedLogs:
 
 @dataclass
 class Parser:
-    config: SimConfig
     turns: list[int]
 
     def parse_log(self, turn: int) -> Log:
         # get battle log
-        log_path = os.path.join(self.config.simulation_path(turn), "log.txt")
+        log_path = os.path.join(CONFIG.data.simulation_path(turn), "log.txt")
         with open(log_path, mode="r") as file:
             log = file.read()
 
@@ -259,9 +258,9 @@ class Parser:
         return log[start : end - 1].split("\n")[1:]
 
 
-def combine_logs(config: SimConfig, turns: list[int]) -> ParsedLogs:
-    parser = Parser(config, turns)
+def combine_logs(turns: list[int]) -> ParsedLogs:
+    parser = Parser(turns)
     parsed_logs = parser.parsed_logs
-    parsed_logs.dump_to_yaml(config.game_name)
+    parsed_logs.dump_to_yaml()
 
     return parsed_logs
