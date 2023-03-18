@@ -17,7 +17,7 @@ class Windows:
 
         x, y = win32gui.ClientToScreen(hwnd, (0, 0))
 
-        return x, y
+        return x, y - 27
 
     def kill_process(self, pid: int) -> None:
         for p in process_iter():
@@ -25,4 +25,3 @@ class Windows:
                 p.kill()
             if p.name() == "Dominions5.exe":
                 p.kill()
-        
