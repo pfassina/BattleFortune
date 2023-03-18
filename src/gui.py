@@ -60,7 +60,7 @@ class ImageViewer(tk.LabelFrame):
             self.show_image()
 
 
-class Form(tk.LabelFrame):
+class SimulationForm(tk.LabelFrame):
     def __init__(self, master, image_viewer) -> None:
         super().__init__(master, text="BattleFortune", padx=10, pady=10)
         super().columnconfigure(1, weight=1)
@@ -70,21 +70,21 @@ class Form(tk.LabelFrame):
         self.image_viewer: ImageViewer = image_viewer
 
         self.dp_label = tk.Label(self, text="Dominions Path: ")
-        self.dp_entry = tk.Entry(self)  # , width=60)
+        self.dp_entry = tk.Entry(self)
         self.dp_button = tk.Button(self, text="select", command=self.get_dir)
 
         self.gp_label = tk.Label(self, text="Saved Games Path: ")
-        self.gp_entry = tk.Entry(self)  # , width=60)
+        self.gp_entry = tk.Entry(self)
         self.gp_button = tk.Button(self, text="select", command=self.get_dir)
 
         self.gn_label = tk.Label(self, text="Game Name: ")
-        self.gn_entry = tk.Entry(self)  # , width=25)
+        self.gn_entry = tk.Entry(self)
 
         self.pn_label = tk.Label(self, text="Province: ")
-        self.pn_entry = tk.Entry(self)  # , width=10)
+        self.pn_entry = tk.Entry(self)
 
         self.sr_label = tk.Label(self, text="Rounds: ")
-        self.sr_entry = tk.Entry(self)  # , width=10)
+        self.sr_entry = tk.Entry(self)
 
         self.dx_entry = tk.Entry(self)
         self.dy_entry = tk.Entry(self)
@@ -119,14 +119,13 @@ class Form(tk.LabelFrame):
         return filedialog.askdirectory()
 
     def get_config(self) -> None:
-        logging.info("previous config file detected. restoring coinfig.")
-        set_text(self.dp_entry, CONFIG.data.dominions_path)
-        set_text(self.gp_entry, CONFIG.data.game_dir)
-        set_text(self.gn_entry, CONFIG.data.game_name)
-        set_text(self.pn_entry, str(CONFIG.data.province))
-        set_text(self.sr_entry, str(CONFIG.data.simulations))
-        set_text(self.dx_entry, str(CONFIG.data.banner_x))
-        set_text(self.dy_entry, str(CONFIG.data.banner_y))
+        _set_text(self.dp_entry, CONFIG.data.dominions_path)
+        _set_text(self.gp_entry, CONFIG.data.game_dir)
+        _set_text(self.gn_entry, CONFIG.data.game_name)
+        _set_text(self.pn_entry, str(CONFIG.data.province))
+        _set_text(self.sr_entry, str(CONFIG.data.simulations))
+        _set_text(self.dx_entry, str(CONFIG.data.banner_x))
+        _set_text(self.dy_entry, str(CONFIG.data.banner_y))
 
     def simulate(self) -> None:
         new_config = {
@@ -157,20 +156,20 @@ class Form(tk.LabelFrame):
 
 
 class Application(tk.Tk):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         super().columnconfigure(0, weight=0)
         super().rowconfigure(1, weight=0)
 
         self.title("BattleFortune")
-        self.image_viewer = ImageViewer(self)
-        self.form = Form(self, self.image_viewer)
+        self.image_viewer: ImageViewer = ImageViewer(self)
+        self.simulation_form: SimulationForm = SimulationForm(self, self.image_viewer)
 
-        self.form.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
+        self.simulation_form.grid(row=0, column=0, padx=5, pady=5, sticky=tk.NSEW)
         self.image_viewer.grid(row=1, column=0, padx=5, pady=5, sticky=tk.NSEW)
 
 
-def set_text(entry: tk.Entry, text: str) -> None:
+def _set_text(entry: tk.Entry, text: str) -> None:
     entry.delete(0, tk.END)
     entry.insert(0, text)
 

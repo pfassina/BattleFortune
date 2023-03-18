@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 from dataclasses import dataclass
 from time import sleep
 
@@ -88,6 +89,15 @@ class TurnRobot:
         while not self.check_log("getfatherland"):
             sleep(0.1)
 
+    def move_log(self, turn: int, save_log: bool = False) -> None:
+        src = os.path.join(CONFIG.data.dominions_path, "log.txt")
+        dst = os.path.join(CONFIG.data.simulation_path(turn), "log.txt")
+        shutil.copy(src, dst)
+
+        if save_log:
+            copy = os.path.join("logs", f"{CONFIG.data.game_name}_{turn}.log")
+            shutil.copy(src, copy)
+
     def process_turn(self) -> None:
         # select first nation
         self.select_nation()
@@ -99,4 +109,4 @@ class TurnRobot:
         self.platform.kill_process(self.process_id)
 
         # move log to round folder
-        CONFIG.move_log(self.simulation_round)
+        self.move_log(self.simulation_round)

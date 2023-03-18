@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 from dataclasses import dataclass, field
 from typing import Optional, Self
 
@@ -59,44 +58,21 @@ class Configuration:
             config_dict = yaml.safe_load(file)
             self._config_data = ConfigData(**config_dict)
 
-    def clone_game_files(self) -> None:
-        logging.info("cloning game files")
-        for turn in self.data.simulation_turns:
-            if os.path.exists(self.data.simulation_path(turn)):
-                logging.info("previous simulation files detected. removing old files.")
-                shutil.rmtree(self.data.simulation_path(turn))
-            logging.info(f"creating files for simulation {turn}")
-            shutil.copytree(self.data.game_path, self.data.simulation_path(turn))
-
-    def remove_cloned_files(self) -> None:
-        for turn in self.data.simulation_turns:
-            shutil.rmtree(self.data.simulation_path(turn))
-
-    def move_log(self, turn: int, save_log: bool = False) -> None:
-        src = os.path.join(self.data.dominions_path, "log.txt")
-        dst = os.path.join(self.data.simulation_path(turn), "log.txt")
-        shutil.copy(src, dst)
-
-        if save_log:
-            copy = os.path.join("logs", f"{self.data.game_name}_{turn}.log")
-            shutil.copy(src, copy)
-
 
 def generate_config_file(config_path: str) -> None:
     logging.info(f"creating new config file at {config_path}")
     config = {
-        "dominions_path": None,
-        "game_path": None,
-        "game_name": None,
-        "province": None,
-        "simulations": None,
+        "dominions_path": "",
+        "game_dir": "",
+        "game_name": "",
+        "province": "",
+        "simulations": "",
         "banner_x": 400,
         "banner_y": 310,
     }
 
-    print(os.path.abspath(os.curdir))
     with open(config_path, "w") as file:
         yaml.dump(config, file)
 
 
-CONFIG = Configuration()
+CONFIG: Configuration = Configuration()

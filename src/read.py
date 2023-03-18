@@ -32,6 +32,9 @@ class BattleEntry:
     count: int
 
 
+BattleResults = dict[Nation, dict[Unit, dict[Phase, int]]]
+
+
 @dataclass
 class BattleLog:
     entries: list[BattleEntry]
@@ -54,7 +57,7 @@ class BattleLog:
         )
 
     @property
-    def results(self) -> dict[Nation, dict[Unit, dict[Phase, int]]]:
+    def results(self) -> BattleResults:
         return {
             nation: {
                 unit: {

@@ -1,13 +1,7 @@
 import logging
 import os
 
-import psutil
-
 from src import gui, observer
-
-
-def has_instance() -> bool:
-    return "BattleFortune" in [p.info["name"] for p in psutil.process_iter(["name"])]  # type: ignore
 
 
 def set_cwd() -> None:
@@ -39,13 +33,13 @@ def set_observer() -> None:
 
 
 def main() -> None:
+    # initial project structure
     set_cwd()
     set_logging()
     set_dir_structure()
     # set_observer()
-    logging.info("config file generated")
-    logging.info("starting gui application")
 
+    logging.info("starting gui application")
     gui.start()
 
 
