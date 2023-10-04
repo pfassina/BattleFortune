@@ -14,7 +14,7 @@ pandas = "^1.5.3"
 keyboard = "^0.13.5"
 pyautogui = "^0.9.53"
 seaborn = "^0.12.2"
-pillow = "^9.4.0"
+pillow = "^10.0.1"
 psutil = "^5.9.4"
 pyobjc-framework-quartz = {version = "^9.0.1", platform = "darwin"}
 pywin32 = {version = "^305", platform = "win32"}
